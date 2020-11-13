@@ -1,0 +1,35 @@
+
+.ant-btn-primary {
+    color: #fff;
+    background-color: #006ABF;
+    border-color: #006ABF;
+  }
+
+.ant-btn-primary:hover {
+    color: #fff;
+    background-color: #004073;
+    border-color: #004073;
+}
+
+
+/* Permission CSS Start*/
+
+.p_admin_none .p_admin {
+  display: none !important;
+}
+
+.p_company_none .p_company {
+  display: none;
+}
+
+.custom-btn {
+  font-weight: 400;
+  height: 40px;
+  border: 1px solid #5A5A5A;
+  color: #2B2B2B;
+}
+
+.custom-btn:hover {
+  color: #FFFFFF;
+  background-color: #3B3B3B;
+}
