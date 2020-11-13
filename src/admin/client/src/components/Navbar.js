@@ -5,6 +5,7 @@ import {
 import 'antd/dist/antd.css';
 import logo from '../assets/Logo_White.png';
 import _ from 'lodash';
+import { Link } from 'react-router-dom'
 
 const { Header } = Layout;
 
@@ -13,7 +14,7 @@ const Navbar = (props) => {
     <Header style={styles.container}>
       <Row justify="space-between" align="middle" style={styles.row}>
         <Col>
-          <img style={{ maxHeight: 40, height: 40, cursor: 'pointer' }} src={logo} alt="" />
+          <img style={{ maxHeight: 40, height: 40, cursor: 'pointer' }} src={logo} alt="" className="nav-logo" />
         </Col>
         <Col>
           <Menu
@@ -26,7 +27,7 @@ const Navbar = (props) => {
             </Menu.Item>
             <Menu.Item
             >
-              Logout
+              <Link to="/admin/login">Logout</Link>
             </Menu.Item>
           </Menu>
         </Col>
