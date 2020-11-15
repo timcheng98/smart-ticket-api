@@ -17,6 +17,9 @@
 }
 
 /* Permission CSS Start*/
+.responsive-text {
+  font-size: calc(0.8em + 1vw);
+}
 
 .p_admin_none .p_admin {
   display: none !important;

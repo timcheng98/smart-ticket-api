@@ -162,12 +162,12 @@ const saveAllFiles = (_opts) => {
       if (!req.files) {
         return next();
       }
-      const { user_id } = req.user;
+      const { user_id, admin_id } = req.user;
       const { scope } = req.body;
       const promises = [];
       _.each(req.files, (fileArr) => {
         promises.push(
-          saveMediaHandler({ user_id, scope, fileArr })
+          saveMediaHandler({ admin_id, user_id, scope, fileArr })
         )
       });
       await Promise.all(promises);
@@ -178,7 +178,7 @@ const saveAllFiles = (_opts) => {
   }
 }
 
-const saveMediaHandler = async ({ user_id, scope, fileArr }) => {
+const saveMediaHandler = async ({ admin_id, user_id, scope, fileArr }) => {
   const [file] = fileArr;
   const {
     originalname,
@@ -188,6 +188,8 @@ const saveMediaHandler = async ({ user_id, scope, fileArr }) => {
     path: filepath,
     size,
   } = file;
+  if (!user_id) user_id = 0;
+  if (!admin_id) admin_id = 0;
   await model.media.insertUpload({
     is_active: 1,
     filename,
@@ -197,6 +199,7 @@ const saveMediaHandler = async ({ user_id, scope, fileArr }) => {
     originalname,
     checksum: '',
     user_id,
+    admin_id
   });
   await fsPromises.rename(
     filepath,

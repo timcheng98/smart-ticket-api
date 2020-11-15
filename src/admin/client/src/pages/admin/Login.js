@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
-import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Col, Content, Input, Layout, Row, Select, Tabs, message, Form } from 'antd';
+import React, { useEffect } from 'react';
+import { Button, Col, Input, Layout, Row, message, Form } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuth, setAdmin } from '../../redux/actions/common'
 import * as Service from '../../core/Service';
@@ -11,23 +10,28 @@ import { useHistory, Link } from 'react-router-dom';
 
 const Login = () => {
     const [form] = Form.useForm();
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const history = useHistory();
-    // const config = useSelector(state => state.app.config);
-    // console.log('Config>>>', config);
-    const onFinish =  async (formData) => {
-      // let {email, password} = formData;
-      // let data = await Service.call('post', `/api/login/admin`, {
-      //   email, password
-      // });
-      // if (data.errorMessage) return message.error(data.errorMessage);
-      
-      // let adminData = await Service.call('get', `/api/admin`);
-      // if (adminData.errorMessage) return dispatch(setAuth(false));
-      // if (_.isEmpty(adminData.userData)) return dispatch(setAuth(false));
+    const config = useSelector(state => state.app.config);
+    const auth = useSelector(state => state.app.auth);
+    
+    useEffect(() => {
+      if (auth) history.push('/admin/home');
+    }, [auth]);
 
-      // dispatch(setAdmin(adminData.userData[0]));
-      // dispatch(setAuth(true));
+    const onFinish =  async (formData) => {
+      let {email, password} = formData;
+      let data = await Service.call('post', `/api/login/admin`, {
+        email, password
+      });
+      if (data.errorMessage) return message.error(data.errorMessage);
+      
+      let adminData = await Service.call('get', `/api/admin`);
+      if (adminData.errorMessage) return dispatch(setAuth(false));
+      if (_.isEmpty(adminData.userData)) return dispatch(setAuth(false));
+      console.log(adminData)
+      dispatch(setAdmin(adminData.userData[0]));
+      dispatch(setAuth(true));
       history.push('/admin/home')
     }
 

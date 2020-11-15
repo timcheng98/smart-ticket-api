@@ -16,6 +16,9 @@ export async function call(_method, _endpoint, _data) {
     let {
       status, errorCode, errorMessage, result
     } = respData;
+    
+    console.log(`%c${_method.toUpperCase()} ${_endpoint} >>> `, 'background: #222; color: #bada55; font-size: 13px; font-weight: normall',
+    respData);
 
     // console.log(`respData >> `, respData);
 

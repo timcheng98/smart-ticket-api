@@ -54,6 +54,15 @@ const dataList = [
     className: ['p_company'],
     privilege: 'admin'
   },
+  {
+    key: 'company_kyc',
+    title: 'Company Kyc',
+    path: '/admin/company/kyc',
+    icon: <BankOutlined />,
+    display: 'block',
+    className: ['p_company'],
+    privilege: 'admin'
+  },
 ]
 
 const adminRoutes = [

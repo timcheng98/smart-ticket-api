@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import {
   Layout, Menu, Avatar, Row, Col
 } from 'antd';
-import 'antd/dist/antd.css';
 import logo from '../assets/Logo_White.png';
 import _ from 'lodash';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import * as Service from '../core/Service';
+import { useSelector } from 'react-redux';
+
 
 const { Header } = Layout;
 
 const Navbar = (props) => {
+  const app = useSelector(state => state.app)
   return (
     <Header style={styles.container}>
       <Row justify="space-between" align="middle" style={styles.row}>
@@ -23,9 +26,10 @@ const Navbar = (props) => {
             style={styles.menu}
           >
             <Menu.Item>
-              <Avatar>TEST</Avatar>
+              <Avatar>{app?.admin?.first_name[0]?.toUpperCase()}</Avatar>
             </Menu.Item>
             <Menu.Item
+              onClick={async () => Service.logout()}
             >
               <Link to="/admin/login">Logout</Link>
             </Menu.Item>

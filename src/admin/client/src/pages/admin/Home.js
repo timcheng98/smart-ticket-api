@@ -1,17 +1,9 @@
-import React, { Component, useEffect, useState } from 'react';
-import { Form } from '@ant-design/compatible';
+import React, { useEffect, useState } from 'react';
 import '@ant-design/compatible/assets/index.css';
 import { Layout, Menu, Row, Col, Card, Spin } from 'antd';
-import 'antd/dist/antd.css';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { ActionCreators } from '../../redux/actions';
-import * as Service from '../../core/Service';
-import Sidebar from '../../components/Sidebar';
-import Navbar from '../../components/Navbar';
 import AppLayout from '../../components/AppLayout';
 import _ from 'lodash';
 import moment from 'moment';

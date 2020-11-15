@@ -106,7 +106,7 @@ exports.getControllerPasscodeUpdate = async (controller_device_id, updateTime) =
   return db.query(sql, params);
 };
 
-const PASSCODE_ENCRYPTION_KEY = config.get('PASSCODE_ENCRYPTION_KEY');
+const PASSCODE_ENCRYPTION_KEY = '';
 
 const convert = (from, to) => (str) => Buffer.from(str, from).toString(to);
 const utf8ToHex = convert('utf8', 'hex');

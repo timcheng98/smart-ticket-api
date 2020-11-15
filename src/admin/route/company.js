@@ -13,6 +13,7 @@ const moment = require('moment');
 const company_user = require('../../model/company/user');
 const company = require('../../model/company/company');
 const company_admin = require('../../model/company/admin');
+const kyc = require('../../model/company/kyc');
 const controllerModel = require('../../model/controller');
 const controller = require('./controller');
 const admin = require('../../model/company/admin');
@@ -30,66 +31,123 @@ module.exports = exports = {
     router.use('/api/company', middleware.session.authorize());
 
     /* Company Route */
-    router.get('/api/company/list', getCompanyList);
-    router.post('/api/company', postCompany);
-    router.patch('/api/company', patchCompany);
-    router.patch('/api/company/status', patchCompnayStatus);
+    // router.get('/api/company/list', getCompanyList);
+    // router.post('/api/company', postCompany);
+    // router.patch('/api/company', patchCompany);
+    // router.patch('/api/company/status', patchCompnayStatus);
 
     /* Company Admin */
-    router.get('/api/company/admin/list', getCompanyAdminList);
-    router.get('/api/company/admin/:company_id', getCompanyAdminByCompanyId);
-    router.patch('/api/company/admin/pw', patchCompanyAdminPassword);
-    router.post('/api/post/company/admin', postCompanyAdmin);
-    router.patch('/api/patch/company/admin', patchCompanyAdmin);
-    router.patch('/api/patch/company/admin/status', patchCompanyAdminStatus);
+    // router.get('/api/company/admin/list', getCompanyAdminList);
+    // router.get('/api/company/admin/:company_id', getCompanyAdminByCompanyId);
+    // router.patch('/api/company/admin/pw', patchCompanyAdminPassword);
+    // router.post('/api/post/company/admin', postCompanyAdmin);
+    // router.patch('/api/patch/company/admin', patchCompanyAdmin);
+    // router.patch('/api/patch/company/admin/status', patchCompanyAdminStatus);
 
+    /* Company Admin KYC */
+    router.get('/api/company/admin/kyc', getKycList);
+    router.get('/api/company/admin/kyc/single', getKycById);
+    router.post('/api/company/admin/kyc', postKyc);
+    router.patch('/api/company/admin/kyc', patchKyc);
+    // router.patch('/api/patch/company/admin/status', patchCompanyAdminStatus);
+    
     /* User Route */
-    router.get('/api/company/user', getCompanyUserList);
-    router.get('/api/company/user/by/:company_id', getCompanyUserByCompanyId);
-    router.get('/api/company/user/by/user/:company_user_id', getCompanyUserByCompanyUserId);
-    router.post('/api/company/user', postCompanyUser);
-    router.patch('/api/company/user', patchCompanyUser);
-    router.patch('/api/company/user/pw',patchCompanyUserPassword);
-    router.patch('/api/company/user/status', patchCompanyUserStatus);
-
-    /* User Access Log */
-    router.get('/api/company/user/access_log/:company_user_id', getCompanyUserAccessLog);
-    router.get('/api/company/user/access_log/specific/:controller_access_log_id',getCompanyUserAccessLogSpecific);
-    router.get('/api/admin/company/user/access/log', getCompanyUserAccessLogByDate);
-    router.get('/api/admin/company/user/access/log/:company_id',getCompanyUserAccessLogByCompanyDate);
-
-    /* Company Door Route */
-    router.get('/api/company/door', getCompanyDoor);
-    router.get('/api/company/door/:company_id', getCompanyDoorById);
-    router.post('/api/company/door', postCompanyDoor);
-    router.patch('/api/company/door', patchCompanyDoor);
-    router.patch('/api/company/door/status', patchCompanyDoorStatus);
-
-    /* User Door Route */
-    router.get('/api/company/user/door/:company_user_id', getCompanyUserDoor);
-    router.get('/api/company/user/door_passcode/:passcode', getCompanyUserDoorByPasscode);
-    router.get('/api/company/user/door_qrcode/:company_user_id', getCompanyUserDoorQRCode);
-    router.get('/api/company/user/door_qrcode_passcode/:passcode', getCompanyUserDoorQRCodeByPasscode);
-    router.post('/api/company/user/door_qrcode', postCompanyUserDoorQRCode);
-    router.patch('/api/company/user/door', patchCompanyUserDoor);
-    router.patch('/api/company/user/door/status', patchCompanyUserDoorStatus)
-    router.patch('/api/company/user/door_qrcode', patchCompanyUserDoorQRCode);
-    router.patch('/api/company/user/door_qrcode/status', patchCompanyUserDoorQRCodeStatus)
-
-    /*Company User RFID */
-    router.get('/api/company/user/rfid/:company_user_id', getCompanyUserRFID);
-    router.get('/api/company/user/rfidspecific/passcode/:passcode', getComapnyUserRFIDByPasscode);
-    router.patch('/api/company/user/rfid/status', patchCompanyUserRFIDStatus);
-    router.put('/api/company/user/rfid/delete', deleteCompanyUserRFIDStatus);
-    router.post('/api/company/user/rfid/post', postCompanyUserRFID);
+    // router.get('/api/company/user', getCompanyUserList);
+    // router.get('/api/company/user/by/:company_id', getCompanyUserByCompanyId);
+    // router.get('/api/company/user/by/user/:company_user_id', getCompanyUserByCompanyUserId);
+    // router.post('/api/company/user', postCompanyUser);
+    // router.patch('/api/company/user', patchCompanyUser);
+    // router.patch('/api/company/user/pw',patchCompanyUserPassword);
+    // router.patch('/api/company/user/status', patchCompanyUserStatus);
 
     /* User Role Route */
-    router.get('/api/company/user_role', getCompanyUserRole);
-    router.get('/api/company/user_role/:company_id', getCompanyUserRoleById);
-    router.post('/api/company/user_role', postCompanyUserRole);
-    router.patch('/api/company/user_role', patchCompanyUserRole);
+    // router.get('/api/company/user_role', getCompanyUserRole);
+    // router.get('/api/company/user_role/:company_id', getCompanyUserRoleById);
+    // router.post('/api/company/user_role', postCompanyUserRole);
+    // router.patch('/api/company/user_role', patchCompanyUserRole);
   }
 };
+
+const getKycList = async (req, res) => {
+  try {
+    let result = await kyc.selectKyc({
+      all: true
+    });
+    res.apiResponse({
+      status: 1, result
+    })
+  } catch (error) {
+    res.apiError(error)
+  }
+} 
+
+const getKycById = async (req, res) => {
+  try {
+    let result = await kyc.selectKyc(req.user.admin_id);
+    res.apiResponse({
+      status: 1, result
+    })
+  } catch (error) {
+    res.apiError(error)
+  }
+} 
+
+const postKyc = async (req, res) => {
+  try {
+    let postData = {
+      admin_id: req.user.admin_id,
+      check_by: 0,
+      is_company_doc_verified: 0,
+      status: 1,
+      company_size: '',
+      company_code: '',
+      company_doc: '',
+      name: '',
+      description: '',
+      owner: '',
+      address: '',
+      industry: '',
+      found_date: moment().unix(),
+    }
+ 
+    postData = helper.validateFormData(req.body, postData);
+    let postObj = postData;
+    let result = await kyc.insertKyc(postObj);
+    res.apiResponse({
+      status: 1, result
+    })
+  } catch (error) {
+    res.apiError(error)
+  }
+}
+
+const patchKyc = async (req, res) => {
+  try {
+    const postData = {};
+
+    _.each(_.pick(req.body, [
+      'company_doc','description', 'owner', 'address', 'name', 'company_code', 'company_doc', 'company_size', 'industry'
+    ]), (val, key) => {
+      postData[key] = _.toString(val);
+    });
+
+    _.each(_.pick(req.body, [
+      'found_date'
+    ]), (val, key) => {
+      postData[key] = _.toInteger(moment(val).unix());
+    });
+ 
+    let postObj = postData;
+    let result = await kyc.updateKyc(req.user.admin_id, postObj);
+    res.apiResponse({
+      status: 1, result
+    })
+  } catch (error) {
+    res.apiError(error)
+  }
+}
+
+
 
 const getCompanyList = async (req, res) => {
   try {

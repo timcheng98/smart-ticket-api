@@ -29,7 +29,7 @@ module.exports = {
       "host": "127.0.0.1",
       "user": "root",
       "password": null,
-      "database": "smart_access_api_dev"
+      "database": "smart_ticket_api_dev"
     }
   },
   "AUTH": {
@@ -37,8 +37,8 @@ module.exports = {
     "PASSWORD": null
   },
   "EMAIL": {
-    "TO": "info@technine.io",
-    "FROM": "no-reply@technine.io"
+    "TO": "",
+    "FROM": ""
   },
   "SENDGRID_API_KEY": null,
   "TWILIO": {
@@ -48,13 +48,13 @@ module.exports = {
   },
   "FIREBASE": {
     "DATABASE_URL": "",
-    "SERVICE_ACCOUNT_FILE": __dirname + "/serviceAccountKey.json"
+    "SERVICE_ACCOUNT_FILE": __dirname + ""
   },
   "MEDIA": {
     "PUBLIC": path.join(__dirname, "..", "data/public"),
     "PRIVATE": path.join(__dirname, "..", "data/private"),
     "QRCODE": path.join(__dirname, "..", "data/private", "qrcode"), // store controller passcode QR Code
   },
-  "PASSCODE_ENCRYPTION_KEY": "D9DF7F6915624B21B0DA5341F0811438",
+  "PASSCODE_ENCRYPTION_KEY": "",
   "API_PASSCODE_EXPIRY_TIME": 15 * 60, // seconds
 };

@@ -63,7 +63,7 @@ const getAdmin = async (req, res) => {
 
     let userData = await model.admin.selectAccount({
       where: { admin_id },
-      fields: ['admin_id', 'is_active', 'username', 'nickname', 'level', 'email', 'is_active', 'admin_role', 'admin_photo', 'mobile']
+      // fields: ['admin_id', 'is_active', 'username', 'nickname', 'level', 'email', 'is_active', 'admin_role', 'admin_photo', 'mobile']
     });
 
     res.apiResponse({
