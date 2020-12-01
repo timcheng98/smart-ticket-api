@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Layout, Menu, Avatar, Row, Col
 } from 'antd';
+import { useDispatch } from 'react-redux';
+import * as CommonAction from '../redux/actions/common'
 import logo from '../assets/Logo_White.png';
 import _ from 'lodash';
 import { Link } from 'react-router-dom';
@@ -12,7 +14,18 @@ import { useSelector } from 'react-redux';
 const { Header } = Layout;
 
 const Navbar = (props) => {
-  const app = useSelector(state => state.app)
+  const app = useSelector(state => state.app);
+  const [name, setName] = useState('');
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (!_.isEmpty(app.admin)) {
+      setName(app.admin.first_name[0]?.toUpperCase());
+    }
+
+    if (!_.isEmpty(app.company_admin)) {
+      setName(app.company_admin.first_name[0].toUpperCase());
+    }
+  }, [app])
   return (
     <Header style={styles.container}>
       <Row justify="space-between" align="middle" style={styles.row}>
@@ -26,12 +39,19 @@ const Navbar = (props) => {
             style={styles.menu}
           >
             <Menu.Item>
-              <Avatar>{app?.admin?.first_name[0]?.toUpperCase()}</Avatar>
+              <Avatar>{name}</Avatar>
             </Menu.Item>
             <Menu.Item
-              onClick={async () => Service.logout()}
+              onClick={async () => {
+                dispatch(CommonAction.setAuth(false))
+                dispatch(CommonAction.setCompanyAdmin({}))
+                dispatch(CommonAction.setAdmin({}))
+                dispatch(CommonAction.setIsAdmin({admin_id: 0}))
+                Service.logout();
+                
+              }}
             >
-              <Link to="/admin/login">Logout</Link>
+            <Link to="/admin/login">Logout</Link>
             </Menu.Item>
           </Menu>
         </Col>

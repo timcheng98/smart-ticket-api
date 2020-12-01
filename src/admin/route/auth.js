@@ -102,7 +102,7 @@ const postLogin = async function (req, res) {
 
     resObj.result = {
       status: 1,
-      redirect: '/admin/home'
+      redirect: '/home'
     };
 
     res.json(resObj);

@@ -49,6 +49,7 @@ module.exports = exports = {
     router.get('/api/company/admin/kyc/single', getKycById);
     router.post('/api/company/admin/kyc', postKyc);
     router.patch('/api/company/admin/kyc', patchKyc);
+    router.patch('/api/company/admin/kyc/single', patchKycById);
     // router.patch('/api/patch/company/admin/status', patchCompanyAdminStatus);
     
     /* User Route */
@@ -126,9 +127,15 @@ const patchKyc = async (req, res) => {
     const postData = {};
 
     _.each(_.pick(req.body, [
-      'company_doc','description', 'owner', 'address', 'name', 'company_code', 'company_doc', 'company_size', 'industry'
+      'company_doc','description', 'owner', 'address', 'name', 'company_code', 'company_doc', 'company_size', 'industry', 'reject_reason'
     ]), (val, key) => {
       postData[key] = _.toString(val);
+    });
+
+    _.each(_.pick(req.body, [
+      'status', 'is_company_doc_verified'
+    ]), (val, key) => {
+      postData[key] = _.toInteger(val);
     });
 
     _.each(_.pick(req.body, [
@@ -139,6 +146,32 @@ const patchKyc = async (req, res) => {
  
     let postObj = postData;
     let result = await kyc.updateKyc(req.user.admin_id, postObj);
+    res.apiResponse({
+      status: 1, result
+    })
+  } catch (error) {
+    res.apiError(error)
+  }
+}
+
+const patchKycById = async (req, res) => {
+  try {
+    const postData = {};
+
+    _.each(_.pick(req.body, [
+      'reject_reason'
+    ]), (val, key) => {
+      postData[key] = _.toString(val);
+    });
+
+    _.each(_.pick(req.body, [
+      'is_company_doc_verified', 'admin_id'
+    ]), (val, key) => {
+      postData[key] = _.toInteger(val);
+    });
+ 
+    let postObj = postData;
+    let result = await kyc.updateKyc(postObj.admin_id, postObj);
     res.apiResponse({
       status: 1, result
     })

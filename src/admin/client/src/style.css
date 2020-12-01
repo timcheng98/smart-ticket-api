@@ -50,6 +50,17 @@
   border-bottom: 1px solid #d9d9d9 !important;
 }
 
+.doc_zoom {
+  display: none;
+  color: red 
+}
+
+.company_doc:hover.doc_zoom{
+  display: block;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+}
 
 .password .ant-input {
   border: none !important;

@@ -41,7 +41,9 @@ const styles = {
   },
   body: {
     backgroundColor: '#FFFFFF',
-    padding: 20
+    padding: 20,
+    // marginBottom: 80,
+    paddingBottom: 80
   }
 }
 

@@ -14,7 +14,7 @@
     "dev": "backpack",
     "dev:api": "WEBPACK_ENTRY=api npm run dev",
     "dev:admin": "WEBPACK_ENTRY=admin npm run dev",
-    "dev:client": "cd src/admin/client && npm start",
+    "dev:client": "cd src/admin/client && PORT=3002 npm start",
     "deploy:testing": "npm version patch && git push && git push --tags && git checkout testing && git pull && git merge develop && git push && git checkout develop",
     "release:master": "npm version patch && git push && git push --tags && git checkout master && git pull && git merge develop && git push && git checkout develop",
     "eslint": "eslint"

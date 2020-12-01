@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Avatar, Button, Divider, Form, Icon, Layout, Menu, Modal, Popconfirm, Table, Tag, Tooltip, Spin
+  Avatar, Button, Divider, Form, Icon, Layout, Menu, Modal, Popconfirm, Table, Tag, Tooltip, Spin, Descriptions, Badge, Image, Row, Col, Input
 } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 import moment from 'moment';
 import _ from 'lodash';
 import { useSelector } from 'react-redux';
-import * as Service from '../../core/Service';
-import * as Main from '../../core/Main';
-import AppLayout from '../../components/AppLayout';
-import ImageModal from '../../components/ImageModal';
-import { EditOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons';
+import * as Service from '../../../core/Service';
+import * as Main from '../../../core/Main';
+import AppLayout from '../../../components/AppLayout';
+import ImageModal from '../../../components/ImageModal';
+import { EditOutlined, StopOutlined, CheckOutlined, FileProtectOutlined, FileSearchOutlined, ZoomInOutlined } from '@ant-design/icons';
 
 
 const debug = require('debug')('app:admin:client:src:AdvertisementList');
@@ -30,7 +30,9 @@ const CompanyList = (props) => {
   const [modal, toggleModal] = useState({
     modalVisible: false,
     imageUrl: null
-  })
+  });
+
+  const [company, setCompany] = useState({})
   useEffect(() => {
     getAllData();
   }, []);
@@ -81,28 +83,20 @@ const CompanyList = (props) => {
           }
           return (
             <span>
-              <Button
-                shape="circle"
-                style={{ color: '#000000'}}
-                icon={<EditOutlined />}
-                onClick={() => {
-                  setModalVisible(true);
-                  setSelectedRecord(record);
+              <Link
+                to={{
+                  pathname: "/admin/company/kyc/info",
+                  state: {company: record}
                 }}
-              />
-              <Tooltip title={record.is_active ? 'Disable Company' : 'Enable Company' }>
-                 <Button
-                  shape="circle"
-                  style={{marginLeft: 8, color: record.is_active ? 'red' : 'green'}}
-                  icon={record.is_active ? (<StopOutlined />) : (<CheckOutlined />)}
-                  onClick={async () => {
-                    let { company_id , is_active } = record;
-                    await Service.call('patch', '/api/company/status', {company_id, is_active });
-                    getAllData();
-                  }}
-                />
-              </Tooltip>
-
+              >
+                <Tooltip title={record.is_company_doc_verified ? 'Verified' : 'Check verification' }>
+                  <Button
+                    shape="circle"
+                    style={{marginLeft: 8, color: record.is_company_doc_verified ? 'green' : 'black'}}
+                    icon={record.is_company_doc_verified ? (<FileProtectOutlined />) : (<FileSearchOutlined />)}
+                  />
+                </Tooltip>
+              </Link> 
             </span>
           )
         }
@@ -111,6 +105,12 @@ const CompanyList = (props) => {
         title: 'Check By',
         dataIndex: 'check_by',
         sorter: (a, b) => a.check_by.localeCompare(b.check_by)
+      },
+      {
+        title: 'Status',
+        dataIndex: 'is_company_doc_verified',
+        render: (value) => displayIsActive(value),
+        sorter: (a, b) => a.status - b.status
       },
       {
         title: 'Owner',
@@ -138,9 +138,7 @@ const CompanyList = (props) => {
         render: (value) => {
           const imageUrl = `${app.config.STATIC_SERVER_URL}/media/${value}`;
           return (
-            // <img src={imgURL} alt="" style={{maxWidth: '100px'}} />
             <Button
-              // className="custom-btn"
               type="primary"
               onClick={() => {
                 toggleModal({
@@ -155,29 +153,23 @@ const CompanyList = (props) => {
         },
       },
       {
-        title: 'Status',
-        dataIndex: 'status',
-        render: (value) => displayIsActive(value),
-        sorter: (a, b) => a.status - b.status
-      },
-      {
         title: 'Found Date',
         dataIndex: 'found_date',
         render: (value) => Main.momentFormat(value),
         sorter: (a, b) => a.found_date - b.found_date
       },
-      {
-        title: 'Create@',
-        dataIndex: 'ctime',
-        render: (value) => Main.momentFormat(value),
-        sorter: (a, b) => a.ctime - b.ctime
-      },
-      {
-        title: 'Update@',
-        dataIndex: 'utime',
-        render: (value) => Main.momentFormat(value),
-        sorter: (a, b) => a.utime - b.utime
-      },
+      // {
+      //   title: 'Create@',
+      //   dataIndex: 'ctime',
+      //   render: (value) => Main.momentFormat(value),
+      //   sorter: (a, b) => a.ctime - b.ctime
+      // },
+      // {
+      //   title: 'Update@',
+      //   dataIndex: 'utime',
+      //   render: (value) => Main.momentFormat(value),
+      //   sorter: (a, b) => a.utime - b.utime
+      // },
     ];
     return columns;
   }
@@ -230,26 +222,6 @@ const CompanyList = (props) => {
       />
       }
 
-      <Modal
-        title="Edit"
-        visible={modalVisible}
-        footer={null}
-        style={{ maxWidth: 800 }}
-        width={'90%'}
-        onCancel={() => { setModalVisible(false) }}
-      >
-        {/* <CompanyForm
-          dataObj={
-            selectedRecord
-          }
-          openModal={
-            (_visible) => {
-              setModalVisible(_visible);
-              getAllData()
-            }
-          }
-        /> */}
-      </Modal>
       <ImageModal
         title="Company Document"
         visible={modal.modalVisible}
@@ -264,5 +236,7 @@ const CompanyList = (props) => {
     </AppLayout>
   )  
 }
+
+
 
 export default CompanyList;

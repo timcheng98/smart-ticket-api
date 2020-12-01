@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Button, Col, Input, Layout, Row, message, Form } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { setAuth, setAdmin } from '../../redux/actions/common'
+import { setAuth, setAdmin, setCompanyAdmin, setIsAdmin } from '../../redux/actions/common'
 import * as Service from '../../core/Service';
 import logo from '../../assets/Logo_Black.png';
 import _ from 'lodash';
@@ -16,7 +16,7 @@ const Login = () => {
     const auth = useSelector(state => state.app.auth);
     
     useEffect(() => {
-      if (auth) history.push('/admin/home');
+      if (auth) history.push('/home');
     }, [auth]);
 
     const onFinish =  async (formData) => {
@@ -29,10 +29,18 @@ const Login = () => {
       let adminData = await Service.call('get', `/api/admin`);
       if (adminData.errorMessage) return dispatch(setAuth(false));
       if (_.isEmpty(adminData.userData)) return dispatch(setAuth(false));
-      console.log(adminData)
-      dispatch(setAdmin(adminData.userData[0]));
-      dispatch(setAuth(true));
-      history.push('/admin/home')
+      if (adminData.userData[0].role === 1) {
+        dispatch(setAdmin(adminData.userData[0]));
+        dispatch(setIsAdmin(adminData.userData[0]));
+        dispatch(setAuth(true))
+      }
+
+      if (adminData.userData[0].role === 2) {
+        dispatch(setCompanyAdmin(adminData.userData[0]));
+        dispatch(setIsAdmin(adminData.userData[0]));
+        dispatch(setAuth(true));
+      }
+      history.push('/home')
     }
 
     const displayLogin = () => {

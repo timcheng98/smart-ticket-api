@@ -19,11 +19,11 @@ const { Sider } = Layout;
 const { SubMenu } = Menu;
 
 let dataList = [
-  { key: 'dashboard', title: 'Dashboard', path: '/admin/home', icon: <DashboardOutlined />, display: 'block', privilege: 'all' },
+  { key: 'dashboard', title: 'Dashboard', path: '/home', icon: <DashboardOutlined />, display: 'block', privilege: 'all' },
   { key: 'company', title: 'Company List', path: '/admin/company/list', icon: <BankOutlined />, display: 'block', className: ['p_company'], privilege: 'admin' },
 ]
 let adminRoute = [
-  '/admin/home',
+  '/home',
   '/admin/company/list',
   '/admin/company/admin',
 ]

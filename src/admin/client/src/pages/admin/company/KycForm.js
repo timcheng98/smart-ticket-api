@@ -9,10 +9,10 @@ import {
 } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
-import * as Service from '../../core/Service';
-import AppLayout from '../../components/AppLayout';
-import FormUploadFile from '../../components/FormUploadFile';
-import {formItemLayout, tailLayout} from '../../components/ModalLayout'
+import * as Service from '../../../core/Service';
+import AppLayout from '../../../components/AppLayout';
+import FormUploadFile from '../../../components/FormUploadFile';
+import {formItemLayout, tailLayout} from '../../../components/ModalLayout'
 
 
 const involvedModelName = "company";
@@ -167,14 +167,6 @@ const BasicInformation = (props) => {
       <Divider style={{border: 'none'}} />
       <Row justify="space-between" style={{padding: '0 5%'}}>
         <Col >
-        <Form.Item >
-        <Button
-          className="custom-btn"
-          // htmlType="submit"
-        >
-          Previous
-        </Button>
-      </Form.Item>
         </Col>
         <Col >
         <Form.Item >
@@ -242,7 +234,7 @@ const SupportDocument = (props) => {
       <Row justify="center">
         <Col><h2>公司證明</h2></Col>
       </Row>
-      <Row justify="center">
+      <Row justify="center" style={{padding: 50}}>
         <Col span={12}>
           <FormUploadFile type='one' data={{ scope: "private" }}  onChange={uploadOnChange} onRemove={onRemove} imageURL={imageURL} />
         </Col>

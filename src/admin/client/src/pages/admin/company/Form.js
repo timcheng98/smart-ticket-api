@@ -5,8 +5,8 @@ import {
   notification, Radio, Row, Select, Tabs, Upload, message
 } from 'antd';
 import moment from 'moment';
-import * as Service from '../../core/Service';
-import {formItemLayout, tailLayout} from '../../components/ModalLayout'
+import * as Service from '../../../core/Service';
+import {formItemLayout, tailLayout} from '../../../components/ModalLayout'
 
 const CompanyForm = (props) => {
   const [form] = Form.useForm();

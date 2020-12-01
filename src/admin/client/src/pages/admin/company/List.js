@@ -6,9 +6,9 @@ import 'antd/dist/antd.css';
 import moment from 'moment';
 import _ from 'lodash';
 import { useSelector } from 'react-redux';
-import * as Service from '../../core/Service';
-import AppLayout from '../../components/AppLayout';
-import CompanyForm from './CompanyForm';
+import * as Service from '../../../core/Service';
+import AppLayout from '../../../components/AppLayout';
+import CompanyForm from './Form';
 import { EditOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons';
 
 

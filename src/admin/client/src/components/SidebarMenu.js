@@ -5,21 +5,53 @@ import {
   BankOutlined
 } from '@ant-design/icons';
 import _ from 'lodash';
+import * as Main from '../core/Main'
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
+const LEVEL = {
+  ALL: 0,
+  STAFF: 1,
+  COMPANY: 2,
+  ADMIN: 3
+}
+
 const SidebarMenu = ({selectedKey}) => {
+  const app = useSelector((state) => state.app)
   const renderMenuItem = () => {
+    console.log(app)
     const items = [];
-    dataList.map((pathData, i) => {
-      items.push((
-        <Menu.Item
-          key={pathData.key}
-          icon={pathData.icon}
-        >
-          <Link to={pathData.path}>{pathData.title}</Link>
-        </Menu.Item>
-      ))
-    })
+
+    if (app.is_admin.admin) {
+      dataList.map((item, i) => {
+        if (item.privilege === Main.LEVEL.ADMIN || item.privilege === Main.LEVEL.ALL) {
+          items.push((
+            <Menu.Item
+              key={item.key}
+              icon={item.icon}
+            >
+              <Link to={item.path}>{item.title}</Link>
+            </Menu.Item>
+          ))
+        }  
+      })
+    }
+
+    if (app.is_admin.company_admin) {
+      dataList.map((item, i) => {
+        if (item.privilege === Main.LEVEL.COMPANY || item.privilege === Main.LEVEL.ALL) {
+          items.push((
+            <Menu.Item
+              key={item.key}
+              icon={item.icon}
+            >
+              <Link to={item.path}>{item.title}</Link>
+            </Menu.Item>
+          ))
+        }  
+      })
+    }
+
     return items;
   }
 
@@ -40,10 +72,10 @@ const dataList = [
   {
     key: 'dashboard',
     title: 'Dashboard',
-    path: '/admin/home',
+    path: '/home',
     icon: <DashboardOutlined />,
     display: 'block',
-    privilege: 'all'
+    privilege: Main.LEVEL.ALL
   },
   {
     key: 'company_list',
@@ -52,7 +84,7 @@ const dataList = [
     icon: <BankOutlined />,
     display: 'block',
     className: ['p_company'],
-    privilege: 'admin'
+    privilege: Main.LEVEL.ADMIN
   },
   {
     key: 'company_kyc',
@@ -61,12 +93,21 @@ const dataList = [
     icon: <BankOutlined />,
     display: 'block',
     className: ['p_company'],
-    privilege: 'admin'
+    privilege: Main.LEVEL.ADMIN
+  },
+  {
+    key: 'company_kyc',
+    title: 'Company Kyc',
+    path: '/company/kyc/info',
+    icon: <BankOutlined />,
+    display: 'block',
+    className: ['p_company'],
+    privilege: Main.LEVEL.COMPANY
   },
 ]
 
 const adminRoutes = [
-  '/admin/home',
+  '/home',
   '/admin/company/list',
   '/admin/company/admin',
 ]

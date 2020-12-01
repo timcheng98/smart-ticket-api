@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 
 const Private = ({
     component: AppComponent,
-    privilege
+    level
   }) => {
     // const [auth, setAuth] = useState(false);
     // useEffect(() => {
@@ -30,18 +30,19 @@ const Private = ({
             // return <AppComponent />
             if(app.auth) {
               console.log('app >>> ', app.auth)
-              return <AppComponent />
+              // return <AppComponent />
 
-              if (privilege=='admin' && app.admin.admin_id) {
-              }
-              if (privilege=='company' && app.company_admin.company_admin_id) {
+              if (level === 3 && app.admin.admin_id) {
                 return <AppComponent /> 
               }
-              if (privilege=='admin' && !app.admin.admin_id) {
-                return <Redirect to="/company/home"/> 
+              if (level === 2 && app.company_admin.admin_id) {
+                return <AppComponent /> 
               }
-              if (privilege=='company' && !app.company_admin.company_admin_id) {
-                return <Redirect to="/admin/home"/> 
+              if (level === 3 && !app.admin.admin_id) {
+                return <Redirect to="/home"/> 
+              }
+              if (level === 2 && !app.company_admin.admin_id) {
+                return <Redirect to="/home"/> 
               }
             }
             // if(logoutWay == 'admin'){

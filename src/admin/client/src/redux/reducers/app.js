@@ -6,6 +6,11 @@ const initialState = Immutable({
   config: {
     STATIC_SERVER_URL: null,
   },
+  is_admin: {
+    admin: false,
+    company_admin: false,
+    admin_id: 0
+  },
   loading: false,
   // admin: {
   //   admin_id: 0,
@@ -32,6 +37,9 @@ const appReducer = {
       }
       case types.SET_AUTH:
         state = {...state, auth: action.data}
+        return state;
+      case types.SET_IS_ADMIN:
+        state = {...state, is_admin: action.data}
         return state;
       case types.SET_LOADING:
         state = {...state, loading: action.data}

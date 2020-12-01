@@ -19,6 +19,13 @@ import { getStore } from '../redux/store/configureStore';
 //   localStorage.removeItem('company');
 // }
 
+export const LEVEL = {
+  ALL: 0,
+  STAFF: 1,
+  COMPANY: 2,
+  ADMIN: 3
+};
+
 export function mergeByKey (arr, subArr, key) {
   return _.each(arr, (item) => {
     _.find(subArr, (subItem) => {
