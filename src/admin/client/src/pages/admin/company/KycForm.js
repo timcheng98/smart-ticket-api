@@ -7,6 +7,7 @@ import {
 import {
   CheckCircleFilled, RightOutlined
 } from '@ant-design/icons';
+import { useHistory, Link } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 import * as Service from '../../../core/Service';
@@ -22,21 +23,35 @@ const selectedKey = 'company_kyc';
 
 const CompanyKycForm = (props) => {
   const [step, setStep] = useState(1)
+  const [referenceNumber, setReferenceNumber] = useState('');
+  const history = useHistory();
+
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
       <Row>
-        <Col span={24}>
+        {step !== 3 && (<Col span={24}>
           <ProgressBar step={step}/>
-        </Col>
+        </Col>)}
         <Divider />
         {step === 1 && (
           <Col span={24}>
-            <BasicInformation setStep={(val) => setStep(val)} />
+            <BasicInformation setStep={(val) => setStep(val)} setReferenceNumber={(value) => setReferenceNumber(value)}/>
           </Col>
         )}
         {step === 2 && (
           <Col span={24}>
             <SupportDocument setStep={(val) => setStep(val)} />
+          </Col>
+        )}
+        {step === 3 && (
+          <Col span={24}>
+            <Row justify="center" style={{textAlign: 'center', paddingTop: 100}} gutter={[0, 20]}>
+              <Col span={24}><CheckCircleFilled style={{fontSize: 48}}/></Col>
+              <Col span={24}>Application Submitted Successfully.</Col>
+              <Col span={24}>Reference No. {referenceNumber}</Col>
+              <Col span={24}><Button type="primary" onClick={() => history.push('/company/kyc/info')}>Back</Button></Col>  
+            </Row>
+            
           </Col>
         )}
       </Row>
@@ -64,6 +79,7 @@ const ProgressBar = ({
 
 const BasicInformation = (props) => {
   const [form] = Form.useForm();
+  const history = useHistory();
 
   useEffect(() => {
     getInitialValue();
@@ -72,6 +88,9 @@ const BasicInformation = (props) => {
   const getInitialValue = async () => {
     let resp = await Service.call('get', `/api/company/admin/kyc/single`);
     if (resp.company_kyc_id > 0) {
+      // pending or success
+      if (resp.status > 0) return history.push('/company/kyc/info');
+
       resp.found_date = moment.unix(_.toInteger(resp.found_date));
       form.setFieldsValue(resp);
     }
@@ -83,9 +102,10 @@ const BasicInformation = (props) => {
     // Patch
     let resp = await Service.call('get', `/api/company/admin/kyc/single`);
     // if (data.)
-    if (resp.company_kyc_id > 0) {
-      resp = await Service.call('patch', url, dataObj);
+    if (resp.company_kyc_id) {
+      await Service.call('patch', url, dataObj);
       message.success('success');
+      props.setReferenceNumber(resp.reference_no)
       return props.setStep(2);
     }
     
@@ -96,6 +116,7 @@ const BasicInformation = (props) => {
       // return props.openModal(true);
     }
     message.success('success');
+    props.setReferenceNumber(resp.reference_no)
     // return props.openModal(false);
     props.setStep(2)
   };
@@ -263,7 +284,7 @@ const SupportDocument = (props) => {
             <Form.Item >
             <Button
               className="custom-btn"
-              htmlType="submit"
+              onClick={() => props.setStep(3)}
             >
               Next
             </Button>

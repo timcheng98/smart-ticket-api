@@ -60,7 +60,9 @@ const KycInformation = () => {
 
     if (app.is_admin.company_admin) {
       let data = await Service.call('get', '/api/company/admin/kyc/single');
-      setCompany(data);
+      if (data.company_kyc_id) {
+        setCompany(data);
+      }
     }
 
   }
@@ -70,6 +72,7 @@ const KycInformation = () => {
       reject_reason: text,
       admin_id: company.admin_id,
       is_company_doc_verified: 0,
+      status: -1
     });
     history.push("/admin/company/kyc");
   };
@@ -78,6 +81,7 @@ const KycInformation = () => {
     await Service.call("patch", "/api/company/admin/kyc/single", {
       admin_id: company.admin_id,
       is_company_doc_verified: 1,
+      status: 1
     });
     history.push("/admin/company/kyc");
   };
@@ -85,7 +89,7 @@ const KycInformation = () => {
   const applyKycAgain = async (e) => {
     await Service.call("patch", "/api/company/admin/kyc/single", {
       admin_id: company.admin_id,
-      is_company_doc_verified: 0,
+      is_company_doc_verified: 0
     });
     history.push("/company/kyc/form");
   };
@@ -93,10 +97,25 @@ const KycInformation = () => {
   const onTextChange = (e) => {
     setText(e.target.value);
   };
+  console.log('test', _.isEmpty(company))
+  console.log('test', company)
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
-      <div style={{ marginBottom: 100 }}>
+      {_.isEmpty(company) &&
+        <Button
+          // type="primary"
+          className="custom-btn"
+          onClick={() => {
+            history.push('/company/kyc/form')
+            // setModalVisible(true);
+            // setSelectedRecord({company_id: 0})
+          }}
+        >
+          Apply KYC
+        </Button>
+      }
+      {!_.isEmpty(company) && (<div style={{ marginBottom: 100 }}>
         <Descriptions
           title="Company Information"
           bordered
@@ -109,7 +128,7 @@ const KycInformation = () => {
               text={Main.displayStatus(company.is_company_doc_verified)}
             />
           </Descriptions.Item>
-          {company.reject_reason !== '' && (
+          {company.status === -1 && (
             <Descriptions.Item label="Reject Reason(s)" style={{color: 'black', fontWeight: 'bold'}}>
             <span style={{color: 'black', fontWeight: 'bold'}}>{ company.reject_reason}</span>
             </Descriptions.Item>
@@ -154,7 +173,7 @@ const KycInformation = () => {
             </Image.PreviewGroup>
           </Descriptions.Item>
         </Descriptions>
-        {!app.is_admin.company_admin ? (<>
+        {!app.is_admin.company_admin && (<>
        <Row>
           {!isReject && (
             <>
@@ -202,11 +221,11 @@ const KycInformation = () => {
             </Descriptions.Item>
           </Descriptions>
         )}
-        </>) : (
-        <Button onClick={applyKycAgain} style={{margin: 20}} type="primary">Apply again</Button>
-        )}
+        </>)}
 
-      </div>
+        {(company.status === -1 && !app.is_admin.admin ) && (<Button onClick={applyKycAgain} style={{margin: 20}} type="primary">Apply again</Button>)}
+
+      </div>)}
     </AppLayout>
   );
 };

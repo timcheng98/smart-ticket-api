@@ -18,6 +18,7 @@ const controllerModel = require('../../model/controller');
 const controller = require('./controller');
 const admin = require('../../model/company/admin');
 
+
 const ERROR_CODE = {
   [-60001]: 'Company user RFID exists',
   [-60002]: 'Exceed maximum company admin account creation',
@@ -99,7 +100,7 @@ const postKyc = async (req, res) => {
       admin_id: req.user.admin_id,
       check_by: 0,
       is_company_doc_verified: 0,
-      status: 1,
+      status: 0, //pending
       company_size: '',
       company_code: '',
       company_doc: '',
@@ -113,6 +114,7 @@ const postKyc = async (req, res) => {
  
     postData = helper.validateFormData(req.body, postData);
     let postObj = postData;
+    postObj.reference_no = `${moment().format('YYMMDD')}-${uuidv4().split('-')[1]}`
     let result = await kyc.insertKyc(postObj);
     res.apiResponse({
       status: 1, result
@@ -124,7 +126,7 @@ const postKyc = async (req, res) => {
 
 const patchKyc = async (req, res) => {
   try {
-    const postData = {};
+    const postData = { status: 0 };
 
     _.each(_.pick(req.body, [
       'company_doc','description', 'owner', 'address', 'name', 'company_code', 'company_doc', 'company_size', 'industry', 'reject_reason'
@@ -165,7 +167,7 @@ const patchKycById = async (req, res) => {
     });
 
     _.each(_.pick(req.body, [
-      'is_company_doc_verified', 'admin_id'
+      'is_company_doc_verified', 'admin_id', 'status'
     ]), (val, key) => {
       postData[key] = _.toInteger(val);
     });
