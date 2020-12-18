@@ -25,9 +25,9 @@ const getUserList = async (req, res) => {
   try {
     let result = await model.user.selectUser({
       all: true,
-      fields: [
-        'user_id', 'user_key', 'is_active', 'mobile', 'ctime', 'utime', 'first_name', 'last_name', 'nickname', 'avatar_file', 'email'
-      ]
+    //   fields: [
+    //     'user_id', 'is_active', 'mobile', 'ctime', 'utime', 'first_name', 'last_name', 'nickname', 'email'
+    //   ]
     });
     res.apiResponse({status: 1, result})
   } catch (error) {

@@ -7,7 +7,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import * as Service from '../../../core/Service';
-import * as Main from '../../../core/Main';
+import * as UI from '../../../core/UI';
 import AppLayout from '../../../components/AppLayout';
 import ImageModal from '../../../components/ImageModal';
 import { EditOutlined, StopOutlined, CheckOutlined, FileProtectOutlined, FileSearchOutlined, ZoomInOutlined } from '@ant-design/icons';
@@ -155,19 +155,19 @@ const CompanyList = (props) => {
       {
         title: 'Found Date',
         dataIndex: 'found_date',
-        render: (value) => Main.momentFormat(value),
+        render: (value) => UI.momentFormat(value),
         sorter: (a, b) => a.found_date - b.found_date
       },
       // {
       //   title: 'Create@',
       //   dataIndex: 'ctime',
-      //   render: (value) => Main.momentFormat(value),
+      //   render: (value) => UI.momentFormat(value),
       //   sorter: (a, b) => a.ctime - b.ctime
       // },
       // {
       //   title: 'Update@',
       //   dataIndex: 'utime',
-      //   render: (value) => Main.momentFormat(value),
+      //   render: (value) => UI.momentFormat(value),
       //   sorter: (a, b) => a.utime - b.utime
       // },
     ];

@@ -25,7 +25,7 @@ import moment from "moment";
 import _ from "lodash";
 import { useSelector } from "react-redux";
 import * as Service from "../../../core/Service";
-import * as Main from "../../../core/Main";
+import * as UI from "../../../core/UI";
 import AppLayout from "../../../components/AppLayout";
 import ImageModal from "../../../components/ImageModal";
 import {
@@ -125,7 +125,7 @@ const KycInformation = () => {
           <Descriptions.Item label="Status">
             <Badge
               status="processing"
-              text={Main.displayStatus(company.is_company_doc_verified)}
+              text={UI.displayStatus(company.is_company_doc_verified)}
             />
           </Descriptions.Item>
           {company.status === -1 && (

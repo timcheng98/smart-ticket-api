@@ -9,13 +9,6 @@ import * as Main from '../core/Main'
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-const LEVEL = {
-  ALL: 0,
-  STAFF: 1,
-  COMPANY: 2,
-  ADMIN: 3
-}
-
 const SidebarMenu = ({selectedKey}) => {
   const app = useSelector((state) => state.app)
   const renderMenuItem = () => {
@@ -90,6 +83,15 @@ const dataList = [
     key: 'company_kyc',
     title: 'Company Kyc',
     path: '/admin/company/kyc',
+    icon: <BankOutlined />,
+    display: 'block',
+    className: ['p_company'],
+    privilege: Main.LEVEL.ADMIN
+  },
+  {
+    key: 'user_list',
+    title: 'User List',
+    path: '/admin/user/list',
     icon: <BankOutlined />,
     display: 'block',
     className: ['p_company'],

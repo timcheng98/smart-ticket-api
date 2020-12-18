@@ -13,6 +13,8 @@ import CompanyKyc from '../pages/admin/company/KycList';
 import CompanyKycForm from '../pages/admin/company/KycForm';
 import CompanyKycInfo from '../pages/admin/company/KycInfo';
 
+import UserList from '../pages/admin/user/List';
+
 import NotFound from '../components/NotFound';
 
 const Path = (props) => {
@@ -26,6 +28,7 @@ const Path = (props) => {
         <Private path="/admin/company/list" component={CompanyList} exact level={Main.LEVEL.ADMIN} />
         <Private path="/admin/company/kyc" component={CompanyKyc} exact />
         <Private path="/admin/company/kyc/info" component={CompanyKycInfo} exact level={Main.LEVEL.ADMIN} />
+        <Private path="/admin/user/list" component={UserList} exact level={Main.LEVEL.ADMIN} />
 
         <Private path="/company/kyc/form" component={CompanyKycForm} exact level={Main.LEVEL.COMPANY} />
         <Private path="/company/kyc/info" component={CompanyKycInfo} exact level={Main.LEVEL.COMPANY} />

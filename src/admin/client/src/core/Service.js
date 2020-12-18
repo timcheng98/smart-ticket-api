@@ -9,8 +9,6 @@ export async function call(_method, _endpoint, _data) {
     let endpoint = _.toString(_endpoint);
     let data = _.clone(_data) || {};
 
-    // console.log('endpoint >>> ', endpoint);
-
     let resp = await axios[method](endpoint, data);
     let respData = resp.data;
     let {
@@ -23,7 +21,7 @@ export async function call(_method, _endpoint, _data) {
     // console.log(`respData >> `, respData);
 
     if (status <= 0) {
-      console.error(`Service.call() Error :: ${errorCode} :: ${errorMessage}`);
+      console.error(`Service.call() Error :: ${errorCode} :: ${errorMessage} :: end point ${_endpoint}`);
       // if (errorCode === -101) {
       // TODO :: Redirect ???
       // }
