@@ -1,0 +1,63 @@
+.seat-table {
+  display: none;
+}
+
+.ticket-col {
+  color: #ffffff;
+  background-color: #24a0ed;
+  border: 1px solid #24a0ed;
+  border-radius: 5px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding: 5px 10px;
+  margin: 10px 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  width: 50px;
+  text-align: center;
+  font-size: 20px;
+}
+
+.row-display div {
+  width: 60px;
+  display: inline-block;
+}
+
+.ticket-dot {
+  padding: 5px 8px;
+  margin: 10px;
+}
+
+.ticket-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.row-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 50px;
+  padding-right: 10px;
+}
+
+.row-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.ticket-col:hover {
+  background-color: #1f3340 !important;
+  border: 1px solid #1f3340 !important;
+  cursor: pointer;
+}
+
+.ticket-row-divider {
+  margin: 20px;
+}
