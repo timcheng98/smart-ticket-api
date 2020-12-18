@@ -96,3 +96,10 @@ export function setLogoutWay(logoutWay) {
 //     data: company
 //   };
 // }
+
+export function setTotalSeats(totalSeats) {
+  return {
+    type: types.SET_TOTAL_SEATS,
+    data: totalSeats,
+  };
+}

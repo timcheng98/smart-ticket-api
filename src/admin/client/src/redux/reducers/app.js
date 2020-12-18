@@ -26,6 +26,7 @@ const initialState = Immutable({
   company_admin: {},
   origin: '',
   logoutWay: '',
+  totalSeats: {}
 });
 
 const appReducer = {
@@ -67,6 +68,13 @@ const appReducer = {
       case types.SET_ORIGIN:
         state = {...state, origin: action.data}
         return state;
+      case types.SET_TOTAL_SEATS: {
+        state = {
+          ...prevState,
+        };
+        state.totalSeats = {...state.totalSeats, ...action.data};
+        break;
+      }
       default:
         return state;
       case types.SET_LOGOUTWAY:
