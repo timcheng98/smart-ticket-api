@@ -1,113 +1,323 @@
 import Web3 from 'web3';
-import Ticket from '../abis/Ticket.json';
+import Ticket from '../../../../abis/Ticket.json';
 // import Event from '../../../abis/Event.json';
-// import _ from 'lodash';
+import _ from 'lodash';
+import { getStore } from '../../redux/store/configureStore';
+import * as CommonActions from '../../redux/actions/common'
 
 export class EventAPI {
-  constructor() {
-    this.contract = {};
-    this.web3 = {};
-    this.accounts = [];
-  }
+	constructor() {
+		this.contract = {};
+		this.web3 = {};
+		this.accounts = [];
+		this.address = '';
+		this.default_account = '0x11aefC18c5ED4a9d7668B6Ef9cF0bE450aa43A03';
+		this.default_account_private_key = '6cac840b1b489ae59b62ccd3e2a6a48665c30aa6eae86af4aed8b23e3e89c44e'
+	}
 
-  getWeb3() {
-    return this.web3;
-  }
+	getWeb3() {
+		return this.web3;
+	}
 
-  async init() {
-    await this.loadWeb3();
-    await this.loadBlockchainData();
-  }
+	async init() {
+		await this.loadWeb3();
+		// await this.loadRemoteWeb3();
+		await this.loadBlockchainData();
+		return true
+	}
 
-  async loadWeb3 () {
-    if (window.ethereum) {
-      window.web3 = new Web3(window.ethereum)
-      await window.ethereum.enable()
-      this.web3 = window.web3;
-    }
-    else if (window.web3) {
-      window.web3 = new Web3(window.web3.currentProvider)
-      this.web3 = window.web3;
-    }
-    else {
-      window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
-    }
-  };
+	async loadWeb3() {
+		if (window.ethereum) {
+			window.web3 = new Web3(window.ethereum);
+			await window.ethereum.enable();
+			this.web3 = window.web3;
+		} else if (window.web3) {
+			window.web3 = new Web3(window.web3.currentProvider);
+			this.web3 = window.web3;
+		} else {
+			window.alert(
+				'Non-Ethereum browser detected. You should consider trying MetaMask!'
+			);
+		}
+	}
 
-  async loadBlockchainData() {
-    // Load accountc
-    this.accounts = await this.web3.eth.getAccounts();
-    const networkId = await this.web3.eth.net.getId()
-    const networkData = Ticket.networks[networkId]
-    if(networkData) {
-      const abi = Ticket.abi;
-      const address = networkData.address
-      console.log(address)
-      this.contract = new this.web3.eth.Contract(abi, address);
-    } else {
-      window.alert('Smart contract not deployed to detected network.')
-    }
+	async loadRemoteWeb3() {
+		let provider = 'http://172.16.210.165:7545'
+		window.web3 = new Web3(provider);
+		this.web3 = window.web3;
+	}
+
+	async loadBlockchainData() {
+		// Load accountc
+		this.accounts = await this.web3.eth.getAccounts();
+		const networkId = await this.web3.eth.net.getId();
+		const networkData = Ticket.networks[networkId];
+		if (networkData) {
+			const abi = Ticket.abi;
+			const address = networkData.address;
+			this.address = address;
+			this.contract = new this.web3.eth.Contract(abi, address);
+		} else {
+			window.alert('Smart contract not deployed to detected network.');
+		}
+	}
+
+	async getEventAll() {
+		let events = [];
+		let total = await this.contract.methods.eventId.call({
+			from: this.accounts[0],
+		});
+		if (!total) return [];
+
+		console.log('total', total)
+		for (let i = 0; i < this.web3.utils.hexToNumber(total._hex); i++) {
+			let data = await this.contract.methods
+				.events(i)
+				.call({ from: this.accounts[0] });
+			let eventDetail = JSON.parse(data.detail);
+			eventDetail = {
+				...eventDetail,
+				eventId: i,
+			};
+			events.push(eventDetail);
+		}
+		return events;
+	}
+
+	async getEvent(eventId) {
+		let event = await this.contract.methods
+			.getEvent(eventId)
+			.call({ from: this.accounts[0] });
+		return JSON.parse(event);
+	}
+
+	async ownerOf(eventId) {
+		let tickets = await this.getTicketAll();
+		let ticketOwner = [];
+		let promise = tickets.map(async (val) => {
+			let owner = await this.contract.methods
+				.ownerOf(val.ticketId)
+				.call({ from: this.accounts[0] });
+			if (owner === this.accounts[0]) {
+				ticketOwner.push(val);
+			}
+		});
+		await Promise.all(promise);
+
+		tickets = _.groupBy(ticketOwner, 'eventId');
+		let ticketIdArr = [];
+		_.map(tickets, (val, key) => {
+			ticketIdArr.push(_.toInteger(key));
+		});
+
+		let events = {};
+		promise = _.map(ticketIdArr, async (val, key) => {
+			let event = await this.getEvent(val);
+			events = {
+				...events,
+				[val]: event,
+			};
+		});
+		await Promise.all(promise);
+
+		let eventArr = [];
+		_.each(tickets, (val, key) => {
+			let detailObj = {
+				total: val.length,
+				event: events[key],
+			};
+			eventArr.push(detailObj);
+		});
+		return eventArr;
+	}
+
+	async createEvent(_eventObj) {
+		let eventObj = JSON.stringify(_eventObj);
+		let result = await this.contract.methods
+			.createEvent(this.accounts[0], eventObj)
+			.send({ from: this.accounts[0] });
+		return result;
+	}
+
+	async testMint() {
+		await this.contract.methods.mint(['123']).send({ from: this.accounts[0] });
+	}
+
+	async getTicketAll() {
+		let tickets = [];
+		let total = await this.contract.methods.ticketCount.call({
+			from: this.accounts[0],
+		});
+		// console.log(total)
+		// if (!total) return [];
+
+		for (let i = 0; i < this.web3.utils.hexToNumber(total._hex); i++) {
+			let data = await this.contract.methods
+				.tickets(i)
+				.call({ from: this.accounts[0] });
+			let ticketDetail = JSON.parse(data.ticketDetail);
+			ticketDetail = {
+				...ticketDetail,
+				eventId: this.web3.utils.hexToNumber(data.eventId._hex),
+				ticketId: this.web3.utils.hexToNumber(data.ticketId._hex),
+			};
+			tickets.push(ticketDetail);
+		}
+
+		return tickets;
+	}
+
+	async getOnSellTicketsAll(type) {
+		let total = await this.contract.methods.ticketCount.call({
+			from: this.accounts[0],
+		});
+
+		let onSellTicketIdArr = [];
+
+
+		for (let i = 0; i < this.web3.utils.hexToNumber(total._hex); i++) {
+			let data = await this.contract.methods
+				.tickets(i)
+				.call({ from: this.accounts[0] });
+			let ticketDetail = JSON.parse(data.ticketDetail);
+
+			let ticket_owner = await this.contract.methods.ownerOf(this.web3.utils.hexToNumber(data.ticketId._hex)).call({from: this.accounts[0]});
+			if (ticket_owner === this.default_account) {
+				ticketDetail = {
+					...ticketDetail,
+					eventId: this.web3.utils.hexToNumber(data.eventId._hex),
+					ticketId: this.web3.utils.hexToNumber(data.ticketId._hex),
+				};
+				onSellTicketIdArr.push(ticketDetail);
+			}
+		}
+
+		return onSellTicketIdArr;
+	}
+
+	async getOnSellTicketsByArea(area) {
+		let total = await this.contract.methods.ticketCount.call({
+			from: this.accounts[0],
+		});
+
+		let onSellTicketIdArr = [];
+
+
+		for (let i = 0; i < this.web3.utils.hexToNumber(total._hex); i++) {
+			let data = await this.contract.methods
+				.tickets(i)
+				.call({ from: this.accounts[0] });
+			let ticketDetail = JSON.parse(data.ticketDetail);
+
+			let ticket_owner = await this.contract.methods.ownerOf(this.web3.utils.hexToNumber(data.ticketId._hex)).call({from: this.accounts[0]});
+			if (ticket_owner === this.default_account && area === ticketDetail.area) {
+				ticketDetail = {
+					...ticketDetail,
+					eventId: this.web3.utils.hexToNumber(data.eventId._hex),
+					ticketId: this.web3.utils.hexToNumber(data.ticketId._hex),
+				};
+				onSellTicketIdArr.push(ticketDetail);
+			}
+		}
+
+		return onSellTicketIdArr;
+	}
+
+	async autoSignTicketTransaction({tickets, total}) {
+
+		let onSellTicketIdArr = [];
+		let onSellTicketCount = 0;
+		let promise = tickets.map( async (item) => {
+			let ticket_owner = await this.contract.methods.ownerOf(item.ticketId).call({from: this.accounts[0]});
+			if (ticket_owner === this.default_account && onSellTicketCount < total) {
+				onSellTicketIdArr.push(item.ticketId);
+				onSellTicketCount++;
+			}
+		});
+
+		await Promise.all(promise);
+		console.log('onSellTicketArr', onSellTicketIdArr);
+
+		let transaction;
+		if (total > 1) {
+			transaction = this.contract.methods
+			.multiTransferFrom(
+				this.default_account,
+				this.accounts[0],
+				onSellTicketIdArr
+			);
+		} else {
+			let ticketId = onSellTicketIdArr[0];
+			transaction = this.contract.methods
+			.safeTransferFrom(
+				this.default_account,
+				this.accounts[0],
+				ticketId
+			);
+		}
+
+		await this.signTransaction(
+			transaction,
+			(confirmedMessage) => {
+				console.log(' ticket confirmedMessage', confirmedMessage);
+				return getStore().dispatch(CommonActions.setEvents(true))
+			}
+		);
+	}
+
+	async autoCreateTickets(_seats) {
+		let transaction = this.contract.methods
+		.mint(_seats);
+		return this.signTransaction(transaction, function(confirmedMessage) {
+			console.log(' ticket confirmedMessage', confirmedMessage);
+		}); 
+	}
+
+	async createSeats(_seats) {
+		console.log(_seats);
+		let result = await this.contract.methods
+			.mint(_seats)
+			.send({ from: this.accounts[0] });
+	}
+
+	async autoSignEventTransaction(_eventObj) {
+		let eventObj = JSON.stringify(_eventObj);
+		let transaction = this.contract.methods.createEvent(
+			this.accounts[0],
+			eventObj
+    );
+		return this.signTransaction(transaction, function(confirmedMessage) {
+			return getStore().dispatch(CommonActions.setEvents(true))
+   });
   
-  }
+	}
 
-  async getEvent(eventId) {
-    let event = await this.contract.methods.getEvent(eventId).call({from: this.accounts[0]});
-    return JSON.parse(event);
-  }
+	async signTransaction(transaction, cb) {
+		let gas = await transaction.estimateGas({ from: this.default_account });
+		let nonce = await this.web3.eth.getTransactionCount(this.default_account);
 
-  async createEvent(_eventObj) {
-    let eventObj = JSON.stringify(_eventObj);
-    await this.contract.methods.createEvent(this.accounts[0], eventObj).send({from: this.accounts[0]});
-  }
+		let options = {
+			to: this.address,
+			data: transaction.encodeABI(),
+			gas,
+			nonce,
+		};
 
-  async testMint() {
-    await this.contract.methods.mint(["123"]).send({from: this.accounts[0]}); 
-  }
+		let signedTransaction = await this.web3.eth.accounts.signTransaction(
+			options,
+			this.default_account_private_key
+		);
 
-  async getTicketAll() {
-    let tickets = [];
-    let total = await this.contract.methods.ticketCount.call({from: this.accounts[0]});    
-    console.log(this.web3.utils.hexToNumber(total._hex))
-    for(let i = 0; i < this.web3.utils.hexToNumber(total._hex); i++) {
-      let data = await this.contract.methods.tickets(i).call({from: this.accounts[0]});
-      let ticketDetail = JSON.parse(data.ticketDetail);
-      ticketDetail = {
-        ...ticketDetail,
-        eventId: this.web3.utils.hexToNumber(data.eventId._hex)
-      }
-      tickets.push(ticketDetail)
-    }
-    
-    return tickets;
-
-    let data = await this.contract.methods.tickets(0).call({from: this.accounts[0]});
-    let data1 = await this.contract.methods.tickets(1).call({from: this.accounts[0]});
-    let data2 = await this.contract.methods.tickets(2).call({from: this.accounts[0]});
-    let data3 = await this.contract.methods.tickets(3).call({from: this.accounts[0]});
-    let owner = await this.contract.methods.ownerOf(3).call({from: this.accounts[0]});
-    console.log('test data', JSON.parse(data.ticketDetail))
-    console.log('test data1', JSON.parse(data1.ticketDetail))
-    console.log('test data2', JSON.parse(data2.ticketDetail))
-    console.log('test data3', JSON.parse(data3.ticketDetail))
-    console.log('test owner3', owner)
-
-    return this.contract.methods.tickets(0).call({from: this.accounts[0]}); 
-  }
-
-  async createSeats(_seats) {
-    console.log(_seats)
-    let result = await this.contract.methods.mint(_seats).send({from: this.accounts[0]});
-    // console.log('event seat', _seats)
-    // _.each(_seats, (val, area) => {
-    //   console.log('area', area)
-    //   _.each(_seats[area], (val, row) => {
-    //     console.log('row', row)
-    //     _.each(_seats[area][row], async (val, col) => {
-    //       let result = await this.contract.methods.mint(val.area, _.toString(val.row), _.toString(val.col), val.seat).send({from: this.accounts[0]});
-    //       console.log(result)
-    //     })
-    //   })
-    // })
-    // console.log({_seats})
-  }
+		await this.web3.eth
+			.sendSignedTransaction(signedTransaction.rawTransaction)
+			.on('transactionHash', (transactionHash) => {
+				console.log('TX Hash: ' + transactionHash);
+			})
+			.on('confirmation', (confirmationNumber) => {
+				if (confirmationNumber == 1) {
+					cb("Transaction Confirmed");
+				}
+			})
+			.on('error', console.error);
+	}
 }
