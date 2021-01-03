@@ -70,10 +70,10 @@ const appReducer = {
         return state;
       case types.SET_TOTAL_SEATS: {
         state = {
-          ...prevState,
+          ...state,
+          totalSeats: {...state.totalSeats, ...action.data}
         };
-        state.totalSeats = {...state.totalSeats, ...action.data};
-        break;
+        return state;
       }
       default:
         return state;

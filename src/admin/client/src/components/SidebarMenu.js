@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Menu } from 'antd';
 import {
   DashboardOutlined,
@@ -10,108 +10,106 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
 const SidebarMenu = ({selectedKey}) => {
-  const app = useSelector((state) => state.app)
+  const app = useSelector((state) => state.app);
+  const [sideBarItems, setSideBarItems] = useState(null);
+
+  useEffect(() => {
+    renderMenuItem();
+  }, [])
+
   const renderMenuItem = () => {
     console.log(app)
-    const items = [];
+    const renderItems = [];
+
 
     if (app.is_admin.admin) {
-      dataList.map((item, i) => {
-        if (item.privilege === Main.LEVEL.ADMIN || item.privilege === Main.LEVEL.ALL) {
-          items.push((
-            <Menu.Item
-              key={item.key}
-              icon={item.icon}
-            >
-              <Link to={item.path}>{item.title}</Link>
-            </Menu.Item>
-          ))
-        }  
+      let itemList = [...AllLevelItems, ...AdminLevelItems];
+      _.each(itemList, (item, key) => {
+        let element = (
+          <Menu.Item
+            key={item.key}
+            icon={item.icon}
+          >
+            <Link to={item.path}>{item.title}</Link>
+          </Menu.Item>
+        )
+        renderItems.push(element);
       })
     }
 
     if (app.is_admin.company_admin) {
-      dataList.map((item, i) => {
-        if (item.privilege === Main.LEVEL.COMPANY || item.privilege === Main.LEVEL.ALL) {
-          items.push((
-            <Menu.Item
-              key={item.key}
-              icon={item.icon}
-            >
-              <Link to={item.path}>{item.title}</Link>
-            </Menu.Item>
-          ))
-        }  
+      let itemList = [...AllLevelItems, ...CompanyLevelItems];
+      _.each(itemList, (item, key) => {
+        let element = (
+          <Menu.Item
+            key={item.key}
+            icon={item.icon}
+          >
+            <Link to={item.path}>{item.title}</Link>
+          </Menu.Item>
+        )
+        renderItems.push(element);
       })
     }
 
-    return items;
+    setSideBarItems(renderItems);
   }
 
   return (
     <Menu
       mode="inline"
       defaultSelectedKeys={[selectedKey]}
-      // defaultOpenKeys={['1']}
       selectedKeys={[selectedKey]}
       style={{ height: '100%', paddingBottom: '50px', paddingTop: '20px' }}
     >
-      {renderMenuItem()}
+      {sideBarItems}
     </Menu>
   )
 }
 
-const dataList = [
+const AllLevelItems = [
   {
     key: 'dashboard',
     title: 'Dashboard',
     path: '/home',
-    icon: <DashboardOutlined />,
-    display: 'block',
-    privilege: Main.LEVEL.ALL
-  },
-  {
-    key: 'company_list',
-    title: 'Company List',
-    path: '/admin/company/list',
-    icon: <BankOutlined />,
-    display: 'block',
-    className: ['p_company'],
-    privilege: Main.LEVEL.ADMIN
-  },
+    icon: <DashboardOutlined />
+  }
+]
+
+const AdminLevelItems = [
   {
     key: 'company_kyc',
     title: 'Company Kyc',
     path: '/admin/company/kyc',
-    icon: <BankOutlined />,
-    display: 'block',
-    className: ['p_company'],
-    privilege: Main.LEVEL.ADMIN
+    icon: <BankOutlined />
   },
   {
     key: 'user_list',
     title: 'User List',
     path: '/admin/user/list',
-    icon: <BankOutlined />,
-    display: 'block',
-    className: ['p_company'],
-    privilege: Main.LEVEL.ADMIN
+    icon: <BankOutlined />
   },
+  {
+    key: 'event_ticket',
+    title: 'Event Ticket',
+    path: '/admin/event/ticket',
+    icon: <BankOutlined />
+  }
+]
+
+const CompanyLevelItems = [
   {
     key: 'company_kyc',
     title: 'Company Kyc',
-    path: '/company/kyc/info',
-    icon: <BankOutlined />,
-    display: 'block',
-    className: ['p_company'],
-    privilege: Main.LEVEL.COMPANY
+    path: '/company/kyc',
+    icon: <BankOutlined />
   },
-]
-
-const adminRoutes = [
-  '/home',
-  '/admin/company/list',
-  '/admin/company/admin',
+  {
+    key: 'event_form',
+    title: 'Event Form',
+    path: '/company/event/form',
+    icon: <BankOutlined />
+  }
 ]
 
 export default SidebarMenu;

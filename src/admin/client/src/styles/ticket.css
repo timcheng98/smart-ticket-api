@@ -1,23 +1,20 @@
-.seat-table {
-  display: none;
-}
 
 .ticket-col {
   color: #ffffff;
   background-color: #24a0ed;
   border: 1px solid #24a0ed;
-  border-radius: 5px;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
+  border-radius: 18px;
+  /* border-top-left-radius: 20px; */
+  /* border-top-right-radius: 20px; */
   padding: 5px 10px;
   margin: 10px 5px;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 50px;
-  width: 50px;
+  height: 36px;
+  width: 36px;
   text-align: center;
-  font-size: 20px;
+  font-size: 12px
 }
 
 .row-display div {
@@ -27,13 +24,13 @@
 
 .ticket-dot {
   padding: 5px 8px;
-  margin: 10px;
+  /* margin: 10px; */
 }
 
 .ticket-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 
@@ -41,8 +38,10 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  width: 50px;
+  width: 80px;
   padding-right: 10px;
+  font-weight: bold;
+  font-size: 16px;
 }
 
 .row-body {
@@ -61,3 +60,102 @@
 .ticket-row-divider {
   margin: 20px;
 }
+
+.card .row-header {
+  font-size: 12px;
+  width: 100%
+}
+
+
+.card {
+  /* max-width: 150px;
+  max-height: 150px; */
+  /* width: 150px;
+  height: 150px; */
+  overflow: hidden;
+}
+
+.card .ant-card-body {
+  padding: 10px;
+  margin: 10px;
+}
+
+.card .ticket-row {
+  align-items: flex-start;
+}
+
+.card .ticket-col {
+  color: #ffffff;
+  background-color: #24a0ed;
+  border: 1px solid #24a0ed;
+  border-radius: 12px;
+  /* border-top-left-radius: 20px; */
+  /* border-top-right-radius: 20px; */
+  padding: 2px 2px;
+  margin: 2px 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 12px;
+  width: 12px;
+  text-align: center;
+  font-size: 0px
+}
+
+.card .ticket-dots {
+  font-size: 8px ;
+  background-color: transparent;
+  border: 1px solid transparent;
+}
+
+.scroll-hide::-webkit-scrollbar { 
+  width: 0 !important;
+  display: none; 
+}
+
+.vip {
+  color: #000000;
+  border-color: #ffd900;
+  background-color: #ffd900;
+  font-size: 16px
+}
+
+.normal {
+  color: #ffffff;
+  border-color: #6ee42b;
+  background-color: #6ee42b;
+  font-size: 16px;
+}
+
+.free {
+  color: #FFFFFF;
+  border-color: #f34040;
+  background-color: #f34040;
+  font-size: 16px;
+}
+
+.locked {
+  color: #ffffff;
+  border-color: #c0c0c0;
+  background-color: #c0c0c0;
+  font-size: 16px
+}
+
+.reserved {
+  color: #ffffff;
+  border-color: #1890ff;
+  background-color: #1890ff;
+  font-size: 16px
+}
+
+.seat-table {
+  display: none;
+}
+
+.disabled-false {
+  background-color: #f5f0f0;
+  border-color: #f5f0f0;
+  color: #fff
+}
+
+

@@ -6,10 +6,10 @@ import { useHistory, Link } from 'react-router-dom';
 import moment from 'moment';
 import _ from 'lodash';
 import { useSelector } from 'react-redux';
-import * as Service from '../../../core/Service';
-import * as UI from '../../../core/UI';
-import AppLayout from '../../../components/AppLayout';
-import ImageModal from '../../../components/ImageModal';
+import * as Service from '../../../../core/Service';
+import * as UI from '../../../../core/UI';
+import AppLayout from '../../../../components/AppLayout';
+import ImageModal from '../../../../components/ImageModal';
 import { EditOutlined, StopOutlined, CheckOutlined, FileProtectOutlined, FileSearchOutlined, ZoomInOutlined } from '@ant-design/icons';
 
 
@@ -40,20 +40,9 @@ const CompanyList = (props) => {
   const getAllData = async () => {
     let dataList =[];
     try {
-      if (app.admin.role === 1) {
-        let url = `/api/${involvedModelName}/admin/kyc`;
-        let data = await Service.call('get', url);
-        console.log(data)
-        dataList = _.orderBy(data, ['ctime'], ['desc']);
-      }
-
-      if (app.admin.role === 2) {
-        let url = `/api/${involvedModelName}/admin/kyc/single`;
-        let data = await Service.call('get', url);
-        if (data.company_kyc_id > 0) {
-          dataList = _.orderBy([data], ['ctime'], ['desc']);
-        } 
-      }
+      let url = `/api/${involvedModelName}/admin/kyc`;
+      let data = await Service.call('get', url);
+      dataList = _.orderBy(data, ['ctime'], ['desc']);
       toggleLoading(false)
     } catch (error) {
       console.error('error >>> ', error);
@@ -109,7 +98,7 @@ const CompanyList = (props) => {
       {
         title: 'Status',
         dataIndex: 'is_company_doc_verified',
-        render: (value) => displayIsActive(value),
+        render: (value) => UI.displayStatus(value, {1: 'Approved', 0: 'Pending', '-1': 'Rejected', default: 'ERROR'}),
         sorter: (a, b) => a.status - b.status
       },
       {
@@ -157,70 +146,25 @@ const CompanyList = (props) => {
         dataIndex: 'found_date',
         render: (value) => UI.momentFormat(value),
         sorter: (a, b) => a.found_date - b.found_date
-      },
-      // {
-      //   title: 'Create@',
-      //   dataIndex: 'ctime',
-      //   render: (value) => UI.momentFormat(value),
-      //   sorter: (a, b) => a.ctime - b.ctime
-      // },
-      // {
-      //   title: 'Update@',
-      //   dataIndex: 'utime',
-      //   render: (value) => UI.momentFormat(value),
-      //   sorter: (a, b) => a.utime - b.utime
-      // },
+      }
     ];
     return columns;
-  }
-  const displayIsActive = (value) => {
-    let displayStr = '';
-    let tagColor = 'green';
-    let statusValue = _.toInteger(value);
-    switch (statusValue) {
-      case 1:
-        displayStr = "Active";
-        tagColor = 'green';
-        break;
-      case 0:
-        displayStr = "Inactive";
-        tagColor = 'red';
-        break;
-      default:
-        displayStr = "Error"
-        tagColor = '#f50';
-        break;
-    }
-    return <Tag color={tagColor}>{displayStr}</Tag>;
   }
 
   if (loading) return <AppLayout title={title} selectedKey={selectedKey}><Spin spinning={loading}></Spin></AppLayout>;
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
-      {dataList.length <= 0 &&
-      <Button
-        // type="primary"
-        className="custom-btn"
-        onClick={() => {
-          history.push('/admin/company/kyc/form')
-          // setModalVisible(true);
-          // setSelectedRecord({company_id: 0})
-        }}
-      >
-        Apply KYC
-      </Button>
-      }
-      
+
       <Divider />
-      {dataList.length > 0 &&
       <Table
+        className="custom-table"
         rowKey={tableIDName}
         scroll={{x: 'max-content'}}
         dataSource={dataList}
         columns={setTableHeader()}
       />
-      }
+      
 
       <ImageModal
         title="Company Document"

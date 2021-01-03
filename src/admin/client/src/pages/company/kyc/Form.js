@@ -49,7 +49,7 @@ const CompanyKycForm = (props) => {
               <Col span={24}><CheckCircleFilled style={{fontSize: 48}}/></Col>
               <Col span={24}>Application Submitted Successfully.</Col>
               <Col span={24}>Reference No. {referenceNumber}</Col>
-              <Col span={24}><Button type="primary" onClick={() => history.push('/company/kyc/info')}>Back</Button></Col>  
+              <Col span={24}><Button type="primary" onClick={() => history.push('/company/kyc')}>Back</Button></Col>  
             </Row>
             
           </Col>

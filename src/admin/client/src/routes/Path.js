@@ -6,12 +6,20 @@ import * as Main from '../core/Main'
 import Public from './Public';
 import Private from './Private';
 
+//All
 import Login from '../pages/admin/Login';
 import Home from '../pages/admin/Home';
-import CompanyList from '../pages/admin/company/List';
-import CompanyKyc from '../pages/admin/company/KycList';
-import CompanyKycForm from '../pages/admin/company/KycForm';
-import CompanyKycInfo from '../pages/admin/company/KycInfo';
+
+//Admin
+import CompanyKycInfoAll from '../pages/admin/company/kyc/Info';
+import CompanyKycListAll from '../pages/admin/company/kyc/List';
+import EventTicket from '../pages/admin/event/Ticket';
+
+//Company
+import CompanyKyc from '../pages/company/kyc';
+import CompanyEventForm from '../pages/company/event/Form';
+
+
 
 import UserList from '../pages/admin/user/List';
 
@@ -25,13 +33,15 @@ const Path = (props) => {
         <Public path="/" component={Login} exact />
         <Private path="/home" component={Home} exact level={Main.LEVEL.ALL} />
 
-        <Private path="/admin/company/list" component={CompanyList} exact level={Main.LEVEL.ADMIN} />
-        <Private path="/admin/company/kyc" component={CompanyKyc} exact />
-        <Private path="/admin/company/kyc/info" component={CompanyKycInfo} exact level={Main.LEVEL.ADMIN} />
+        <Private path="/admin/company/kyc" component={CompanyKycListAll} exact />
+        <Private path="/admin/company/kyc/info" component={CompanyKycInfoAll} exact level={Main.LEVEL.ADMIN} />
+        <Private path="/admin/event/ticket" component={EventTicket} exact level={Main.LEVEL.ADMIN} />
+
         <Private path="/admin/user/list" component={UserList} exact level={Main.LEVEL.ADMIN} />
 
-        <Private path="/company/kyc/form" component={CompanyKycForm} exact level={Main.LEVEL.COMPANY} />
-        <Private path="/company/kyc/info" component={CompanyKycInfo} exact level={Main.LEVEL.COMPANY} />
+        <Private path="/company/kyc" component={CompanyKyc} exact level={Main.LEVEL.COMPANY} />
+        <Private path="/company/event/form" component={CompanyEventForm} exact level={Main.LEVEL.COMPANY} />
+
         <Route path="/404" component={NotFound} exact />
         <Redirect exact from="/*" to="/404" />
       </Switch>

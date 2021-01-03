@@ -143,19 +143,6 @@ const UserList = (props) => {
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
-      <Button
-        // type="primary"
-        className="custom-btn"
-        onClick={() => {
-          setModalVisible(true);
-          setSelectedRecord({company_id: 0})
-        }}
-      >
-        Create New
-      </Button>
-      
-      <Divider />
-
       <Table
         rowKey={tableIDName}
         scroll={{x: 'auto'}}
