@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { EventAPI } from "../../../smart-contract/api/Event";
 import {
   Input,
   Button,
@@ -15,10 +14,12 @@ import { setTotalSeats } from "../../../redux/actions/common";
 import _ from "lodash";
 import AppLayout from "../../../components/AppLayout";
 import { DownCircleOutlined } from "@ant-design/icons";
-
+import { EventAPI } from '../../../smart-contract/api/Event'
 const title = "Event Ticket";
 const selectedKey = "event_ticket";
 const { Option } = Select;
+
+const eventAPI = new EventAPI();
 
 const buttonStyles = {
   vip: {
@@ -50,7 +51,7 @@ const buttonStyles = {
 
 let totalTotalSeatsObj = {};
 const CreateEventForm = () => {
-  const [eventAPI, setEventAPI] = useState({});
+  // const [eventAPI, setEventAPI] = useState({});
   const [area, setArea] = useState("");
   const [ticketType, setTicketType] = useState(null);
   const [rows, setRows] = useState(1);
@@ -70,8 +71,13 @@ const CreateEventForm = () => {
   const totalSeats = useSelector((state) => state.app.totalSeats);
   const dispatch = useDispatch();
 
+  const [events, setEvents] = useState(null);
+  const [loading ,setLoading] = useState(true)
+
   useEffect(() => {
     // init();
+    getEvent()
+    setLoading(false)
     console.log("test", totalSeats);
   }, []);
 
@@ -79,40 +85,40 @@ const CreateEventForm = () => {
     renderSeats(totalTotalSeatsObj);
   }, [totalTotalSeatsObj]);
 
-  const init = async () => {
-    let eventAPI = new EventAPI();
-    setEventAPI(eventAPI);
-    await eventAPI.init();
-    console.log("hi");
+  // const init = async () => {
+  //   let eventAPI = new EventAPI();
+  //   setEventAPI(eventAPI);
+  //   await eventAPI.init();
+  //   console.log("hi");
 
-    let detailObj = {
-      name: "張敬軒盛樂演唱會",
-      venu: "紅磡體育館",
-      contact: "+852-56281088",
-      email: "timchengy@gmail.com",
-      startDate: 1607701444,
-      endDate: 1607701444,
-      need_kyc: true,
-      country: "HK",
-      district: "Hung Hom",
-      fullAddress: "Hong Kong Coliseum",
-      company: "XXX Company",
-      description: "XXXX Description",
-      totalSupply: 5000,
-      performer: "張敬軒",
-      category: "sing",
-      startDateSell: 1607701444,
-      endDateSell: 1607701444,
-    };
+  //   let detailObj = {
+  //     name: "張敬軒盛樂演唱會",
+  //     venu: "紅磡體育館",
+  //     contact: "+852-56281088",
+  //     email: "timchengy@gmail.com",
+  //     startDate: 1607701444,
+  //     endDate: 1607701444,
+  //     need_kyc: true,
+  //     country: "HK",
+  //     district: "Hung Hom",
+  //     fullAddress: "Hong Kong Coliseum",
+  //     company: "XXX Company",
+  //     description: "XXXX Description",
+  //     totalSupply: 5000,
+  //     performer: "張敬軒",
+  //     category: "sing",
+  //     startDateSell: 1607701444,
+  //     endDateSell: 1607701444,
+  //   };
 
-    // await eventAPI.createEvent(detailObj);
-    let ticket = await eventAPI.getTicketAll();
-    let result = await eventAPI.getEvent(0);
-    console.log(ticket);
-    console.log(result);
-    // let test =  await eventAPI.testMint();
-    // console.log(id)
-  };
+  //   // await eventAPI.createEvent(detailObj);
+  //   let ticket = await eventAPI.getTicketAll();
+  //   let result = await eventAPI.getEvent(0);
+  //   console.log(ticket);
+  //   console.log(result);
+  //   // let test =  await eventAPI.testMint();
+  //   // console.log(id)
+  // };
 
   const onChangeSeat = ({ area, row, column }) => {
     let target = totalTotalSeatsObj[area]["body"][row][column];
@@ -377,8 +383,30 @@ const CreateEventForm = () => {
     return buttons;
   };
 
+  const getEvent = async () => {
+    await eventAPI.init();
+    let element = [];
+    let events = await eventAPI.getEvent(0);
+    
+    events = [events];
+    {events.map(item => {
+      return element.push((<Select.Option key={item.eventId} value={item.eventId}>{item.name}</Select.Option>))
+    })}
+
+    element = (<Select style={{width: "100%"}}>{element}</Select>);
+    setEvents(element)
+  }
+
+  if (loading) return (<AppLayout>Wait</AppLayout>)
+
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
+      <Row gutter={[16, 16]}>
+        <Col span={8}>
+          Event:{" "}
+          {events}
+        </Col>
+      </Row>
       <Row gutter={[16, 16]}>
         <Col span={6}>
           AREA:{" "}

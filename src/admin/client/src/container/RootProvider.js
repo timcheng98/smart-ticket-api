@@ -6,15 +6,25 @@ import { Spin, Skeleton } from 'antd';
 import * as Service from '../core/Service';
 import _ from 'lodash';
 import Path from '../routes/Path';
-import AppLayout from '../components/AppLayout';
+import { EventAPI } from '../smart-contract/api/Event'
+
+const eventAPI = new EventAPI();
 
 const RootProvider = () => {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
   useEffect(() => {
+
     init();
   }, [])
+
+
+  const loadBlockchain = async () => {
+    let event = await eventAPI.init()
+
+    console.log('init blockchain', event)
+  }
 
   const init = async () => {
     // setLoading(true);
@@ -34,6 +44,7 @@ const RootProvider = () => {
       return;
     }
 
+    loadBlockchain();
 
     if (resp.userData[0].role === 1) {
       dispatch(setAdmin(resp.userData[0]));

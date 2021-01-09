@@ -80,6 +80,8 @@ const KycInformation = () => {
     setText(e.target.value);
   };
 
+  console.log(company);
+
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
       <div style={{ marginBottom: 100 }}>
@@ -92,7 +94,7 @@ const KycInformation = () => {
           <Descriptions.Item label="Status">
             <Badge
               status="processing"
-              text={UI.displayStatus(company.is_company_doc_verified)}
+              text={UI.displayApplicationStatus(company.status)}
             />
           </Descriptions.Item>
           {company.status === -1 && (

@@ -5,7 +5,8 @@ const path = require('path');
 module.exports = {
   "DEBUG": "app:*",
   "DEBUG_MODE": false,
-  "STATIC_SERVER_URL": "http://localhost:3000",
+  // "STATIC_SERVER_URL": "http://localhost:3000",
+  "STATIC_SERVER_URL": "http://172.16.210.165:3000",
   "API": {
     "PORT": 3000,
     "ORIGIN": "http://localhost:3000",

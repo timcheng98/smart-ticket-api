@@ -23,17 +23,18 @@ module.exports = exports = {
     router.get('/api/event', getEvent);
     router.post('/api/event', postEvent);
     router.patch('/api/event', patchEvent);
+    router.patch('/api/admin/event', patchEventByAdmin);
 
   }
 };
 
 const getEventAll = async (req, res) => {
   try {
-    let eventRC = await eventModel.selectEvent({where: { all: true }});
+    let result = await eventModel.selectEvent({all: true});
 
     res.apiResponse({
       status: 1,
-      eventRC
+      result
     });
   } catch (error) {
     console.error(error);
@@ -73,7 +74,7 @@ const postEvent = async (req, res) => {
       region: '',
       location: '',
       address: '',
-      status: 1,
+      status: 0, // draft
       issued_tickets: 0,
       type: 0
     };
@@ -118,6 +119,41 @@ const patchEvent = async (req, res) => {
       postData[key] = _.toInteger(moment(val).unix());
     });
     let [eventRC] = await eventModel.updateEvent(admin_id, postData);
+
+    res.apiResponse({
+      status: 1,
+      eventRC
+    });
+  } catch (error) {
+    console.error(error);
+    res.apiError(error);
+  }
+}
+
+const patchEventByAdmin = async (req, res) => {
+  try {
+    let postData = {}
+
+    // _.each(_.pick(req.body, [
+    //   'name','country', 'region', 'location', 'address', 'short_desc',
+    //   'long_desc', 'approval_doc', 'seat_doc', 'reject_reason'
+    // ]), (val, key) => {
+    //   postData[key] = _.toString(val);
+    // });
+
+    // _.each(_.pick(req.body, [
+    //   'released_date', 'close_date', 'start_time', 'end_time'
+    // ]), (val, key) => {
+    //   postData[key] = _.toInteger(moment(val).unix());
+    // });
+
+    _.each(_.pick(req.body, [
+      'status', 'is_seat_doc_verified', 'is_approval_doc_verified', 'admin_id'
+    ]), (val, key) => {
+      postData[key] = _.toInteger(val);
+    });
+
+    let [eventRC] = await eventModel.updateEvent(postData.admin_id, postData);
 
     res.apiResponse({
       status: 1,

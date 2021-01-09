@@ -78,7 +78,7 @@ const KycInformation = () => {
           <Descriptions.Item label="Status">
             <Badge
               status="processing"
-              text={UI.displayStatus(company.status, {1: 'Approved', 0: 'Pending', '-1': 'Rejected', default: 'ERROR'})}
+              text={UI.displayApplicationStatus(company.status)}
             />
           </Descriptions.Item>
           {company.status === -1 && (

@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import Ticket from '../../../../abis/Ticket.json';
+import Ticket from '../abis/Ticket.json';
 // import Event from '../../../abis/Event.json';
 import _ from 'lodash';
 import { getStore } from '../../redux/store/configureStore';
@@ -11,8 +11,8 @@ export class EventAPI {
 		this.web3 = {};
 		this.accounts = [];
 		this.address = '';
-		this.default_account = '0x11aefC18c5ED4a9d7668B6Ef9cF0bE450aa43A03';
-		this.default_account_private_key = '6cac840b1b489ae59b62ccd3e2a6a48665c30aa6eae86af4aed8b23e3e89c44e'
+		this.default_account = '0x82d1D0Fe245993aA74ee54f4ea921c580F3Aa33c';
+		this.default_account_private_key = 'c70068070b7033a4673a2e9531f650210faf0cb7fbe345943e42eee0d7751a5a'
 	}
 
 	getWeb3() {
@@ -20,8 +20,8 @@ export class EventAPI {
 	}
 
 	async init() {
-		await this.loadWeb3();
-		// await this.loadRemoteWeb3();
+		// await this.loadWeb3();
+		await this.loadRemoteWeb3();
 		await this.loadBlockchainData();
 		return true
 	}
@@ -31,6 +31,7 @@ export class EventAPI {
 			window.web3 = new Web3(window.ethereum);
 			await window.ethereum.enable();
 			this.web3 = window.web3;
+			console.log(this.web3);
 		} else if (window.web3) {
 			window.web3 = new Web3(window.web3.currentProvider);
 			this.web3 = window.web3;
@@ -52,6 +53,7 @@ export class EventAPI {
 		this.accounts = await this.web3.eth.getAccounts();
 		const networkId = await this.web3.eth.net.getId();
 		const networkData = Ticket.networks[networkId];
+		console.log(Ticket);
 		if (networkData) {
 			const abi = Ticket.abi;
 			const address = networkData.address;
@@ -67,6 +69,9 @@ export class EventAPI {
 		let total = await this.contract.methods.eventId.call({
 			from: this.accounts[0],
 		});
+
+		console.log(this.accounts[0]);
+		console.log('total', total);
 		if (!total) return [];
 
 		console.log('total', total)

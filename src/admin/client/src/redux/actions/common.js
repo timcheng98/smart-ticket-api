@@ -103,3 +103,10 @@ export function setTotalSeats(totalSeats) {
     data: totalSeats,
   };
 }
+
+export function setEvents(events) {
+  return {
+    type: types.SET_EVENTS,
+    data: events,
+  };
+}

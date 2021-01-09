@@ -10,13 +10,13 @@ contract Event {
   // mapping(string => bool) _ticketExists;
   uint256 public eventId = 0;
   uint256 public approveId = 0;
-  address public owner;
+  address public eventContractOwner;
   mapping(uint => address) public eventOwner;
 
   mapping (address => Counters.Counter) private _ownedEventsCount;
 
   constructor() public {
-    owner = msg.sender;
+    eventContractOwner = msg.sender;
   }
 
   struct Event {
@@ -25,17 +25,17 @@ contract Event {
   }
 
   modifier onlyOwner() {
-    require(owner == msg.sender, 'sender is not a owner');
+    require(eventContractOwner == msg.sender, 'sender is not a owner');
     _;
   }
 
   modifier onlyApprove() {
-    require(approves[msg.sender] || owner == msg.sender, 'sender is not approved');
+    require(approves[msg.sender] || eventContractOwner == msg.sender, 'sender is not approved');
     _;
   }
 
-  function getOwner() public view returns(address) {
-    return owner;
+  function getEventContractOwner() public view returns(address) {
+    return eventContractOwner;
   }
 
   function _incrementEvent() internal {
@@ -83,7 +83,7 @@ contract Event {
   }
 
   function eventOwnerBalanceOf(address _owner) public view returns (uint256) {
-  require(owner != address(0), "Event: balance query for the zero address");
+  require(eventContractOwner != address(0), "Event: balance query for the zero address");
       return _ownedEventsCount[_owner].current();
   }
 

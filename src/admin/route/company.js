@@ -86,6 +86,8 @@ const getKycList = async (req, res) => {
 const getKycById = async (req, res) => {
   try {
     let result = await kyc.selectKyc(req.user.admin_id);
+    console.log('test_test', result );
+
     res.apiResponse({
       status: 1, result
     })
@@ -100,7 +102,7 @@ const postKyc = async (req, res) => {
       admin_id: req.user.admin_id,
       check_by: 0,
       is_company_doc_verified: 0,
-      status: 0, //pending
+      status: 0, // draft
       company_size: '',
       company_code: '',
       company_doc: '',

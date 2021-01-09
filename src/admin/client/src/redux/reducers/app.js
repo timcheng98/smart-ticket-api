@@ -26,7 +26,8 @@ const initialState = Immutable({
   company_admin: {},
   origin: '',
   logoutWay: '',
-  totalSeats: {}
+  totalSeats: {},
+  events: false
 });
 
 const appReducer = {
@@ -72,6 +73,13 @@ const appReducer = {
         state = {
           ...state,
           totalSeats: {...state.totalSeats, ...action.data}
+        };
+        return state;
+      }
+      case types.SET_EVENTS: {
+        state = {
+          ...state,
+          events: action.data
         };
         return state;
       }

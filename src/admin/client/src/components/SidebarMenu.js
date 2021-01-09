@@ -90,6 +90,12 @@ const AdminLevelItems = [
     icon: <BankOutlined />
   },
   {
+    key: 'event_list',
+    title: 'Event List',
+    path: '/admin/event/list',
+    icon: <BankOutlined />
+  },
+  {
     key: 'event_ticket',
     title: 'Event Ticket',
     path: '/admin/event/ticket',
@@ -105,9 +111,9 @@ const CompanyLevelItems = [
     icon: <BankOutlined />
   },
   {
-    key: 'event_form',
-    title: 'Event Form',
-    path: '/company/event/form',
+    key: 'company_event',
+    title: 'Event Application',
+    path: '/company/event',
     icon: <BankOutlined />
   }
 ]

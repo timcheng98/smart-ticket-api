@@ -49,7 +49,7 @@ const CompanyKycForm = (props) => {
               <Col span={24}><CheckCircleFilled style={{fontSize: 48}}/></Col>
               <Col span={24}>Application Submitted Successfully.</Col>
               <Col span={24}>Reference No. {referenceNumber}</Col>
-              <Col span={24}><Button type="primary" onClick={() => history.push('/company/kyc')}>Back</Button></Col>  
+              <Col span={24}><Button type="primary" onClick={() => history.push('/')}>Back</Button></Col>  
             </Row>
             
           </Col>
@@ -89,7 +89,7 @@ const BasicInformation = (props) => {
     let resp = await Service.call('get', `/api/company/admin/kyc/single`);
     if (resp.company_kyc_id > 0) {
       // pending or success
-      if (resp.status > 0) return history.push('/company/kyc/info');
+      if (resp.status > 1) return history.push('/company/kyc');
 
       resp.found_date = moment.unix(_.toInteger(resp.found_date));
       form.setFieldsValue(resp);
@@ -216,7 +216,8 @@ const SupportDocument = (props) => {
 
   const getInitialValue = async () => {
     let data = await Service.call('get', `/api/company/admin/kyc/single`);
-    if (data.resp) {
+
+    if (data) {
       setImageURL(`${app.config.STATIC_SERVER_URL}/media/${data.company_doc}`)
     }
   }
@@ -232,7 +233,7 @@ const SupportDocument = (props) => {
         await Service.call('patch', '/api/company/admin/kyc', patchObj);
 
         let path = info.file.response.url;
-        setImageURL(path);
+        setImageURL(`${app.config.STATIC_SERVER_URL}/media/${info.file.response.filename}`)
         setFileInfo(info.file);
       }
       else{
@@ -284,7 +285,10 @@ const SupportDocument = (props) => {
             <Form.Item >
             <Button
               className="custom-btn"
-              onClick={() => props.setStep(3)}
+              onClick={async () => {
+                await Service.call('patch', '/api/company/admin/kyc', { status: 1 });
+                props.setStep(3)
+              }}
             >
               Next
             </Button>

@@ -34,6 +34,17 @@ const title = "Event Form";
 const selectedKey = "event_form";
 // const tableIDName = "company_kyc_id";
 
+const openNotification = () => {
+  notification.open({
+    message: 'Notification Title',
+    description:
+      'This is the content of the notification. This is the content of the notification. This is the content of the notification.',
+    onClick: () => {
+      console.log('Notification Clicked!');
+    },
+  });
+};
+
 const EventForm = (props) => {
   const [step, setStep] = useState(1);
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -76,7 +87,7 @@ const EventForm = (props) => {
               <Col span={24}>
                 <Button
                   type="primary"
-                  onClick={() => history.push("/company/kyc")}
+                  onClick={() => history.push("/")}
                 >
                   Back
                 </Button>
@@ -217,14 +228,14 @@ const BasicInformation = (props) => {
         name="short_desc"
         rules={[{ required: false, message: "Please input Company Name." }]}
       >
-        <Input />
+        <Input.TextArea autoSize={{ minRows: 3}}/>
       </Form.Item>
       <Form.Item
         label="Long Description"
         name="long_desc"
         rules={[{ required: false, message: "Please input Company Owner." }]}
       >
-        <Input />
+        <Input.TextArea autoSize={{ minRows: 5}} />
       </Form.Item>
       <Form.Item
         label="Event Period"
@@ -299,6 +310,7 @@ const SupportDocument = (props) => {
         message.success("成功上載");
         let patchObj = {
           approval_doc: info.file.response.filename,
+          status: 0 // pending
         };
         await Service.call("patch", "/api/event", patchObj);
 
@@ -322,7 +334,7 @@ const SupportDocument = (props) => {
     <Form>
       <Row justify="center">
         <Col>
-          <h2>公司證明</h2>
+          <h2>相關文件證明</h2>
         </Col>
       </Row>
       <Row justify="center" style={{ padding: 50 }}>
@@ -358,7 +370,15 @@ const SupportDocument = (props) => {
         </Col>
         <Col>
           <Form.Item>
-            <Button className="custom-btn" onClick={() => props.setStep(3)}>
+            <Button className="custom-btn" onClick={async () => {
+              let resp = await Service.call("get", "/api/event");
+              console.log('test_>>>', resp.eventRc)
+              if (resp.eventRc.approval_doc === '') {
+                return openNotification()
+              }
+              await Service.call("patch", "/api/event", { status: 1 });
+              props.setStep(3)
+            }}>
               Next
             </Button>
           </Form.Item>
