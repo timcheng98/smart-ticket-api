@@ -18,6 +18,7 @@ exports.getRouter = function(ns) {
     res.apiResponse({
       status: 1,
       STATIC_SERVER_URL: config.get('STATIC_SERVER_URL'),
+      TURRFLE_URL: config.get('TRUFFLE.ORIGIN')
     });
   });
 

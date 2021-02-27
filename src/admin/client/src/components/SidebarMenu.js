@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { Menu } from 'antd';
 import {
   DashboardOutlined,
-  BankOutlined
+  BankOutlined,
+  ShopOutlined,
+  TeamOutlined,
+  SolutionOutlined,
+  CalendarOutlined
 } from '@ant-design/icons';
 import _ from 'lodash';
 import * as Main from '../core/Main'
@@ -81,26 +85,32 @@ const AdminLevelItems = [
     key: 'company_kyc',
     title: 'Company Kyc',
     path: '/admin/company/kyc',
-    icon: <BankOutlined />
+    icon: <ShopOutlined />
   },
   {
     key: 'user_list',
     title: 'User List',
     path: '/admin/user/list',
-    icon: <BankOutlined />
+    icon: <TeamOutlined />
+  },
+  {
+    key: 'user_kyc',
+    title: 'User KYC',
+    path: '/admin/user/kyc',
+    icon: <SolutionOutlined />
   },
   {
     key: 'event_list',
     title: 'Event List',
     path: '/admin/event/list',
-    icon: <BankOutlined />
+    icon: <CalendarOutlined />
   },
-  {
-    key: 'event_ticket',
-    title: 'Event Ticket',
-    path: '/admin/event/ticket',
-    icon: <BankOutlined />
-  }
+  // {
+  //   key: 'event_ticket',
+  //   title: 'Event Ticket',
+  //   path: '/admin/event/ticket',
+  //   icon: <BankOutlined />
+  // }
 ]
 
 const CompanyLevelItems = [
@@ -108,13 +118,13 @@ const CompanyLevelItems = [
     key: 'company_kyc',
     title: 'Company Kyc',
     path: '/company/kyc',
-    icon: <BankOutlined />
+    icon: <ShopOutlined />
   },
   {
     key: 'company_event',
     title: 'Event Application',
     path: '/company/event',
-    icon: <BankOutlined />
+    icon: <CalendarOutlined />
   }
 ]
 

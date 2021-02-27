@@ -20,7 +20,7 @@
     "eslint": "eslint"
   },
   "keywords": [],
-  "author": "Ryan Ip <ryan.ip@technine.io> (https://technine.io)",
+  "author": "",
   "license": "UNLICENSED",
   "dependencies": {
     "@ikoala/logger": "^1.1.3",

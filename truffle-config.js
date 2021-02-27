@@ -1,11 +1,12 @@
 require('babel-register');
 require('babel-polyfill');
+const config = require('config');
 
 module.exports = {
   networks: {
     development: {
-      host: "192.168.2.53",
-      port: 7545,
+      host: config.get('TRUFFLE.HOST'),
+      port: config.get('TRUFFLE.PORT'),
       network_id: "*", // Match any network id,
     }
   },

@@ -13,6 +13,7 @@ import {
   Tag,
   Tooltip,
   Spin,
+  Tabs,
   Descriptions,
   Badge,
   Image,
@@ -21,7 +22,7 @@ import {
   Input,
 } from "antd";
 import {
-  CheckCircleOutlined,
+  CheckCircleOutlined, GlobalOutlined
 } from '@ant-design/icons';
 import { useHistory, Link } from "react-router-dom";
 import moment from "moment";
@@ -41,6 +42,7 @@ import {
   ZoomInOutlined,
 } from "@ant-design/icons";
 
+const { TabPane } = Tabs;
 const involvedModelName = "event";
 const title = "Events";
 const selectedKey = "event_list";
@@ -56,7 +58,7 @@ const EventInfo = () => {
   const history = useHistory();
   const [dataSource, setDataSource] = useState({});
 
-  const [events, setEvent] = useState({}) 
+  const [events, setEvent] = useState({})
 
   useEffect(() => {
     getInitalState();
@@ -91,7 +93,7 @@ const EventInfo = () => {
   };
 
   const onChainProcess = async (e) => {
-   
+
     await sc_event_api.autoSignEventTransaction(dataSource)
   }
 
@@ -102,106 +104,137 @@ const EventInfo = () => {
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
-               {sc_events[dataSource.event_id] && (
-        <Row gutter={[0, 20]}>
-          <Col>   <Tag 
-           icon={<CheckCircleOutlined style={{fontSize: 12}} />} 
-           style={{padding: '6px 15px', border: 'none', borderRadius: 15, fontWeight: 'bold', fontSize: 12}}
-            color="green">
-              On the Blochain Already
-              </Tag></Col>
-        </Row>
-         )}
-      <div style={{ marginBottom: 100 }}>
-      <Descriptions
-          title="Event Information"
-          bordered
-          column={1}
-          layout="vertical"
-          style={{marginBottom: 20}}
-        >
-          <Descriptions.Item label="Status">
+
+      <Tabs type="card">
+        <TabPane tab="Progress" key="1">
+          <Row gutter={[0, 12]}>
             <Badge
               status="processing"
               text={UI.displayApplicationStatus(dataSource.status)}
             />
-          </Descriptions.Item>
-          {dataSource.status === -1 && (
-            <Descriptions.Item label="Reject Reason(s)" style={{color: 'black', fontWeight: 'bold'}}>
-            <span style={{color: 'black', fontWeight: 'bold'}}>{ dataSource.reject_reason}</span>
-            </Descriptions.Item>
+          </Row>
+          {sc_events[dataSource.event_id] && (
+            <Row gutter={[0, 20]}>
+              <Col>
+                <Badge
+                  status="processing"
+                  text={
+                    <Tag
+                      icon={<GlobalOutlined style={{ fontSize: 12 }} />}
+                      style={{ padding: '6px 15px', border: 'none', borderRadius: 15, fontWeight: 'bold', fontSize: 12 }}
+                      color="blue"
+                    >
+                      On the Blochain Already
+                    </Tag>
+                  }
+                />
+              </Col>
+            </Row>
           )}
-          {/* {dataSource.check_by !== 0 && (
+        </TabPane>
+        <TabPane tab="Basic Information" key="2">
+          <Descriptions
+            // title="Event Information"
+            bordered
+            column={1}
+          >
+            {dataSource.status === -1 && (
+              <Descriptions.Item label="Reject Reason(s)" style={{ color: 'black', fontWeight: 'bold' }}>
+                <span style={{ color: 'black', fontWeight: 'bold' }}>{dataSource.reject_reason}</span>
+              </Descriptions.Item>
+            )}
+            {/* {dataSource.check_by !== 0 && (
             <Descriptions.Item label="Check By">
               {dataSource.check_by}
             </Descriptions.Item>
           )} */}
-          <Descriptions.Item label="Event Name">
-            {dataSource.name}
-          </Descriptions.Item>
-          <Descriptions.Item label="Short Description">{dataSource.short_desc}</Descriptions.Item>
-          <Descriptions.Item label="Long Description">{dataSource.long_desc}</Descriptions.Item>
-          <Descriptions.Item label="Event Code">
-            {dataSource.event_code}
-          </Descriptions.Item>
-          <Descriptions.Item label="type">
-            {dataSource.type}
-          </Descriptions.Item>
-          <Descriptions.Item label="Start Time">
-            {moment.unix(dataSource.start_time).format("YYYY-MM-DD HH:mm")}
-          </Descriptions.Item>
-          <Descriptions.Item label="End Time">
-            {moment.unix(dataSource.end_time).format("YYYY-MM-DD HH:mm")}
-          </Descriptions.Item>
-          <Descriptions.Item label="Released Sell Date">
-            {moment.unix(dataSource.released_date).format("YYYY-MM-DD HH:mm")}
-          </Descriptions.Item>
-          <Descriptions.Item label="Close Sell Date">
-            {moment.unix(dataSource.close_date).format("YYYY-MM-DD HH:mm")}
-          </Descriptions.Item>
-          <Descriptions.Item label="Address">
-            {dataSource.address}
-          </Descriptions.Item>
-          <Descriptions.Item label="Region">
-            {dataSource.region}
-          </Descriptions.Item>
-          <Descriptions.Item label="Location">
-            {dataSource.location}
-          </Descriptions.Item>
-          <Descriptions.Item label="Country">
-            {dataSource.country}
-          </Descriptions.Item>
-          <Descriptions.Item
-            label="Event Document(Click to zoom)"
-            contentStyle={{ padding: 20 }}
+            <Descriptions.Item label="Event Name">
+              {dataSource.name}
+            </Descriptions.Item>
+            <Descriptions.Item label="Short Description">{dataSource.short_desc}</Descriptions.Item>
+            <Descriptions.Item label="Long Description">{dataSource.long_desc}</Descriptions.Item>
+            <Descriptions.Item label="Event Code">
+              {dataSource.event_code}
+            </Descriptions.Item>
+            <Descriptions.Item label="type">
+              {dataSource.type}
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Address">
+              {dataSource.address}
+            </Descriptions.Item>
+            <Descriptions.Item label="Region">
+              {dataSource.region}
+            </Descriptions.Item>
+            <Descriptions.Item label="Location">
+              {dataSource.location}
+            </Descriptions.Item>
+            <Descriptions.Item label="Country">
+              {dataSource.country}
+            </Descriptions.Item>
+          </Descriptions>
+        </TabPane>
+        <TabPane tab="Date" key="3">
+          <Descriptions
+            bordered
+            column={1}
+            layout="vertical"
           >
-            <Image.PreviewGroup>
-              <Image
-                id="event_doc"
-                width={300}
-                src={`${app.config.STATIC_SERVER_URL}/media/${dataSource.approval_doc}`}
-              />
-            </Image.PreviewGroup>
-          </Descriptions.Item>
-        </Descriptions>
-       <Row>
+            <Descriptions.Item label="Start Time">
+              {moment.unix(dataSource.start_time).format("YYYY-MM-DD HH:mm")}
+            </Descriptions.Item>
+            <Descriptions.Item label="End Time">
+              {moment.unix(dataSource.end_time).format("YYYY-MM-DD HH:mm")}
+            </Descriptions.Item>
+            <Descriptions.Item label="Released Sell Date">
+              {moment.unix(dataSource.released_date).format("YYYY-MM-DD HH:mm")}
+            </Descriptions.Item>
+            <Descriptions.Item label="Close Sell Date">
+              {moment.unix(dataSource.close_date).format("YYYY-MM-DD HH:mm")}
+            </Descriptions.Item>
+          </Descriptions>
+        </TabPane>
+        <TabPane tab="Documents" key="4">
+          <Descriptions
+            bordered
+            column={1}
+          >
+            <Descriptions.Item
+              label="Event Document(Click to zoom)"
+              contentStyle={{ padding: 20 }}
+            >
+              <Image.PreviewGroup>
+                <Image
+                  id="event_doc"
+                  width={300}
+                  src={`${app.config.STATIC_SERVER_URL}/media/${dataSource.approval_doc}`}
+                />
+              </Image.PreviewGroup>
+            </Descriptions.Item>
+          </Descriptions>
+        </TabPane>
+      </Tabs>
+
+      <div style={{ marginBottom: 100 }}>
+
+        <Row>
           {
-           sc_events[dataSource.event_id] && (
-             <Link
-             to={{
-              pathname: "/admin/event/ticket",
-              state: { dataSource, eventId: sc_events[dataSource.event_id].eventId },
-            }}
-             >
-             <Button
-                style={{ margin: 20 }}
-                type="primary"
-                // onClick={onChainProcess}
+            sc_events[dataSource.event_id] && (
+              <Link
+                to={{
+                  pathname: "/admin/event/ticket",
+                  state: { dataSource, eventId: sc_events[dataSource.event_id].eventId },
+                }}
               >
-                Create Tickets
+                <Button
+                  style={{ margin: 20 }}
+                  type="primary"
+                // onClick={onChainProcess}
+                >
+                  Create Tickets
               </Button>
-             </Link>
-              
+              </Link>
+
             )
           }
           {
@@ -221,8 +254,8 @@ const EventInfo = () => {
                 style={{ margin: 20 }}
                 type="primary"
                 onClick={confirmApprove}
-               >
-                 Approval
+              >
+                Approval
                </Button>
               <Button
                 type="danger"

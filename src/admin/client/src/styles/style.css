@@ -90,3 +90,15 @@
 .custom-table .ant-table-thead .ant-table-cell {
   background-color: #fff
 }
+
+.ant-descriptions-item-label {
+  font-weight: bold;
+}
+
+/* body, header, section, div, p, ul, main, th, td, span, button, a, li, aside {
+  background-color: #2B2B2B !important;
+}
+
+body, header, section, div, p, ul, main, th, td, span, button, a, li {
+  color: #fafafa !important;
+} */

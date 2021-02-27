@@ -33,6 +33,11 @@ module.exports = {
       "database": "smart_ticket_api_dev"
     }
   },
+  "TRUFFLE": {
+    "PORT": 7545,
+    "HOST": "192.168.2.53",
+    "ORIGIN": "http://192.168.2.53:7545",
+  },
   "AUTH": {
     "USERNAME": "",
     "PASSWORD": null

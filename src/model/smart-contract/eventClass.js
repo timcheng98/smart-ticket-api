@@ -1,9 +1,7 @@
-import Web3 from 'web3';
-import Ticket from '../abis/Ticket.json';
-// import Event from '../../../abis/Event.json';
-import _ from 'lodash';
-import { getStore } from '../../redux/store/configureStore';
-import * as CommonActions from '../../redux/actions/common'
+const Web3 = require('web3');
+const Ticket = require('../../admin/client/src/smart-contract/abis/Ticket.json');
+const _ = require('lodash');
+const config = require('config');
 
 export class EventAPI {
 	constructor() {
@@ -26,26 +24,26 @@ export class EventAPI {
 		return true
 	}
 
-	async loadWeb3() {
+	// async loadWeb3() {
 
-		if (window.ethereum) {
-			window.web3 = new Web3(window.ethereum);
-			await window.ethereum.enable();
-			this.web3 = window.web3;
-		} else if (window.web3) {
-			window.web3 = new Web3(window.web3.currentProvider);
-			this.web3 = window.web3;
-		} else {
-			window.alert(
-				'Non-Ethereum browser detected. You should consider trying MetaMask!'
-			);
-		}
-	}
+	// 	if (window.ethereum) {
+	// 		window.web3 = new Web3(window.ethereum);
+	// 		await window.ethereum.enable();
+	// 		this.web3 = window.web3;
+	// 	} else if (window.web3) {
+	// 		window.web3 = new Web3(window.web3.currentProvider);
+	// 		this.web3 = window.web3;
+	// 	} else {
+	// 		window.alert(
+	// 			'Non-Ethereum browser detected. You should consider trying MetaMask!'
+	// 		);
+	// 	}
+	// }
 
 	async loadRemoteWeb3() {
-		const PROVIDER = getStore().getState().app.config.TURRFLE_URL;
-		window.web3 = new Web3(PROVIDER);
-		this.web3 = window.web3;
+		// const PROVIDER = getStore().getState().app.config.TURRFLE_URL;
+		let web3 = new Web3(config.get('TRUFFLE.ORIGIN'));
+		this.web3 = web3;
 	}
 
 	async loadBlockchainData() {
@@ -59,7 +57,7 @@ export class EventAPI {
 			this.address = address;
 
 			this.contract = new this.web3.eth.Contract(abi, address);
-			console.log('networkData', this.contract)
+			// console.log('networkData', this.contract)
 
 		} else {
 			window.alert('Smart contract not deployed to detected network.');
@@ -267,7 +265,7 @@ export class EventAPI {
 			transaction,
 			(confirmedMessage) => {
 				console.log(' ticket confirmedMessage', confirmedMessage);
-				return getStore().dispatch(CommonActions.setEvents(true))
+				// return getStore().dispatch(CommonActions.setEvents(true))
 			}
 		);
 	}
@@ -277,14 +275,13 @@ export class EventAPI {
 		.mint(_seats);
 
 		console.log('auto create ticket step 1 data >>>', _seats)
-		console.log('auto create ticket step 2 transaction >>>', transaction)
+		console.log('auto create ticket step 2 transaction')
 		return this.signTransaction(transaction, function(confirmedMessage) {
 			console.log(' ticket confirmedMessage', confirmedMessage);
 		}); 
 	}
 
 	async createSeats(_seats) {
-		console.log(_seats);
 		let result = await this.contract.methods
 			.mint(_seats)
 			.send({ from: this.accounts[0] });
@@ -300,13 +297,13 @@ export class EventAPI {
 	console.log('step 2 -- transaction', transaction)
 		return this.signTransaction(transaction, function(confirmedMessage) {
 			console.log('event confirmedMessage', confirmedMessage)
-			return getStore().dispatch(CommonActions.setEvents(true))
+			// return getStore().dispatch(CommonActions.setEvents(true))
    });
   
 	}
 
 	async signTransaction(transaction, cb) {
-		getStore().dispatch(CommonActions.setLoading(true))
+		// getStore().dispatch(CommonActions.setLoading(true))
 
 		let gas = await transaction.estimateGas({ from: this.default_account });
 		let nonce = await this.web3.eth.getTransactionCount(this.default_account);
@@ -335,7 +332,7 @@ export class EventAPI {
 			})
 			.on('confirmation', (confirmationNumber) => {
 				console.log('step 3 -- confirmation: ' + confirmationNumber);
-				getStore().dispatch(CommonActions.setLoading(false))
+				// getStore().dispatch(CommonActions.setLoading(false))
 				if (confirmationNumber == 1) {
 					cb("Transaction Confirmed");
 				}
