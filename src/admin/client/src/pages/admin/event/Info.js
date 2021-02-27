@@ -20,6 +20,9 @@ import {
   Col,
   Input,
 } from "antd";
+import {
+  CheckCircleOutlined,
+} from '@ant-design/icons';
 import { useHistory, Link } from "react-router-dom";
 import moment from "moment";
 import _ from "lodash";
@@ -27,7 +30,7 @@ import { useSelector } from "react-redux";
 import * as Service from "../../../core/Service";
 import * as UI from "../../../core/UI";
 import AppLayout from "../../../components/AppLayout";
-import eventAPI from '../../../smart-contract/api/Event';
+// import { eventAPI } from '../../../smart-contract/api/Event';
 import ImageModal from "../../../components/ImageModal";
 import {
   EditOutlined,
@@ -42,22 +45,27 @@ const involvedModelName = "event";
 const title = "Events";
 const selectedKey = "event_list";
 const tableIDName = "event_id";
+// const eventAPI = new EventAPI();
 
 const EventInfo = () => {
   const app = useSelector((state) => state.app);
+  const sc_event_api = useSelector((state) => state.smartContract.sc_event_api);
+  const sc_events = useSelector((state) => state.smartContract.sc_events);
   const [isReject, setReject] = useState(false);
   const [text, setText] = useState("");
   const history = useHistory();
   const [dataSource, setDataSource] = useState({});
 
+  const [events, setEvent] = useState({}) 
+
   useEffect(() => {
-    getInitalState()
+    getInitalState();
   }, [])
 
   const getInitalState = async () => {
-    console.log(history.location.state.dataSource)
     setDataSource(history.location.state.dataSource)
   }
+
 
   const confirmReject = async (e) => {
     await Service.call("patch", "/api/admin/event", {
@@ -70,6 +78,8 @@ const EventInfo = () => {
     history.push("/admin/event/list");
   };
 
+  console.log('events', events)
+
   const confirmApprove = async (e) => {
     await Service.call("patch", "/api/admin/event", {
       admin_id: dataSource.admin_id,
@@ -80,23 +90,35 @@ const EventInfo = () => {
     history.push("/admin/event/list");
   };
 
-  // const onChainProcess = async (e) => {
-  //   const eventAPI = await eventAPI.init();
-  //   // console.log(eventAPI)
-  // }
+  const onChainProcess = async (e) => {
+   
+    await sc_event_api.autoSignEventTransaction(dataSource)
+  }
 
   const onTextChange = (e) => {
     setText(e.target.value);
   };
 
+
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
+               {sc_events[dataSource.event_id] && (
+        <Row gutter={[0, 20]}>
+          <Col>   <Tag 
+           icon={<CheckCircleOutlined style={{fontSize: 12}} />} 
+           style={{padding: '6px 15px', border: 'none', borderRadius: 15, fontWeight: 'bold', fontSize: 12}}
+            color="green">
+              On the Blochain Already
+              </Tag></Col>
+        </Row>
+         )}
       <div style={{ marginBottom: 100 }}>
       <Descriptions
           title="Event Information"
           bordered
           column={1}
           layout="vertical"
+          style={{marginBottom: 20}}
         >
           <Descriptions.Item label="Status">
             <Badge
@@ -164,11 +186,30 @@ const EventInfo = () => {
         </Descriptions>
        <Row>
           {
-            dataSource.status === 2 && (
-              <Button
+           sc_events[dataSource.event_id] && (
+             <Link
+             to={{
+              pathname: "/admin/event/ticket",
+              state: { dataSource, eventId: sc_events[dataSource.event_id].eventId },
+            }}
+             >
+             <Button
                 style={{ margin: 20 }}
                 type="primary"
                 // onClick={onChainProcess}
+              >
+                Create Tickets
+              </Button>
+             </Link>
+              
+            )
+          }
+          {
+            dataSource.status === 2 && !sc_events[dataSource.event_id] && (
+              <Button
+                style={{ margin: 20 }}
+                type="primary"
+                onClick={onChainProcess}
               >
                 Create Event On BlockChain
               </Button>

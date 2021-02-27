@@ -24,6 +24,11 @@ contract Ticket is ERC721Full, Event {
     ticketCount += 1;
   }
 
+  
+  function getTicketCount() public view returns (uint256) {
+    return ticketCount;
+  }
+
 
   function mint(string[] memory _tickets) public {
     for(uint index = 0; index < _tickets.length; index++) {

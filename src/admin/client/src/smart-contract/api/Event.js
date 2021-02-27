@@ -11,8 +11,8 @@ export class EventAPI {
 		this.web3 = {};
 		this.accounts = [];
 		this.address = '';
-		this.default_account = '0x82d1D0Fe245993aA74ee54f4ea921c580F3Aa33c';
-		this.default_account_private_key = 'c70068070b7033a4673a2e9531f650210faf0cb7fbe345943e42eee0d7751a5a'
+		this.default_account = '0x3938FdA9F27c99c9485927D1d477FB15c181E51e';
+		this.default_account_private_key = 'fe2b64c3afb15cfd5b02957bd85c8bd62e60e2e013d9e32b2fa689dc1b78bc3b'
 	}
 
 	getWeb3() {
@@ -31,7 +31,6 @@ export class EventAPI {
 			window.web3 = new Web3(window.ethereum);
 			await window.ethereum.enable();
 			this.web3 = window.web3;
-			console.log(this.web3);
 		} else if (window.web3) {
 			window.web3 = new Web3(window.web3.currentProvider);
 			this.web3 = window.web3;
@@ -43,7 +42,7 @@ export class EventAPI {
 	}
 
 	async loadRemoteWeb3() {
-		let provider = 'http://172.16.210.165:7545'
+		let provider = 'http://192.168.2.53:7545'
 		window.web3 = new Web3(provider);
 		this.web3 = window.web3;
 	}
@@ -53,12 +52,14 @@ export class EventAPI {
 		this.accounts = await this.web3.eth.getAccounts();
 		const networkId = await this.web3.eth.net.getId();
 		const networkData = Ticket.networks[networkId];
-		console.log(Ticket);
 		if (networkData) {
 			const abi = Ticket.abi;
 			const address = networkData.address;
 			this.address = address;
+
 			this.contract = new this.web3.eth.Contract(abi, address);
+			console.log('networkData', this.contract)
+
 		} else {
 			window.alert('Smart contract not deployed to detected network.');
 		}
@@ -66,16 +67,13 @@ export class EventAPI {
 
 	async getEventAll() {
 		let events = [];
-		let total = await this.contract.methods.eventId.call({
+		let total = await this.contract.methods.getEventId().call({
 			from: this.accounts[0],
 		});
 
-		console.log(this.accounts[0]);
-		console.log('total', total);
 		if (!total) return [];
 
-		console.log('total', total)
-		for (let i = 0; i < this.web3.utils.hexToNumber(total._hex); i++) {
+		for (let i = 0; i < total; i++) {
 			let data = await this.contract.methods
 				.events(i)
 				.call({ from: this.accounts[0] });
@@ -93,7 +91,10 @@ export class EventAPI {
 		let event = await this.contract.methods
 			.getEvent(eventId)
 			.call({ from: this.accounts[0] });
-		return JSON.parse(event);
+			if(event) {
+				return JSON.parse(event);
+			}
+			return {}
 	}
 
 	async ownerOf(eventId) {
@@ -150,21 +151,21 @@ export class EventAPI {
 
 	async getTicketAll() {
 		let tickets = [];
-		let total = await this.contract.methods.ticketCount.call({
+
+		let total = await this.contract.methods.totalSupply().call({
 			from: this.accounts[0],
 		});
-		// console.log(total)
-		// if (!total) return [];
 
-		for (let i = 0; i < this.web3.utils.hexToNumber(total._hex); i++) {
+
+		for (let i = 0; i < total; i++) {
 			let data = await this.contract.methods
 				.tickets(i)
 				.call({ from: this.accounts[0] });
 			let ticketDetail = JSON.parse(data.ticketDetail);
 			ticketDetail = {
 				...ticketDetail,
-				eventId: this.web3.utils.hexToNumber(data.eventId._hex),
-				ticketId: this.web3.utils.hexToNumber(data.ticketId._hex),
+				eventId: _.toInteger(data.eventId),
+				ticketId:	_.toInteger(data.ticketId),
 			};
 			tickets.push(ticketDetail);
 		}
@@ -273,6 +274,9 @@ export class EventAPI {
 	async autoCreateTickets(_seats) {
 		let transaction = this.contract.methods
 		.mint(_seats);
+
+		console.log('auto create ticket step 1 data >>>', _seats)
+		console.log('auto create ticket step 2 transaction >>>', transaction)
 		return this.signTransaction(transaction, function(confirmedMessage) {
 			console.log(' ticket confirmedMessage', confirmedMessage);
 		}); 
@@ -291,15 +295,21 @@ export class EventAPI {
 			this.accounts[0],
 			eventObj
     );
+	console.log('step 1 -- post data', eventObj)
+	console.log('step 2 -- transaction', transaction)
 		return this.signTransaction(transaction, function(confirmedMessage) {
+			console.log('event confirmedMessage', confirmedMessage)
 			return getStore().dispatch(CommonActions.setEvents(true))
    });
   
 	}
 
 	async signTransaction(transaction, cb) {
+		getStore().dispatch(CommonActions.setLoading(true))
+
 		let gas = await transaction.estimateGas({ from: this.default_account });
 		let nonce = await this.web3.eth.getTransactionCount(this.default_account);
+
 
 		let options = {
 			to: this.address,
@@ -308,17 +318,23 @@ export class EventAPI {
 			nonce,
 		};
 
+
 		let signedTransaction = await this.web3.eth.accounts.signTransaction(
 			options,
 			this.default_account_private_key
 		);
 
+		console.log('sign step 1 -- signedTransaction', signedTransaction)
+
+
 		await this.web3.eth
 			.sendSignedTransaction(signedTransaction.rawTransaction)
 			.on('transactionHash', (transactionHash) => {
-				console.log('TX Hash: ' + transactionHash);
+				console.log('step 2 -- TX Hash: ' + transactionHash);
 			})
 			.on('confirmation', (confirmationNumber) => {
+				console.log('step 3 -- confirmation: ' + confirmationNumber);
+				getStore().dispatch(CommonActions.setLoading(false))
 				if (confirmationNumber == 1) {
 					cb("Transaction Confirmed");
 				}

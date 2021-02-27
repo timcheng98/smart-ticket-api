@@ -110,3 +110,16 @@ export function setEvents(events) {
     data: events,
   };
 }
+
+export function setSCEventAPI(data) {
+  return {
+    type: types.SET_SC_EVENT_API,
+    data: data
+  };
+}
+export function setSCEvents(data) {
+  return {
+    type: types.SET_SC_EVENTS,
+    data: data
+  };
+}

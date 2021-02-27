@@ -30,6 +30,11 @@ const initialState = Immutable({
   events: false
 });
 
+const smartContractInitalState = Immutable({
+  sc_event: {},
+  events: {}
+});
+
 const appReducer = {
   app: (state = initialState, action) => {
     switch (action.type) {
@@ -89,7 +94,19 @@ const appReducer = {
         state = {...state, logoutWay: action.data}
         return state;
     }
-  }
+  },
+  smartContract: (state = smartContractInitalState, action) => {
+    switch (action.type) {
+      case types.SET_SC_EVENT_API: {
+        return {...state, sc_event_api: action.data};
+      }
+      case types.SET_SC_EVENTS: {
+        return {...state, sc_events: action.data};
+      }
+      default:
+        return state;
+    }
+  },
 };
 
 export default appReducer;

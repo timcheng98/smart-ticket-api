@@ -9,3 +9,5 @@ export const SET_LOGOUTWAY = 'SET_LOGOUTWAY';
 export const SET_IS_ADMIN = 'SET_IS_ADMIN';
 export const SET_TOTAL_SEATS = 'SET_TOTAL_SEATS';
 export const SET_EVENTS = 'SET_EVENTS';
+export const SET_SC_EVENT_API = 'SET_SC_EVENT_API';
+export const SET_SC_EVENTS = 'SET_SC_EVENTS';

@@ -8,13 +8,18 @@ import {
   InputNumber,
   Select,
   Menu,
+  Popconfirm,
+  message,
+  Tag,
 } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-import { setTotalSeats } from "../../../redux/actions/common";
+import { useHistory, Link, useLocation } from "react-router-dom";
+import { setTotalSeats, setLoading } from "../../../redux/actions/common";
 import _ from "lodash";
+import moment from "moment";
 import AppLayout from "../../../components/AppLayout";
 import { DownCircleOutlined } from "@ant-design/icons";
-import { EventAPI } from '../../../smart-contract/api/Event'
+import { EventAPI } from "../../../smart-contract/api/Event";
 const title = "Event Ticket";
 const selectedKey = "event_ticket";
 const { Option } = Select;
@@ -49,13 +54,12 @@ const buttonStyles = {
   },
 };
 
-let totalTotalSeatsObj = {};
+// let totalTotalSeatsObj = {};
 const CreateEventForm = () => {
-  // const [eventAPI, setEventAPI] = useState({});
   const [area, setArea] = useState("");
   const [ticketType, setTicketType] = useState(null);
-  const [rows, setRows] = useState(1);
-  const [columns, setColumns] = useState(1);
+  const [rows, setRows] = useState(null);
+  const [columns, setColumns] = useState(null);
   const [price, setPrice] = useState(0);
   const [seatElements, setSeatElements] = useState([]);
   const [buttonElements, setButtonElements] = useState({
@@ -68,22 +72,64 @@ const CreateEventForm = () => {
   const [ticketList, setTicketList] = useState([]);
 
   const app = useSelector((state) => state.app);
+  const sc_event_api = useSelector((state) => state.smartContract.sc_event_api);
+  const sc_events = useSelector((state) => state.smartContract.sc_events);
   const totalSeats = useSelector((state) => state.app.totalSeats);
   const dispatch = useDispatch();
 
   const [events, setEvents] = useState(null);
-  const [loading ,setLoading] = useState(true)
+  const location = useLocation();
+
+  const [dataSource, setDataSource] = useState({});
 
   useEffect(() => {
-    // init();
-    getEvent()
-    setLoading(false)
-    console.log("test", totalSeats);
-  }, []);
+    getSeatsFromChain();
+  }, [sc_event_api, location]);
+
+  const getSeatsFromChain = async () => {
+    let tickets = await sc_event_api.getTicketAll();
+    tickets = _.groupBy(tickets, "eventId");
+    tickets = tickets[location.state.eventId];
+    let areaTickets = _.groupBy(tickets, "area");
+    let seats = {};
+    _.each(areaTickets, (item, key) => {
+      let rows = _.groupBy(item, "row");
+      let body = {};
+      _.each(rows, (columns, rowKey) => {
+        let columnsObj = {};
+        _.each(columns, (col, colKey) => {
+          columnsObj[colKey + 1] = col;
+        });
+        body[rowKey] = columnsObj;
+      });
+
+      seats[key] = {
+        body,
+        meta: {
+          totalRows: item[item.length - 1].row,
+          totalColumns: item[item.length - 1].column,
+          type: item[item.length - 1].type,
+          status: "",
+        },
+      };
+    });
+
+    dispatch(setTotalSeats({ ...totalSeats, ...seats }));
+    // totalTotalSeatsObj = { ...totalTotalSeatsObj, ...seats };
+    console.log("sc_event_api get Seats", totalSeats);
+  };
 
   useEffect(() => {
-    renderSeats(totalTotalSeatsObj);
-  }, [totalTotalSeatsObj]);
+    if (location.state) {
+      if (location.state.eventId !== undefined) {
+        getEvent();
+      }
+    }
+  }, [location]);
+
+  useEffect(() => {
+    renderSeats(totalSeats);
+  }, [totalSeats]);
 
   // const init = async () => {
   //   let eventAPI = new EventAPI();
@@ -121,11 +167,11 @@ const CreateEventForm = () => {
   // };
 
   const onChangeSeat = ({ area, row, column }) => {
-    let target = totalTotalSeatsObj[area]["body"][row][column];
-    totalTotalSeatsObj[area]["body"][row][column].available = !target.available;
-    setTotalSeats(totalTotalSeatsObj);
-    dispatch(setTotalSeats(totalTotalSeatsObj));
-    renderSeats(totalTotalSeatsObj);
+    let target = totalSeats[area]["body"][row][column];
+    totalSeats[area]["body"][row][column].available = !target.available;
+    dispatch(setTotalSeats(totalSeats));
+    console.log('totalSeats onChangeSeat', totalSeats)
+    renderSeats(totalSeats);
   };
 
   const onFinish = async () => {
@@ -140,7 +186,7 @@ const CreateEventForm = () => {
       },
     };
     let rowObj = {};
-    let ticketList = [];
+    let _ticketList = [];
     for (let row = 1; row <= rows; row++) {
       rowObj[row] = {};
       let columnsObj = {};
@@ -156,7 +202,7 @@ const CreateEventForm = () => {
         };
         columnsObj[column] = obj;
 
-        ticketList.push(JSON.stringify(obj));
+        _ticketList.push(JSON.stringify(obj));
       }
       rowObj[row] = columnsObj;
     }
@@ -164,15 +210,25 @@ const CreateEventForm = () => {
     seats[area].body = rowObj;
     seats[area].meta.totalRows = rows;
     seats[area].meta.totalColumns = columns;
-
+    seats[area].meta.status = "new";
+    resetFormState();
     dispatch(setTotalSeats({ ...totalSeats, ...seats }));
-    totalTotalSeatsObj = { ...totalTotalSeatsObj, ...seats };
-    setTicketList(ticketList);
+    // totalTotalSeatsObj = { ...totalTotalSeatsObj, ...seats };
+    setTicketList([...ticketList, ..._ticketList]);
+    console.log("[...ticketList, ..._ticketList]", totalSeats);
   };
-  console.log();
 
-  const renderSeats = (totalTotalSeatsObj) => {
-    if (_.isEmpty(totalTotalSeatsObj)) return;
+  const resetFormState = () => {
+    setArea("");
+    setPrice(0);
+    setRows(null);
+    setColumns(null);
+    setTicketType(null);
+  };
+
+  const renderSeats = (_totalTotalSeatsObj) => {
+    if (_.isEmpty(_totalTotalSeatsObj)) return;
+
     let _seatElements = [];
     let _seatElementsTootips = [];
     let columnsElement = [];
@@ -183,34 +239,35 @@ const CreateEventForm = () => {
     let _buttonElements = [];
     let _seatObj = { vip: [], reserved: [], normal: [], free: [], locked: [] };
 
-    _.each(totalTotalSeatsObj, (val, area) => {
+    _.each(_totalTotalSeatsObj, (val, area) => {
       _seatElements = [];
       _seatElementsTootips = [];
-      let seats = totalTotalSeatsObj[area];
+      let seats = _totalTotalSeatsObj[area];
+
       let { body, meta } = seats;
-      let { totalRows, totalColumns, type } = meta;
+      let { totalRows, totalColumns, type, status } = meta;
+
       for (let row = 1; row <= totalRows; row++) {
         rowsElement = [];
         columnsElement = [];
         rowsElementTootips = [];
         columnsElementTootips = [];
         _buttonElements = [];
-        // if (totalRows >= 11) {
-        // if (row <= 26 || row >= totalRows - 4) {
-        rowsElement.push(<span>{String.fromCharCode(row + 64)}</span>);
-        rowsElementTootips.push(<span>{String.fromCharCode(row + 64)}</span>);
-        //   } else if (row === 27){
-        //     rowsElement.push((<span></span>))
-        //   }
-        // } else {
-        //   rowsElement.push((<span>{row}</span>))
-        // }
+        rowsElement.push(
+          <span key={`${area}-${row}`}>{String.fromCharCode(row + 64)}</span>
+        );
+        rowsElementTootips.push(
+          <span key={`${area}-${row}-tooltip`}>
+            {String.fromCharCode(row + 64)}
+          </span>
+        );
+
         for (let column = 1; column <= totalColumns; column++) {
-          // if (row <= 26 || row >= totalRows - 4) {
           if (column <= 8) {
             columnsElementTootips.push(
-              <Tooltip title={column}>
+              <Tooltip key={`${area}-${row}-${column}-tooltip`} title={column}>
                 <span
+                  key={`${area}-${row}-${column}`}
                   className="ticket-col"
                   style={{
                     backgroundColor: body[row][column].available
@@ -227,50 +284,56 @@ const CreateEventForm = () => {
             );
           }
           if (column <= 8 || column >= totalColumns - 7) {
-            columnsElement.push(
-              <Tooltip
-                title={
-                  body[row][column].available
-                    ? "Click to Disable"
-                    : "Click to Enable"
-                }
-              >
+            if (status === "new") {
+              columnsElement.push(
+                <Tooltip
+                  key={`${area}-${row}-${column}-tooltip`}
+                  title={
+                    body[row][column].available
+                      ? "Click to Disable"
+                      : "Click to Enable"
+                  }
+                >
+                  <span
+                    key={`${area}-${row}-${column}`}
+                    className={`ticket-col ${type} disabled-${body[row][column].available}`}
+                    onClick={() => onChangeSeat({ area, row, column })}
+                  >
+                    {column}
+                  </span>
+                </Tooltip>
+              );
+            } else {
+              columnsElement.push(
                 <span
+                  key={`${area}-${row}-${column}`}
                   className={`ticket-col ${type} disabled-${body[row][column].available}`}
-                  // style={{
-                  //   backgroundColor: body[row][column].available
-                  //     ? "#24a0ed"
-                  //     : "#d3d3d3",
-                  //   borderColor: body[row][column].available
-                  //     ? "#24a0ed"
-                  //     : "#d3d3d3",
-                  // }}
-                  onClick={() => onChangeSeat({ area, row, column })}
                 >
                   {column}
                 </span>
-              </Tooltip>
-            );
+              );
+            }
           } else if (column === 9) {
             columnsElement.push(<span className="ticket-col">...</span>);
             columnsElementTootips.push(
               <span className="ticket-col ticket-dots">...</span>
             );
           }
-          // } else if (row === 27) {
-          //   if (column <= 27 || column >= totalColumns - 4) {
-          //     columnsElement.push((<span  className="ticket-col ticket-dot">...</span>))
-          //   }
-          // }
         } // end for loop columns
         _seatElements.push(
-          <div className={`ticket-row ticket-row-${row}`}>
+          <div
+            key={`${area}-${row}`}
+            className={`ticket-row ticket-row-${row}`}
+          >
             <span className="row-header">{rowsElement}</span>
             <span className="row-body">{columnsElement}</span>
           </div>
         );
         _seatElementsTootips.push(
-          <div className={`ticket-row ticket-row-${row}`}>
+          <div
+            key={`${area}-${row}-tootips`}
+            className={`ticket-row ticket-row-${row}`}
+          >
             <span className="row-header">{rowsElementTootips}</span>
             <span className="row-body">{columnsElementTootips}</span>
           </div>
@@ -278,11 +341,19 @@ const CreateEventForm = () => {
       } // end for loop rows
 
       _seatTables.push(
-        <div className={`seat-table area-${area}`}>{_seatElements}</div>
+        <div
+          key={`${area}`}
+          className={`seat-table area-${area}`}
+        >
+          {_seatElements}
+        </div>
       );
 
       _buttonElements.push(
-        <Menu.Item style={{ height: "100%", paddingLeft: 0 }}>
+        <Menu.Item
+          key={`${area}-menu-item`}
+          style={{ height: "100%", paddingLeft: 0 }}
+        >
           <Tooltip
             placement="right"
             title={
@@ -292,6 +363,9 @@ const CreateEventForm = () => {
                   style={{ fontWeight: "bold", textAlign: "center" }}
                 >
                   {totalRows} X {totalColumns}
+                  {status !== "" && (
+                    <Tag style={{ marginLeft: 8 }}>{status.toUpperCase()}</Tag>
+                  )}
                 </Col>
                 <Col>{_seatElementsTootips}</Col>
               </Row>
@@ -317,6 +391,7 @@ const CreateEventForm = () => {
               }}
             >
               {area}: {totalRows} X {totalColumns}
+              {status !== "" && <Tag style={{ marginLeft: 8 }}>{status}</Tag>}
             </Button>
           </Tooltip>
         </Menu.Item>
@@ -327,30 +402,6 @@ const CreateEventForm = () => {
       };
     });
 
-
-    // let buttonElements = [];
-    // _.each(totalTotalSeatsObj, (val, area) => {
-    //   buttonElements.push((
-    //     <Col span={6}>
-    //     <Card onClick={(e) => {
-    //           let areas = document.querySelectorAll(`.seat-table`);
-    //           areas.forEach(item => {
-    //             item.style.display = 'none';
-    //           });
-    //           document.getElementsByClassName(`area-${area}`)[0].style.display = 'block';
-    //         }}>
-    //       {/* <Button
-    //         type="primary"
-    //         style={{margin: 5, padding: 10, height: 50}}
-
-    //       > */}
-    //         {_seatTables}
-    //       {/* </Button> */}
-    //       </Card>
-    //       </Col>
-    //   ))
-    // })
-    // console.log(buttonElements)
     setButtonElements(_seatObj);
     setSeatElements([...seatElements, ..._seatTables]);
   };
@@ -374,7 +425,11 @@ const CreateEventForm = () => {
         </div>
       );
       element = (
-        <Menu.SubMenu key={key} title={key.toUpperCase()} style={{fontWeight: 'bold'}}>
+        <Menu.SubMenu
+          key={key}
+          title={key.toUpperCase()}
+          style={{ fontWeight: "bold" }}
+        >
           {val}
         </Menu.SubMenu>
       );
@@ -384,40 +439,67 @@ const CreateEventForm = () => {
   };
 
   const getEvent = async () => {
+    let eventId = location.state.eventId;
+
     await eventAPI.init();
     let element = [];
-    let events = await eventAPI.getEvent(0);
-    
-    events = [events];
-    {events.map(item => {
-      return element.push((<Select.Option key={item.eventId} value={item.eventId}>{item.name}</Select.Option>))
-    })}
+    {
+      _.each(sc_events, (item, key) => {
+        return element.push(
+          <Select.Option key={item.eventId} value={item.eventId}>
+            {item.name}
+          </Select.Option>
+        );
+      });
+    }
 
-    element = (<Select style={{width: "100%"}}>{element}</Select>);
-    setEvents(element)
-  }
+    element = (
+      <Select value={eventId} disabled style={{ width: "100%" }}>
+        {element}
+      </Select>
+    );
+    setEvents(element);
+  };
 
-  if (loading) return (<AppLayout>Wait</AppLayout>)
+  const onChainProcess = async () => {
+    let seats = {};
+    _.each(totalSeats, (item, key) => {
+      if (item.meta.status === 'new') {
+        return seats[key] = item;
+      }
+    })
+
+    let _ticketList = [];
+    _.each(seats, (item) => {
+      _.each(item.body, (rows) => {
+        _.each(rows, (col) => {
+          _ticketList.push(JSON.stringify(col));
+        })
+      })
+    })
+
+    if (_.isEmpty(ticketList)) return message.warning("please create seats");
+    await sc_event_api.autoCreateTickets(_ticketList);
+  };
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
       <Row gutter={[16, 16]}>
-        <Col span={8}>
-          Event:{" "}
-          {events}
-        </Col>
+        <Col span={8}>Event: {events}</Col>
       </Row>
       <Row gutter={[16, 16]}>
         <Col span={6}>
-          AREA:{" "}
+          AREA:
           <Input
+            placeholder="Area"
+            value={area}
             onChange={(e) => {
               setArea(_.toString(e.target.value));
             }}
           />
         </Col>
         <Col span={6}>
-          Type:{" "}
+          Type:
           <Select
             placeholder="Type"
             value={ticketType}
@@ -436,20 +518,24 @@ const CreateEventForm = () => {
       </Row>
       <Row gutter={[16, 16]}>
         <Col span={6}>
-          Row:{" "}
+          Row:
           <InputNumber
+            placeholder="Row"
             min={1}
             style={{ width: "100%" }}
+            value={rows}
             onChange={(value) => {
               setRows(_.toInteger(value));
             }}
           />
         </Col>
         <Col span={6}>
-          Col:{" "}
+          Column:
           <InputNumber
+            placeholder="Column"
             min={1}
             style={{ width: "100%" }}
+            value={columns}
             onChange={(value) => {
               setColumns(_.toInteger(value));
             }}
@@ -459,9 +545,10 @@ const CreateEventForm = () => {
       <Row gutter={[16, 16]}>
         {ticketType !== "free" && (
           <Col span={6}>
-            Price:{" "}
+            Price:
             <InputNumber
-              min={1}
+              value={price}
+              min={0}
               style={{ width: "100%" }}
               onChange={(value) => {
                 setPrice(_.toInteger(value));
@@ -473,16 +560,14 @@ const CreateEventForm = () => {
       <Row gutter={[16, 48]}>
         <Col span={8}>
           <Button type="primary" onClick={() => onFinish()}>
-            Submit
+            Add to Preview
           </Button>
         </Col>
-        {/* <Row><Col><Button onClick={async () =>  eventAPI.createSeats(ticketList)}>Submit</Button></Col></Row> */}
       </Row>
 
-      <Row  gutter={[16, 48]}>
+      <Row gutter={[16, 48]}>
         <Col span={4}>
           <Menu
-            // onClick={this.handleClick}
             style={{ width: 256 }}
             defaultSelectedKeys={["1"]}
             defaultOpenKeys={["sub1"]}
@@ -490,29 +575,28 @@ const CreateEventForm = () => {
           >
             {renderButtons()}
           </Menu>
-
-          {/* </Col> */}
-          {/* {buttonElements.length > 5 && (
-            <Row justify="center" style={{ textAlign: "center" }}>
-              <Col span={24}>Scroll Down </Col>
-              <Col span={24}>
-                <DownCircleOutlined
-                  style={{
-                    fontSize: 24,
-                    color: "#1890ff",
-                    marginTop: 10,
-                    fontWeight: "bold",
-                  }}
-                />
-              </Col>
-            </Row>
-          )} */}
         </Col>
         <Col span={20} style={{ paddingTop: 30, paddingLeft: 100 }}>
           <Row align="middle">
-            <Col>{seatElements}</Col>
+            <Col key="test">{seatElements}</Col>
           </Row>
         </Col>
+      </Row>
+      <Row>
+        <Popconfirm title="Are you sure to submit?" onConfirm={onChainProcess}>
+          <Button
+            type="primary"
+            style={{
+              backgroundColor: "#fff",
+              color: "#000",
+              borderColor: "#000",
+              fontSize: 16,
+              height: 50,
+            }}
+          >
+            Submit on the BlockChain
+          </Button>
+        </Popconfirm>
       </Row>
     </AppLayout>
   );
