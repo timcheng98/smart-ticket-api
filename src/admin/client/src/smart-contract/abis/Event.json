@@ -6288,12 +6288,12 @@
     "1337": {
       "events": {},
       "links": {},
-      "address": "0x97E78c1dD76DE213CA35C11568ebC39bA49e5ff7",
-      "transactionHash": "0x9cc0b9d29ca95da7b50589b632c02017fa0aa9c141aa6978c3d99160173d1ddc"
+      "address": "0xd30fbDfb9b1e44368C1900355416d9D9877ce7b8",
+      "transactionHash": "0x3fd64218c8a3b9ba177054f74675781acfe2e18616de2e1130f3e11ca9b77d2f"
     }
   },
   "schemaVersion": "3.3.4",
-  "updatedAt": "2021-03-01T17:07:10.275Z",
+  "updatedAt": "2021-03-01T17:28:00.738Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}
