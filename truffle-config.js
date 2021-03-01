@@ -6,7 +6,7 @@ let ganache_test_account = require('./ganache_test_account.json')
 module.exports = {
   networks: {
     development: {
-      host: '192.168.2.53',
+      host: '165.22.251.49',
       port: 7545,
       network_id: "*", // Match any network id,
       // from: '0xB817DA6466Be30CDDE56BDB6aF9349D247798900'
@@ -23,3 +23,4 @@ module.exports = {
     }
   }
 }
+// command ganache-cli -h 165.22.251.49 -p 7545 --networkId 1337 --acctKeys ganache_test_account.json
