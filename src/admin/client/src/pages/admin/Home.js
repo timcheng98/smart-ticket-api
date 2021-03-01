@@ -1,94 +1,95 @@
 import React, { useEffect, useState } from 'react';
 import '@ant-design/compatible/assets/index.css';
-import { Layout, Menu, Row, Col, Card, Spin } from 'antd';
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
-} from 'recharts';
+import { Layout, Menu, Row, Col, Card, Upload, message, Button } from 'antd';
+import { InboxOutlined } from '@ant-design/icons';
 import AppLayout from '../../components/AppLayout';
 import _ from 'lodash';
 import moment from 'moment';
+import * as Service from '../../core/Service'
+const ipfsClient = require('ipfs-http-client')
+const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
+
+
 
 const { Header, Content, Sider } = Layout;
 const { SubMenu } = Menu;
+const { Dragger } = Upload;
 
 const title = "Home";
 const selectedKey = "dashboard";
 
-const data = [
-  {
-    name: '10/7', door1: 4000, door2: 2400,
-  },
-  {
-    name: '11/7', door1: 3000, door2: 1398,
-  },
-  {
-    name: '12/7', door1: 2000, door2: 9800,
-  },
-  {
-    name: '13/7', door1: 2780, door2: 3908,
-  },
-  {
-    name: '14/7', door1: 1890, door2: 4800,
-  },
-  {
-    name: '15/7', door1: 2390, door2: 3800,
-  },
-  {
-    name: '16/7', door1: 3490, door2: 4300,
-  },
-];
+const props = {
+  name: 'file',
+  multiple: false,
+  action: '/api/admin/media',
 
-const styles = {
-  chartCol: {
-    height: "400px",
-    textAlign: "center",
-    // border: 'solid 1px #ccc',
-    padding: '30px 10px 60px',
-    borderRadius: '5px',
-    boxShadow: '0 2px 8px 0 rgba(0, 0, 0, 0.15)'
-  },
-}
-
+};
 const Home = () => {
+  const [image, setImage] = useState(null);
+  const [ipfsHash, setIpfsHash] = useState(null);
 
-  const [data, setData] = useState([]);
+  // useEffect(() => {
+  //   init()
+  // }, []);
 
-  const renderChart = () => {
-    return (
-        <Col xs={24} sm={24} md={12} lg={12} xl={12} style={styles.chartCol}>
-          <h2> Access Logs </h2>
-          <ResponsiveContainer>
-            <LineChart
-              data={data}
-              margin={{
-                top: 25, right: 30, left: 20, bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="door" stroke="#006ABF" />
-              {/* <Line type="monotone" dataKey="door2" stroke="#FFA31F" /> */}
-            </LineChart>
-          </ResponsiveContainer>
-        </Col>
-    )
+  const postIPFS = async (image) => {
+    let result = await ipfs.add(image)
+    setIpfsHash(result.path)
+    console.log('result.path', result.path);
+  }
+
+  const uploadOnChange = async (info) => {
+    const { status, response } = info.file;
+    if (status === 'done') {
+      if (response.status > 0) {
+        message.success('成功上載');
+        let patchObj = {
+          company_doc: info.file.response.filename
+        }
+        await Service.call('patch', '/api/company/admin/kyc', patchObj);
+
+        let path = info.file.response.url;
+        // setImageURL(`${app.config.STATIC_SERVER_URL}/media/${info.file.response.filename}`)
+        // setFileInfo(info.file);
+
+        let reader = new FileReader();
+        reader.readAsArrayBuffer(info.file.originFileObj);
+        reader.onload = async (e) => {
+          // setImage()
+          await postIPFS(Buffer(e.target.result));
+
+          console.log('buffer', e.target.result);
+        }
+
+      }
+      else {
+        message.error('上載失敗')
+      }
+    }
   }
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
       <Content
-      style={{
-        height:'100%',
-      }}
+        style={{
+          height: '100%',
+        }}
       >
-        <Row>
-          {
-            renderChart()
+        <Dragger showUploadList={false} {...props} onChange={uploadOnChange}>
+          {ipfsHash !== null ? <img style={{ width: 300 }} src={`https://ipfs.io/ipfs/${ipfsHash}`} /> :
+            <div>
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">Click or drag file to this area to upload</p>
+              <p className="ant-upload-hint">
+                Support for a single or bulk upload. Strictly prohibit from uploading company data or other
+                band files
+    </p>
+            </div>
           }
-        </Row>
+        </Dragger>
+        {/* <Button onClick={submit}>upload</Button> */}
       </Content>
     </AppLayout>
   )

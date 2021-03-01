@@ -35,6 +35,10 @@ const smartContractInitalState = Immutable({
   events: {}
 });
 
+const formInitialState = Immutable({
+  form_data: {},
+});
+
 const appReducer = {
   app: (state = initialState, action) => {
     switch (action.type) {
@@ -102,6 +106,15 @@ const appReducer = {
       }
       case types.SET_SC_EVENTS: {
         return {...state, sc_events: action.data};
+      }
+      default:
+        return state;
+    }
+  },
+  form: (state = formInitialState, action) => {
+    switch (action.type) {
+      case types.SET_FORM_DATA: {
+        return {...state, form_data: action.data};
       }
       default:
         return state;

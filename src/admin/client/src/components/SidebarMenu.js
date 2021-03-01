@@ -123,7 +123,7 @@ const CompanyLevelItems = [
   {
     key: 'company_event',
     title: 'Event Application',
-    path: '/company/event',
+    path: '/company/event/list',
     icon: <CalendarOutlined />
   }
 ]

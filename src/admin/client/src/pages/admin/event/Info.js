@@ -27,9 +27,10 @@ import {
 import { useHistory, Link } from "react-router-dom";
 import moment from "moment";
 import _ from "lodash";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import * as Service from "../../../core/Service";
 import * as UI from "../../../core/UI";
+import * as CommonActions from '../../../redux/actions/common'
 import AppLayout from "../../../components/AppLayout";
 // import { eventAPI } from '../../../smart-contract/api/Event';
 import ImageModal from "../../../components/ImageModal";
@@ -50,14 +51,15 @@ const tableIDName = "event_id";
 // const eventAPI = new EventAPI();
 
 const EventInfo = () => {
+  const dispatch = useDispatch();
   const app = useSelector((state) => state.app);
   const sc_event_api = useSelector((state) => state.smartContract.sc_event_api);
-  const sc_events = useSelector((state) => state.smartContract.sc_events);
+    const sc_events = useSelector((state) => state.smartContract.sc_events);
   const [isReject, setReject] = useState(false);
   const [text, setText] = useState("");
   const history = useHistory();
   const [dataSource, setDataSource] = useState({});
-
+  
   const [events, setEvent] = useState({})
 
   useEffect(() => {
@@ -72,29 +74,31 @@ const EventInfo = () => {
   const confirmReject = async (e) => {
     await Service.call("patch", "/api/admin/event", {
       reject_reason: text,
-      admin_id: dataSource.admin_id,
       is_approval_doc_verified: 0,
       is_seat_doc_verified: 0,
-      status: -1
+      approval_doc: '',
+      status: -1,
+      event_id: dataSource.event_id
     });
     history.push("/admin/event/list");
   };
 
-  console.log('events', events)
-
   const confirmApprove = async (e) => {
     await Service.call("patch", "/api/admin/event", {
-      admin_id: dataSource.admin_id,
+      event_id: dataSource.event_id,
       is_approval_doc_verified: 1,
       is_seat_doc_verified: 1,
+      reject_reason: '',
       status: 2
     });
     history.push("/admin/event/list");
   };
 
   const onChainProcess = async (e) => {
-
-    await sc_event_api.autoSignEventTransaction(dataSource)
+    dispatch(CommonActions.setLoading(true));
+    await Service.call('post', '/api/sc/event', { event: dataSource });
+    dispatch(CommonActions.setLoading(false));
+    history.push('/admin/event/info')
   }
 
   const onTextChange = (e) => {
@@ -137,6 +141,7 @@ const EventInfo = () => {
             // title="Event Information"
             bordered
             column={1}
+            layout='vertical'
           >
             {dataSource.status === -1 && (
               <Descriptions.Item label="Reject Reason(s)" style={{ color: 'black', fontWeight: 'bold' }}>
@@ -156,7 +161,7 @@ const EventInfo = () => {
             <Descriptions.Item label="Event Code">
               {dataSource.event_code}
             </Descriptions.Item>
-            <Descriptions.Item label="type">
+            <Descriptions.Item label="Type">
               {dataSource.type}
             </Descriptions.Item>
 
@@ -198,16 +203,17 @@ const EventInfo = () => {
           <Descriptions
             bordered
             column={1}
+            layout='vertical'
           >
             <Descriptions.Item
-              label="Event Document(Click to zoom)"
+              label="Event Document"
               contentStyle={{ padding: 20 }}
             >
               <Image.PreviewGroup>
                 <Image
                   id="event_doc"
-                  width={300}
-                  src={`${app.config.STATIC_SERVER_URL}/media/${dataSource.approval_doc}`}
+                  style={{width: '100%', maxWidth: 300}}
+                  src={`${dataSource.approval_doc}`}
                 />
               </Image.PreviewGroup>
             </Descriptions.Item>
@@ -285,7 +291,7 @@ const EventInfo = () => {
                 </Button>
                 <Button
                   style={{ margin: 20 }}
-                  type="primary"
+                  type="dashed"
                   onClick={() => setReject(false)}
                 >
                   Cancel

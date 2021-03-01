@@ -20,7 +20,9 @@ import UserKyc from '../pages/admin/user/kyc/List';
 
 //Company
 import CompanyKyc from '../pages/company/kyc';
-import CompanyEvent from '../pages/company/event';
+import CompanyEventList from '../pages/company/event/index';
+import CompanyEvent from '../pages/company/event/Info';
+import CompanyForm from '../pages/company/event/Form';
 
 
 
@@ -45,7 +47,9 @@ const Path = (props) => {
         <Private path="/admin/user/kyc" component={UserKyc} exact level={Main.LEVEL.ADMIN} />
 
         <Private path="/company/kyc" component={CompanyKyc} exact level={Main.LEVEL.COMPANY} />
-        <Private path="/company/event" component={CompanyEvent} exact level={Main.LEVEL.COMPANY} />
+        <Private path="/company/event/list" component={CompanyEventList} exact level={Main.LEVEL.COMPANY} />
+        <Private path="/company/event/info" component={CompanyEvent} exact level={Main.LEVEL.COMPANY} />
+        <Private path="/company/event/form" component={CompanyForm} exact level={Main.LEVEL.COMPANY} />
 
         <Route path="/404" component={NotFound} exact />
         <Redirect exact from="/*" to="/404" />

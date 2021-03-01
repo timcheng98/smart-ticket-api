@@ -29,15 +29,15 @@ const FormUploadFile = (
     action: '/api/admin/media',
     beforeUpload: (file) => {
       if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
-        message.error('格式錯誤');
+        message.error('Invalid Format');
         return false;
       }
-      message.success('上載中');
+      message.success('Uploading...');
       return true;
     },
     onError(err) {
       console.error(err)
-      message.error(`上載失敗，請重試`);
+      message.error(`Upload Failed. Try Again.`);
     }
   };
 
@@ -97,17 +97,17 @@ const UploadOne = ({
       {
         !_.isEmpty(image)
           ? (
-            <div style={{maxWidth: 500, margin: 'auto'}}>
-              <img src={imageURL} style={{maxWidth: '100%'}} alt="" />
+            <div style={{width: '100%', margin: 'auto'}}>
+              <img src={imageURL} style={{width: '100%', objectFit: 'contain'}} alt="" />
             </div>
           ) : (
             <div>
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />
               </p>
-              <p className="ant-upload-text">上載</p>
+              <p className="ant-upload-text">Upload</p>
               <p className="ant-upload-hint">
-                上載相關文件
+                Upload Related Docuements
               </p>
             </div>
           )

@@ -20,6 +20,7 @@ module.exports = exports = {
     // router.use('/api/sc/event', middleware.session.authorize());
 
     router.get('/api/sc/event', getEventAll);
+    router.post('/api/sc/event', createEvent);
     router.get('/api/sc/event/ticket', getTicketAll);
     router.post('/api/sc/event/ticket', createTicket);
 
@@ -34,6 +35,23 @@ const getEventAll = async (req, res) => {
     res.apiResponse({
       status: 1,
       result
+    });
+  } catch (error) {
+    console.error(error);
+    res.apiError(error);
+  }
+}
+
+const createEvent = async (req, res) => {
+  try {
+    if (_.isEmpty(req.body.event)) {
+      return res.apiResponse({
+        status: -1
+      });
+    }
+    await eventModel.createEvent(req.body.event);
+    res.apiResponse({
+      status: 1
     });
   } catch (error) {
     console.error(error);

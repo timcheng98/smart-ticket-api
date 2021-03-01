@@ -123,3 +123,10 @@ export function setSCEvents(data) {
     data: data
   };
 }
+
+export function setFormData(data) {
+  return {
+    type: types.SET_FORM_DATA,
+    data: data
+  };
+}

@@ -9,6 +9,11 @@ exports.getEventAll = async () => {
   return events;
 }
 
+exports.createEvent = async (event) => {
+  await eventAPI.init();
+  return eventAPI.autoSignEventTransaction(event);
+}
+
 exports.getTicketAll = async () => {
   await eventAPI.init();
   let tickets = await eventAPI.getTicketAll()

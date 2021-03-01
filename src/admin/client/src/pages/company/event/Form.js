@@ -21,17 +21,21 @@ import {
   Progress,
 } from "antd";
 import { CheckCircleFilled, RightOutlined } from "@ant-design/icons";
-import { useHistory, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useHistory, Link, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
 import * as Service from "../../../core/Service";
 import AppLayout from "../../../components/AppLayout";
+import * as CommonActions from '../../../redux/actions/common';
 import FormUploadFile from "../../../components/FormUploadFile";
 import { formItemLayout, tailLayout } from "../../../components/ModalLayout";
 
+const ipfsClient = require('ipfs-http-client')
+const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
+
 const involvedModelName = "company";
-const title = "Event Form";
-const selectedKey = "event_form";
+const title = "Event Application Form";
+const selectedKey = "company_event";
 // const tableIDName = "company_kyc_id";
 
 const openNotification = () => {
@@ -47,8 +51,8 @@ const openNotification = () => {
 
 const EventForm = (props) => {
   const [step, setStep] = useState(1);
-  const [referenceNumber, setReferenceNumber] = useState("");
   const history = useHistory();
+  const form_data = useSelector(state => state.form.form_data)
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
@@ -62,14 +66,13 @@ const EventForm = (props) => {
         {step === 1 && (
           <Col span={24}>
             <BasicInformation
-              setStep={(val) => setStep(val)}
-              setReferenceNumber={(value) => setReferenceNumber(value)}
+              setStep={setStep}
             />
           </Col>
         )}
         {step === 2 && (
           <Col span={24}>
-            <SupportDocument setStep={(val) => setStep(val)} />
+            <SupportDocument setStep={setStep} />
           </Col>
         )}
         {step === 3 && (
@@ -83,11 +86,11 @@ const EventForm = (props) => {
                 <CheckCircleFilled style={{ fontSize: 48 }} />
               </Col>
               <Col span={24}>Application Submitted Successfully.</Col>
-              <Col span={24}>Reference No. {referenceNumber}</Col>
+              <Col span={24}>Reference No. {form_data.event_code}</Col>
               <Col span={24}>
                 <Button
                   type="primary"
-                  onClick={() => history.push("/")}
+                  onClick={() => history.push("/company/event/list")}
                 >
                   Back
                 </Button>
@@ -146,75 +149,35 @@ const ProgressBar = ({ step }) => {
 };
 
 const BasicInformation = (props) => {
-  const [form] = Form.useForm();
-  const history = useHistory();
+  const form_data = useSelector(state => state.form.form_data);
+  const location = useLocation();
+  const [infoForm] = Form.useForm();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     getInitialValue();
-  }, []);
+  }, [location]);
 
   const getInitialValue = async () => {
-    let resp = await Service.call("get", `/api/event`);
-    console.log('test_>>>', resp.eventRc)
-    console.log(resp.eventRc);
-                                                                                                                              
-    if (resp.eventRc.event_id > 0) {
-      // pending or success
-      // if (resp.status > 0) return history.push("/company/kyc/info");
-      // resp.found_date = moment.unix(_.toInteger(resp.found_date));
-      let { eventRc } =resp;
-      let formData = {
-        ...eventRc,
-        start_end_time: [moment.unix(eventRc.start_time), moment.unix(eventRc.end_time)],
-        released_close_date: [moment.unix(eventRc.released_date), moment.unix(eventRc.close_date)]
-      }
-      console.log(formData)
-      form.setFieldsValue(formData);
-    }
-  };
-
-  const onFinish = async (dataObj) => {
-    let url = `/api/event`;
-    let { start_end_time, released_close_date } = dataObj;
-    let obj = {
-      ...dataObj,
-      start_time: start_end_time[0],
-      end_time: start_end_time[1],
-      released_date: released_close_date[0],
-      close_date: released_close_date[1]
-    }
-  
-    // Patch
-    let resp = await Service.call("get", `/api/event`);
-    // if (data.)
-    console.log(resp);
-    if (resp.eventRc.event_id) {
-      await Service.call("patch", url, {...obj, event_id: resp.eventRc.event_id});
-      message.success("success");
-      
-      props.setReferenceNumber(resp.eventRc.event_code);
-      return props.setStep(2);
+    let resp = await Service.call("get", `/api/event?event_id=${location.state.event_id}`);
+    if (_.isEmpty(resp.eventRc)) {
+      return dispatch(CommonActions.setFormData({}));
     }
 
-    // POST
-    resp = await Service.call("post", url, obj);
-    if (resp.errorMessage) {
-      return message.error(resp.errorMessage);
-      // return props.openModal(true);
+    let eventRc = resp.eventRc[0];
+    let formData = {
+      ...eventRc,
+      start_end_time: [moment.unix(eventRc.start_time), moment.unix(eventRc.end_time)],
+      released_close_date: [moment.unix(eventRc.released_date), moment.unix(eventRc.close_date)]
     }
-    message.success("success");
-    props.setReferenceNumber(resp.eventRc.event_code);
-    // return props.openModal(false);
-    props.setStep(2);
+    infoForm.setFieldsValue(formData)
+    return dispatch(CommonActions.setFormData(formData));
   };
 
   return (
     <Form
+      form={infoForm}
       {...formItemLayout}
-      form={form}
-      name="time_related_controls"
-      onFinish={onFinish}
-      initialValues={props.dataObj}
     >
       <Form.Item
         label="Name"
@@ -228,14 +191,14 @@ const BasicInformation = (props) => {
         name="short_desc"
         rules={[{ required: false, message: "Please input Company Name." }]}
       >
-        <Input.TextArea autoSize={{ minRows: 3}}/>
+        <Input.TextArea autoSize={{ minRows: 3 }} />
       </Form.Item>
       <Form.Item
         label="Long Description"
         name="long_desc"
         rules={[{ required: false, message: "Please input Company Owner." }]}
       >
-        <Input.TextArea autoSize={{ minRows: 5}} />
+        <Input.TextArea autoSize={{ minRows: 5 }} />
       </Form.Item>
       <Form.Item
         label="Event Period"
@@ -247,11 +210,11 @@ const BasicInformation = (props) => {
           showTime={{
             hideDisabledOptions: true,
             defaultValue: [
-              moment("00:00:00", "HH:mm:ss"),
-              moment("11:59:59", "HH:mm:ss"),
+              moment("00:00:00", "HH:mm"),
+              moment("11:59:59", "HH:mm"),
             ],
           }}
-          format="YYYY-MM-DD HH:mm:ss"
+          format="YYYY-MM-DD HH:mm"
         />
       </Form.Item>
       <Form.Item
@@ -264,11 +227,11 @@ const BasicInformation = (props) => {
           showTime={{
             hideDisabledOptions: true,
             defaultValue: [
-              moment("00:00:00", "HH:mm:ss"),
-              moment("11:59:59", "HH:mm:ss"),
+              moment("00:00:00", "HH:mm"),
+              moment("11:59:59", "HH:mm"),
             ],
           }}
-          format="YYYY-MM-DD HH:mm:ss"
+          format="YYYY-MM-DD HH:mm"
         />
       </Form.Item>
       <Divider style={{ border: "none" }} />
@@ -276,7 +239,10 @@ const BasicInformation = (props) => {
         <Col></Col>
         <Col>
           <Form.Item>
-            <Button className="custom-btn" htmlType="submit">
+            <Button className="custom-btn" onClick={() => {
+              dispatch(CommonActions.setFormData({ ...form_data, ...infoForm.getFieldsValue() }))
+              props.setStep(2);
+            }}>
               Next
             </Button>
           </Form.Item>
@@ -291,34 +257,39 @@ const SupportDocument = (props) => {
   const [fileInfo, setFileInfo] = useState({});
   const [proress, setProgress] = useState(0);
   const app = useSelector((state) => state.app);
+  const form_data = useSelector((state) => state.form.form_data);
+  const dispatch = useDispatch();
+  const location = useLocation();
 
   useEffect(() => {
     getInitialValue();
   }, []);
 
   const getInitialValue = async () => {
-    let resp = await Service.call("get", `/api/event`);
-    if (resp.eventRc) {
-      setImageURL(`${app.config.STATIC_SERVER_URL}/media/${resp.eventRc.approval_doc}`);
-    }
+    setImageURL(form_data.approval_doc);
   };
 
   const uploadOnChange = async (info) => {
     const { status, response } = info.file;
     if (status === "done") {
       if (response.status > 0) {
-        message.success("成功上載");
-        let patchObj = {
-          approval_doc: info.file.response.filename,
-          status: 0 // pending
-        };
-        await Service.call("patch", "/api/event", patchObj);
+        let reader = new FileReader();
+        reader.readAsArrayBuffer(info.file.originFileObj);
+        reader.onload = async (e) => {
+          let result = await ipfs.add(Buffer(e.target.result))
+          let patchObj = {
+            approval_doc: `https://ipfs.io/ipfs/${result.path}`,
+            status: 0 // pending
+          };
+          dispatch(CommonActions.setFormData({ ...form_data, ...patchObj }))
+        }
 
+        message.success("Upload Success");
         let path = info.file.response.url;
         setImageURL(path);
         setFileInfo(info.file);
       } else {
-        message.error("上載失敗");
+        message.error("Upload Failed");
       }
     }
   };
@@ -328,17 +299,16 @@ const SupportDocument = (props) => {
     setImageURL("");
   };
 
-  console.log(fileInfo);
 
   return (
-    <Form>
+    <>
       <Row justify="center">
         <Col>
-          <h2>相關文件證明</h2>
+          <h2>Related Documents</h2>
         </Col>
       </Row>
       <Row justify="center" style={{ padding: 50 }}>
-        <Col span={12}>
+        <Col span={24}>
           <FormUploadFile
             type="one"
             data={{ scope: "private" }}
@@ -349,13 +319,6 @@ const SupportDocument = (props) => {
         </Col>
       </Row>
       <Divider style={{ border: "none" }} />
-      {/* <Row>
-        <Col>
-          {fileInfo.name}
-          {(((fileInfo.size) / 1024 )/ 1024).toFixed(2)} MB
-          <Progress percent={proress} />
-        </Col>
-      </Row> */}
       <Row justify="space-between" style={{ padding: "0 5%" }}>
         <Col>
           <Form.Item>
@@ -370,21 +333,43 @@ const SupportDocument = (props) => {
         </Col>
         <Col>
           <Form.Item>
-            <Button className="custom-btn" onClick={async () => {
-              let resp = await Service.call("get", "/api/event");
-              console.log('test_>>>', resp.eventRc)
-              if (resp.eventRc.approval_doc === '') {
-                return openNotification()
-              }
-              await Service.call("patch", "/api/event", { status: 1 });
-              props.setStep(3)
-            }}>
+            <Button
+              className="custom-btn"
+              onClick={async () => {
+                console.log(location)
+                let { start_end_time, released_close_date } = form_data;
+                let dataObj = {
+                  ...form_data,
+                  event_id: location.state.event_id,
+                  start_time: start_end_time[0],
+                  end_time: start_end_time[1],
+                  released_date: released_close_date[0],
+                  close_date: released_close_date[1],
+                  status: 1
+                }
+                if (!dataObj.approval_doc) {
+                  dataObj = {
+                    ...dataObj,
+                    status: 0
+                  }
+                }
+                if (location.state.event_id === 0) { 
+                  const result = await Service.call('post', '/api/event', dataObj);
+                  props.setStep(3);
+                  return dispatch(CommonActions.setFormData({ ...form_data, ...result.eventRc }));
+                }
+              
+                const result = await Service.call('patch', '/api/event', dataObj);
+                props.setStep(3);
+                return dispatch(CommonActions.setFormData({ ...form_data, ...result.eventRc }));
+              }}
+            >
               Next
             </Button>
           </Form.Item>
         </Col>
       </Row>
-    </Form>
+    </>
   );
 };
 
