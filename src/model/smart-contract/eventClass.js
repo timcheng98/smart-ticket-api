@@ -2,6 +2,9 @@ const Web3 = require('web3');
 const Ticket = require('../../admin/client/src/smart-contract/abis/Ticket.json');
 const _ = require('lodash');
 const config = require('config');
+const ganache = require("ganache-core");
+let ganache_test_account = require('../../../ganache_test_account.json')
+
 
 export class EventAPI {
 	constructor() {
@@ -9,11 +12,12 @@ export class EventAPI {
 		this.web3 = {};
 		this.accounts = [];
 		this.address = '';
-		this.default_account = '0x3938FdA9F27c99c9485927D1d477FB15c181E51e';
-		this.default_account_private_key = 'fe2b64c3afb15cfd5b02957bd85c8bd62e60e2e013d9e32b2fa689dc1b78bc3b';
+		this.default_account = config.get('TRUFFLE.OWNER_ACCOUNT.PUBLIC_KEY');
+		this.default_account_private_key = config.get('TRUFFLE.OWNER_ACCOUNT.PRIVATE_KEY');
 	}
 
-	getWeb3() {
+	getWeb3() {		
+
 		return this.web3;
 	}
 
@@ -24,25 +28,17 @@ export class EventAPI {
 		return true
 	}
 
-	// async loadWeb3() {
-
-	// 	if (window.ethereum) {
-	// 		window.web3 = new Web3(window.ethereum);
-	// 		await window.ethereum.enable();
-	// 		this.web3 = window.web3;
-	// 	} else if (window.web3) {
-	// 		window.web3 = new Web3(window.web3.currentProvider);
-	// 		this.web3 = window.web3;
-	// 	} else {
-	// 		window.alert(
-	// 			'Non-Ethereum browser detected. You should consider trying MetaMask!'
-	// 		);
-	// 	}
-	// }
-
 	async loadRemoteWeb3() {
-		// const PROVIDER = getStore().getState().app.config.TURRFLE_URL;
+		// let accounts = [];
+		// _.each(ganache_test_account.addresses, (value, key) => {
+		// 	accounts.push({ [key]: value })
+		// })
+		console.log('Object.values(ganache_test_account.private_keys)', Object.keys(ganache_test_account.private_keys))
+		// console.log('Object.values(ganache_test_account.private_keys)', accounts)
 		let web3 = new Web3(config.get('TRUFFLE.ORIGIN'));
+		// const web3 = new Web3(ganache.provider({ network_id: 1337, accounts }), null, { transactionConfirmationBlocks: 1 });
+
+		// console.log('web3,', ganache.provider())
 		this.web3 = web3;
 	}
 
@@ -58,17 +54,23 @@ export class EventAPI {
 
 			this.contract = new this.web3.eth.Contract(abi, address);
 			// console.log('networkData', this.contract)
+			console.log('address',   address)
+			console.log('this.accounts',   this.accounts)
 
 		} else {
-			window.alert('Smart contract not deployed to detected network.');
+			console.error('Smart contract not deployed to detected network')
+			// window.alert('Smart contract not deployed to detected network.');
 		}
 	}
 
 	async getEventAll() {
 		let events = [];
+		console.log('this.accounts[0]', this.accounts[0])
+
 		let total = await this.contract.methods.getEventId().call({
 			from: this.accounts[0],
 		});
+		console.log('tset event', total)
 
 		if (!total) return [];
 
@@ -306,6 +308,9 @@ export class EventAPI {
 		// getStore().dispatch(CommonActions.setLoading(true))
 
 		let gas = await transaction.estimateGas({ from: this.default_account });
+
+		console.log('gas', gas)
+
 		let nonce = await this.web3.eth.getTransactionCount(this.default_account);
 
 

@@ -43,6 +43,7 @@
     "express-session": "^1.16.1",
     "express-useragent": "^1.0.12",
     "firebase-admin": "^8.13.0",
+    "ganache-core": "^2.13.2",
     "geoip-lite": "^1.4.0",
     "helmet": "^3.23.3",
     "hogan.js": "^3.0.2",

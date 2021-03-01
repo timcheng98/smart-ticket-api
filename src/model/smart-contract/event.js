@@ -6,6 +6,8 @@ const eventAPI = new EventAPI();
 exports.getEventAll = async () => {
   await eventAPI.init();
   let events = await eventAPI.getEventAll()
+  console.log('test_event', events)
+
   return events;
 }
 
