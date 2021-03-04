@@ -30,6 +30,19 @@ exports.initRouter = (router) => {
     postLogout,
   );
 
+  router.post(
+    '/api/login/user',
+    passport.authenticate('UserAuth'),
+    getUser,
+  );
+
+  router.use('/api/user', middleware.session.authorizeUser());
+  router.get(
+    '/api/user',
+    getUser
+  );
+
+
   router.use('/api/admin', middleware.session.authorize());
   router.get(
     '/api/admin',
@@ -69,6 +82,27 @@ const getAdmin = async (req, res) => {
     res.apiResponse({
       status: 1,
       userData
+    });
+  } catch (error) {
+    console.error(error);
+    res.apiError(error);
+  }
+}
+
+const getUser = async (req, res) => {
+  try {
+    let { user_id } = req.user;
+    if (user_id == null) {
+      throw new AppError(-71001);
+    }
+
+    let result = await userModel.selectUser(user_id, {
+      fields: ['user_id', 'is_active', 'first_name', 'last_name', 'email', 'mobile', 'wallet_address', 'need_kyc', 'user_kyc_id']
+    });
+
+    res.apiResponse({
+      status: 1,
+      result
     });
   } catch (error) {
     console.error(error);

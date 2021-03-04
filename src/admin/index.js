@@ -95,6 +95,7 @@ exports.init = (ns) => {
         password: '',
       };
       postData = helper.validateFormData(req.body, postData);
+      console.log(postData)
 
       let [userRc] = await userModel.selectUser({
         where: {

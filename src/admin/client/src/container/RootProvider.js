@@ -14,9 +14,7 @@ import * as Service from "../core/Service";
 import _ from "lodash";
 import Path from "../routes/Path";
 import LoadingScreen from '../components/LoadingScreen'
-import { EventAPI } from "../smart-contract/api/Event";
 
-const eventAPI = new EventAPI();
 
 const RootProvider = () => {
   const loading = useSelector((state) => state.app.loading);

@@ -44,11 +44,37 @@ exports.authorize = function(_opts) {
       debug(`authorize()`);
 
       let opts = _opts || {};
-      if (req.isAuthenticated()) {
+      if (req.isAuthenticated() && _.toInteger(req.user.admin_id) > 0) {
         next();
+        return;
       } else {
         res.apiError(new AppError(-101));
         // res.sendStatus(401);
+      }
+    } catch (err) {
+      console.error(err);
+      res.sendStatus(500);
+    }
+  };
+};
+
+exports.authorizeUser = function(_opts) {
+  return async (req, res, next) => {
+    try {
+      debug(`authorize() :: ${req.url}`);
+
+      let opts = _opts || {};
+      const { redirect } = opts;
+      if (req.isAuthenticated() && _.toInteger(req.user.user_id) > 0) {
+        next();
+        return;
+      }
+      if (redirect && _.isFunction(redirect)) {
+        redirect(req, res);
+      } else if (redirect) {
+        res.redirect(redirect);
+      } else {
+        res.apiError(new AppError(-101));
       }
     } catch (err) {
       console.error(err);
