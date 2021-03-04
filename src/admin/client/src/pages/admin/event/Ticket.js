@@ -51,7 +51,9 @@ const CreateEventForm = () => {
   const location = useLocation();
 
   useEffect(() => {
+    dispatch(setLoading(true));
     getSeatsFromChain();
+    dispatch(setLoading(false));
   }, [location]);
 
   const getSeatsFromChain = async () => {
@@ -85,11 +87,13 @@ const CreateEventForm = () => {
   };
 
   useEffect(() => {
+    dispatch(setLoading(true));
     if (location.state) {
       if (location.state.eventId !== undefined) {
         getEvent();
       }
     }
+    dispatch(setLoading(false));
   }, [location]);
 
   useEffect(() => {
@@ -450,7 +454,9 @@ const CreateEventForm = () => {
     await Service.call('post', '/api/sc/event/ticket', { tickets: _ticketList })
   };
 
-  if (seatElements.length === 0) return <LoadingScreen></LoadingScreen>;
+  // if (_.isEmpty(seatElements)) return <LoadingScreen></LoadingScreen>;
+
+  // console.log('seatElements.length', seatElements.length);
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>

@@ -2,8 +2,6 @@ const Web3 = require('web3');
 const Ticket = require('../../admin/client/src/smart-contract/abis/Ticket.json');
 const _ = require('lodash');
 const config = require('config');
-const ganache = require("ganache-core");
-let ganache_test_account = require('../../../ganache_test_account.json')
 
 
 export class EventAPI {
@@ -29,16 +27,8 @@ export class EventAPI {
 	}
 
 	async loadRemoteWeb3() {
-		// let accounts = [];
-		// _.each(ganache_test_account.addresses, (value, key) => {
-		// 	accounts.push({ [key]: value })
-		// })
-		console.log('Object.values(ganache_test_account.private_keys)', Object.keys(ganache_test_account.private_keys))
-		// console.log('Object.values(ganache_test_account.private_keys)', accounts)
 		let web3 = new Web3(config.get('TRUFFLE.ORIGIN'));
-		// const web3 = new Web3(ganache.provider({ network_id: 1337, accounts }), null, { transactionConfirmationBlocks: 1 });
 
-		// console.log('web3,', ganache.provider())
 		this.web3 = web3;
 	}
 
@@ -53,10 +43,6 @@ export class EventAPI {
 			this.address = address;
 
 			this.contract = new this.web3.eth.Contract(abi, address);
-			// console.log('networkData', this.contract)
-			console.log('address',   address)
-			console.log('this.accounts',   this.accounts)
-
 		} else {
 			console.error('Smart contract not deployed to detected network')
 			// window.alert('Smart contract not deployed to detected network.');
@@ -65,7 +51,6 @@ export class EventAPI {
 
 	async getEventAll() {
 		let events = [];
-		console.log('this.accounts[0]', this.accounts[0])
 
 		let total = await this.contract.methods.getEventId().call({
 			from: this.accounts[0],

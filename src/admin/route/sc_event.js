@@ -63,7 +63,6 @@ const getTicketAll = async (req, res) => {
   try {
     let result = await eventModel.getTicketAll();
     result = _.groupBy(result, 'eventId')
-
     res.apiResponse({
       status: 1,
       result

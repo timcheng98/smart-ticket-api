@@ -1,8 +1,6 @@
 /* eslint-disable */
 
 const path = require('path');
-const { stringify } = require('querystring');
-let ganache_test_account = require('../ganache_test_account.json')
 
 module.exports = {
   "DEBUG": "app:*",
@@ -40,8 +38,8 @@ module.exports = {
     "HOST": "165.22.251.49",
     "ORIGIN": "http://165.22.251.49:7545",
     "OWNER_ACCOUNT": {
-      "PUBLIC_KEY": Object.keys(ganache_test_account.private_keys)[0] || null,
-      "PRIVATE_KEY": Object.values(ganache_test_account.private_keys)[0]  || null
+      "PUBLIC_KEY": "0x19EE78BAC3D3b2f9f6c6d162f4347f763021C038",
+      "PRIVATE_KEY": "0x999da71ecd57b14e49e398c7ff3f737295e5f85df17961fc22769fa15eae4089"
     }
   },
   "AUTH": {

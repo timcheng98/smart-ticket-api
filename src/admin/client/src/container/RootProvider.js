@@ -38,6 +38,8 @@ const RootProvider = () => {
     let events = await Service.call("get", `/api/sc/event`);
     let tickets = await Service.call("get", `/api/sc/event/ticket`);
     dispatch(setSCEvents(events));
+    console.log('events', events)
+    console.log('tickets', tickets)
     setLoadingSc(false);
   };
 
@@ -77,6 +79,9 @@ const RootProvider = () => {
       return;
     }
   };
+
+  console.log('loading', loading);
+  console.log('loadingSc', loadingSc);
 
   if (loading || loadingSc) return <LoadingScreen></LoadingScreen>
 
