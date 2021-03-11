@@ -1,9 +1,8 @@
-const companyUserModel = require('./user');
-const companyAdminModel = require('./admin');
-const companyModel = require('./company');
-const doorModel = require('./door');
+// const companyUserModel = require('./user');
+// const companyAdminModel = require('./admin');
+// const companyModel = require('./company');
 
-exports.user = companyUserModel;
-exports.admin = companyAdminModel;
-exports.company = companyModel;
-exports.door = doorModel;
+// exports.user = companyUserModel;
+// exports.admin = companyAdminModel;
+// exports.company = companyModel;
+// exports.door = doorModel;

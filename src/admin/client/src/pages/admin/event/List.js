@@ -42,17 +42,13 @@ const tableIDName = "event_id";
 
 const EventList = (props) => {
   const [dataList, setDataList] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState({});
-  const state = useSelector((state) => state.app);
+  const [loading, setLoading] = useState(true);
   const sc_events = useSelector((state) => state.smartContract.sc_events);
 
   useEffect(() => {
     getAllData();
-    console.log(state);
+    setLoading(false)
   }, []);
-
-  console.log("sc_events", sc_events);
 
   const getAllData = async () => {
     let dataList = [];
@@ -73,11 +69,22 @@ const EventList = (props) => {
         title: "",
         dataIndex: tableIDName,
         render: (value, record) => {
-          let status = record.status === 1;
+          let button;
+          // console.log('sc_events', sc_events);
+          if (!_.isEmpty(sc_events)) {
+            if (sc_events[record.event_id])
+              button = (
+                <Col>
+                  <Tooltip title={"On the Blochain Already"}>
+                    <Button shape="circle" icon={<GlobalOutlined style={{color: '#1890ff'}}/>} />
+                  </Tooltip>
+                </Col>
+              )
+          }
           let color = "#000000";
           let icon = "";
           let wordings = "";
-          if (status) {
+          if (record.status === 1) {
             color = "#AA0000";
             icon = "stop";
             wordings = "Disable";
@@ -114,20 +121,14 @@ const EventList = (props) => {
                         record.is_approval_doc_verified ? (
                           <FileProtectOutlined />
                         ) : (
-                          <FileSearchOutlined />
-                        )
+                            <FileSearchOutlined />
+                          )
                       }
                     />
                   </Tooltip>
                 </Link>
               </Col>
-              {sc_events[record.event_id] && (
-                <Col>
-                  <Tooltip title={"On the Blochain Already"}>
-                    <Button shape="circle" icon={<GlobalOutlined />} />
-                  </Tooltip>
-                </Col>
-              )}
+              {button}
             </Row>
           );
         },
@@ -167,21 +168,6 @@ const EventList = (props) => {
         render: (value) => UI.momentFormat(value, "YYYY-MM-DD HH:mm"),
         sorter: (a, b) => a.close_date.localeCompare(b.close_date),
       },
-      // {
-      //   title: 'Mobile',
-      //   dataIndex: 'mobile',
-      //   sorter: (a, b) => a.mobile.localeCompare(b.mobile)
-      // },
-      // {
-      //   title: 'Email',
-      //   dataIndex: 'email',
-      //   sorter: (a, b) => a.email.localeCompare(b.email)
-      // },
-      // {
-      //   title: 'Wallet',
-      //   dataIndex: 'wallet',
-      //   sorter: (a, b) => a.wallet.localeCompare(b.wallet)
-      // }
     ];
     return columns;
   };
@@ -189,34 +175,12 @@ const EventList = (props) => {
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
       <Table
+        loading={loading}
         rowKey={tableIDName}
         scroll={{ x: "max-content" }}
         dataSource={dataList}
         columns={setTableHeader()}
       />
-
-      <Modal
-        title="Edit"
-        visible={modalVisible}
-        footer={null}
-        style={{ maxWidth: 800 }}
-        width={"90%"}
-        onCancel={() => {
-          setModalVisible(false);
-        }}
-      >
-        {/* <CompanyForm
-          dataObj={
-            selectedRecord
-          }
-          openModal={
-            (_visible) => {
-              setModalVisible(_visible);
-              getAllData()
-            }
-          }
-        /> */}
-      </Modal>
     </AppLayout>
   );
 };

@@ -19,7 +19,9 @@ import EventInfo from '../pages/admin/event/Info';
 import UserKyc from '../pages/admin/user/kyc/List';
 
 //Company
-import CompanyKyc from '../pages/company/kyc';
+import CompanyKycList from '../pages/company/kyc/List';
+import CompanyKycForm from '../pages/company/kyc/Form';
+import CompanyKycInfo from '../pages/company/kyc/Info';
 import CompanyEventList from '../pages/company/event/index';
 import CompanyEvent from '../pages/company/event/Info';
 import CompanyForm from '../pages/company/event/Form';
@@ -46,7 +48,9 @@ const Path = (props) => {
         <Private path="/admin/user/list" component={UserList} exact level={Main.LEVEL.ADMIN} />
         <Private path="/admin/user/kyc" component={UserKyc} exact level={Main.LEVEL.ADMIN} />
 
-        <Private path="/company/kyc" component={CompanyKyc} exact level={Main.LEVEL.COMPANY} />
+        <Private path="/company/kyc/list" component={CompanyKycList} exact level={Main.LEVEL.COMPANY} />
+        <Private path="/company/kyc/form" component={CompanyKycForm} exact level={Main.LEVEL.COMPANY} />
+        <Private path="/company/kyc/info" component={CompanyKycInfo} exact level={Main.LEVEL.COMPANY} />
         <Private path="/company/event/list" component={CompanyEventList} exact level={Main.LEVEL.COMPANY} />
         <Private path="/company/event/info" component={CompanyEvent} exact level={Main.LEVEL.COMPANY} />
         <Private path="/company/event/form" component={CompanyForm} exact level={Main.LEVEL.COMPANY} />

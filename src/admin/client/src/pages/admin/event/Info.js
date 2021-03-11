@@ -54,12 +54,12 @@ const EventInfo = () => {
   const dispatch = useDispatch();
   const app = useSelector((state) => state.app);
   const sc_event_api = useSelector((state) => state.smartContract.sc_event_api);
-    const sc_events = useSelector((state) => state.smartContract.sc_events);
+  const sc_events = useSelector((state) => state.smartContract.sc_events);
   const [isReject, setReject] = useState(false);
   const [text, setText] = useState("");
   const history = useHistory();
   const [dataSource, setDataSource] = useState({});
-  
+
   const [events, setEvent] = useState({})
 
   useEffect(() => {
@@ -97,13 +97,17 @@ const EventInfo = () => {
   const onChainProcess = async (e) => {
     dispatch(CommonActions.setLoading(true));
     await Service.call('post', '/api/sc/event', { event: dataSource });
+    await Service.call('post', '/api/sc/event', { event: dataSource });
+    let events = await Service.call("get", `/api/sc/event`);
+    dispatch(CommonActions.setSCEvents(events));
     dispatch(CommonActions.setLoading(false));
-    history.push('/admin/event/info')
+    // history.push('/admin/event/info')
   }
 
   const onTextChange = (e) => {
     setText(e.target.value);
   };
+
 
 
   return (
@@ -117,7 +121,7 @@ const EventInfo = () => {
               text={UI.displayApplicationStatus(dataSource.status)}
             />
           </Row>
-          {sc_events[dataSource.event_id] && (
+          {!_.isEmpty(sc_events[dataSource.event_id]) && (
             <Row gutter={[0, 20]}>
               <Col>
                 <Badge
@@ -212,7 +216,7 @@ const EventInfo = () => {
               <Image.PreviewGroup>
                 <Image
                   id="event_doc"
-                  style={{width: '100%', maxWidth: 300}}
+                  style={{ width: '100%', maxWidth: 300 }}
                   src={`${dataSource.approval_doc}`}
                 />
               </Image.PreviewGroup>

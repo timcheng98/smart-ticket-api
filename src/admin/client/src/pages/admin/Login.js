@@ -24,6 +24,7 @@ const Login = () => {
       let data = await Service.call('post', `/api/login/admin`, {
         email, password
       });
+      console.log(data);
       if (data.errorMessage) return message.error(data.errorMessage);
       
       let adminData = await Service.call('get', `/api/admin`);

@@ -20,7 +20,7 @@ import {
   Col,
   Input,
 } from "antd";
-import { useHistory, Link } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import moment from "moment";
 import _ from "lodash";
 import { useSelector } from "react-redux";
@@ -61,9 +61,10 @@ const KycInformation = () => {
   const applyKycAgain = async (e) => {
     await Service.call("patch", "/api/company/admin/kyc/single", {
       admin_id: company.admin_id,
-      is_company_doc_verified: 0
+      is_company_doc_verified: 0,
+      company_doc: ''
     });
-    history.push("/company/kyc", {again: true});
+    history.push("/company/kyc/form");
   };
 
   return (

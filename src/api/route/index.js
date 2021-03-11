@@ -7,7 +7,6 @@ const express = require('express');
 const config = require('config');
 const middleware = require('./middleware');
 const packageData = require('../../../package.json');
-const controllerRouter = require('./controller');
 
 exports.getRouter = function() {
   let router = new express.Router();
@@ -34,14 +33,13 @@ exports.getRouter = function() {
     });
   });
 
-  controllerRouter.initRouter(router);
 
   const files = fs.readdirSync(__dirname);
   _.each(files, (file) => {
     let fileObj = path.parse(file);
     if (fileObj.ext === '.js' && fileObj.name !== 'index') {
-      let controller = require('./' + fileObj.name);
-      controller.initRouter(router);
+      // let controller = require('./' + fileObj.name);
+      // controller.initRouter(router);
     }
   });
 

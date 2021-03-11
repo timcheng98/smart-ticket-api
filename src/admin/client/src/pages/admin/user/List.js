@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Avatar, Button, Divider, Form, Icon, Layout, Menu, Modal, Popconfirm, Table, Tag, Tooltip
+  Avatar, Button, Divider, Form, Icon, Layout, Menu, Modal, Tabs, Popconfirm, Table, Tag, Tooltip
 } from 'antd';
-import 'antd/dist/antd.css';
+import {
+  TeamOutlined,
+  SolutionOutlined,
+} from '@ant-design/icons';
 import moment from 'moment';
 import _ from 'lodash';
 import * as UI from '../../../core/UI';
@@ -13,10 +16,10 @@ import AppLayout from '../../../components/AppLayout';
 import { EditOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons';
 
 
-const debug = require('debug')('app:admin:client:src:AdvertisementList');
+const { TabPane } = Tabs;
 
 const involvedModelName = "user";
-const title = "User Info";
+const title = "User Information";
 const selectedKey = 'user_list';
 const tableIDName = "user_id";
 
@@ -31,11 +34,12 @@ const UserList = (props) => {
   }, []);
 
   const getAllData = async () => {
-    let dataList =[];
+    let dataList = [];
     try {
-      let url = `/api/${involvedModelName}/list`;
+      let url = `/api/admin/user/list`;
       let data = await Service.call('get', url);
       dataList = _.orderBy(data, ['ctime'], ['desc']);
+      console.log('datalist', dataList);
     } catch (error) {
       console.error('error >>> ', error);
     } finally {
@@ -66,21 +70,21 @@ const UserList = (props) => {
             <span>
               <Button
                 shape="circle"
-                style={{ color: '#000000'}}
+                style={{ color: '#000000' }}
                 icon={<EditOutlined />}
                 onClick={() => {
                   setModalVisible(true);
                   setSelectedRecord(record);
                 }}
               />
-              <Tooltip title={record.is_active ? 'Disable Company' : 'Enable Company' }>
-                 <Button
+              <Tooltip title={record.is_active ? 'Disable Company' : 'Enable Company'}>
+                <Button
                   shape="circle"
-                  style={{marginLeft: 8, color: record.is_active ? 'red' : 'green'}}
+                  style={{ marginLeft: 8, color: record.is_active ? 'red' : 'green' }}
                   icon={record.is_active ? (<StopOutlined />) : (<CheckOutlined />)}
                   onClick={async () => {
-                    let { company_id , is_active } = record;
-                    await Service.call('patch', '/api/company/status', {company_id, is_active });
+                    let { company_id, is_active } = record;
+                    await Service.call('patch', '/api/company/status', { company_id, is_active });
                     getAllData();
                   }}
                 />
@@ -99,23 +103,23 @@ const UserList = (props) => {
       {
         title: 'User Name',
         dataIndex: 'first_name',
-        render: (val, {first_name, last_name}) => `${first_name} ${last_name}`,
-        sorter: (a, b) => a.first_name.localeCompare(b.first_name)
+        render: (val, { first_name, last_name }) => `${first_name} ${last_name}`,
+        // sorter: (a, b) => a.first_name.localeCompare(b.first_name)
       },
       {
         title: 'Mobile',
         dataIndex: 'mobile',
-        sorter: (a, b) => a.mobile.localeCompare(b.mobile)
+        // sorter: (a, b) => a.mobile.localeCompare(b.mobile)
       },
       {
         title: 'Email',
         dataIndex: 'email',
-        sorter: (a, b) => a.email.localeCompare(b.email)
+        // sorter: (a, b) => a.email.localeCompare(b.email)
       },
       {
-        title: 'Wallet',
-        dataIndex: 'wallet',
-        sorter: (a, b) => a.wallet.localeCompare(b.wallet)
+        title: 'Wallet Address',
+        dataIndex: 'wallet_address',
+        // sorter: (a, b) => a.wallet_address.localeCompare(b.wallet_address)
       }
     ];
     return columns;
@@ -143,12 +147,25 @@ const UserList = (props) => {
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
-      <Table
-        rowKey={tableIDName}
-        scroll={{x: 'auto'}}
-        dataSource={dataList}
-        columns={setTableHeader()}
-      />
+      <Tabs>
+        <TabPane tab={<span><TeamOutlined />User List</span>} key="1">
+          <Table
+            rowKey={tableIDName}
+            scroll={{ x: 'auto' }}
+            dataSource={dataList}
+            columns={setTableHeader()}
+          />
+        </TabPane>
+        <TabPane tab={<span><SolutionOutlined />KYC List</span>} key="2">
+          <Table
+            rowKey={tableIDName}
+            scroll={{ x: 'auto' }}
+            dataSource={dataList}
+            columns={setTableHeader()}
+          />
+        </TabPane>
+      </Tabs>
+
 
       <Modal
         title="Edit"
@@ -171,7 +188,7 @@ const UserList = (props) => {
         /> */}
       </Modal>
     </AppLayout>
-  )  
+  )
 }
 
 export default UserList;

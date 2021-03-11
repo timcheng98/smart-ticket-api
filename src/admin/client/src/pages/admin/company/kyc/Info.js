@@ -61,6 +61,7 @@ const KycInformation = () => {
     await Service.call("patch", "/api/company/admin/kyc/single", {
       reject_reason: text,
       admin_id: company.admin_id,
+      company_doc: '',
       is_company_doc_verified: 0,
       status: -1
     });
@@ -80,7 +81,6 @@ const KycInformation = () => {
     setText(e.target.value);
   };
 
-  console.log(company);
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
@@ -180,7 +180,7 @@ const KycInformation = () => {
                 </Button>
                 <Button
                   style={{ margin: 20 }}
-                  type="primary"
+                  type="dashed"
                   onClick={() => setReject(false)}
                 >
                   Cancel

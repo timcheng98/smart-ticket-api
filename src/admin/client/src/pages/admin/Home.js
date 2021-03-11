@@ -75,7 +75,7 @@ const Home = () => {
           height: '100%',
         }}
       >
-        <Dragger showUploadList={false} {...props} onChange={uploadOnChange}>
+        {/* <Dragger showUploadList={false} {...props} onChange={uploadOnChange}>
           {ipfsHash !== null ? <img style={{ width: 300 }} src={`https://ipfs.io/ipfs/${ipfsHash}`} /> :
             <div>
               <p className="ant-upload-drag-icon">
@@ -88,7 +88,7 @@ const Home = () => {
     </p>
             </div>
           }
-        </Dragger>
+        </Dragger> */}
         {/* <Button onClick={submit}>upload</Button> */}
       </Content>
     </AppLayout>

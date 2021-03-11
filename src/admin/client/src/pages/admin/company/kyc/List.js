@@ -22,9 +22,6 @@ const tableIDName = "company_kyc_id";
 
 const CompanyList = (props) => {
   const [dataList, setDataList] = useState([]);
-  const history = useHistory();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState({});
   const app = useSelector(state => state.app);
   const [loading, toggleLoading] = useState(true);
   const [modal, toggleModal] = useState({
@@ -32,7 +29,6 @@ const CompanyList = (props) => {
     imageUrl: null
   });
 
-  const [company, setCompany] = useState({})
   useEffect(() => {
     getAllData();
   }, []);
@@ -97,8 +93,8 @@ const CompanyList = (props) => {
       },
       {
         title: 'Status',
-        dataIndex: 'is_company_doc_verified',
-        render: (value) => UI.displayStatus(value, {1: 'Approved', 0: 'Pending', '-1': 'Rejected', default: 'ERROR'}),
+        dataIndex: 'status',
+        render: (value) => UI.displayApplicationStatus(value),
         sorter: (a, b) => a.status - b.status
       },
       {

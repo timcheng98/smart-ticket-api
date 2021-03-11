@@ -6,7 +6,8 @@ const AppError = require('../../lib/app-error');
 const helper = require('../../lib/helper');
 const eventModel = require('../../model/smart-contract/event');
 const middleware = require('./middleware');
-
+const { DefaultAzureCredential } = require("@azure/identity");
+const { SecretClient } = require("@azure/keyvault-secrets");
 const debug = require('debug')(`app:event`);
 
 const ERROR_CODE = {
@@ -26,7 +27,9 @@ module.exports = exports = {
     router.post('/api/sc/event/ticket/onsell', getOnSellTicketsByArea);
     router.post('/api/sc/event/ticket/buy', buyTicket);
     router.post('/api/sc/event/ticket/owner', getOwnerTicket);
-
+    router.get('/api/sc/event/ticket/approve', getTicketOnMarketplace);
+    router.post('/api/sc/event/ticket/approve', sellTicketsOnMarketplace);
+    // router.get('/api/sc/event/secret', getSecret);
 
   }
 };
@@ -134,3 +137,63 @@ const createTicket = async (req, res) => {
   }
 }
 
+const sellTicketsOnMarketplace = async (req, res) => {
+  try {
+    let { ticketId, seller } = req.body;
+    if (!_.isInteger(ticketId)) {
+      return res.apiResponse({
+        status: -1
+      });
+    }
+
+    let result = await eventModel.sellTicketsOnMarketplace(seller, ticketId);
+    if (result.status === -1) {
+      return res.apiResponse({
+        status: -1,
+        errorMessage: result.errorMessage
+      });
+    }
+    res.apiResponse({
+      status: 1
+    });
+  } catch (error) {
+    console.error(error);
+    res.apiError(error);
+  }
+}
+
+const getTicketOnMarketplace = async (req, res) => {
+  try {
+    let { ticketId } = req.query;
+    if (!_.isInteger(_.toInteger(ticketId))) {
+      return res.apiResponse({
+        status: -1
+      });
+    }
+
+    let address = await eventModel.getTicketOnMarketplace(ticketId);
+    res.apiResponse({
+      status: 1,
+      result: address
+    });
+  } catch (error) {
+    console.error(error);
+    res.apiError(error);
+  }
+}
+
+const getSecret = async (req, res) => {
+  try {
+    const keyVaultName = process.env["KEY_VAULT_NAME"];
+    const KVUri = "https://" + keyVaultName + ".vault.azure.net";
+
+    const credential = new DefaultAzureCredential();
+    const client = new SecretClient(KVUri, credential);
+    
+    // console.log();
+    res.apiResponse({keyVaultName, KVUri, credential, client})
+  } catch (error) {
+    console.error(error);
+    res.apiError(error)
+  }
+}

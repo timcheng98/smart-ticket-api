@@ -27,17 +27,9 @@ const RootProvider = () => {
   }, []);
 
   const loadBlockchain = async () => {
-    // let event = await eventAPI.init();
-
-    // console.log("init blockchain", eventAPI);
-    // dispatch(setSCEventAPI(eventAPI));
-    // let events = await eventAPI.getEventAll();
-    // let tickets = await eventAPI.getTicketAll();
+    setLoadingSc(true)
     let events = await Service.call("get", `/api/sc/event`);
-    let tickets = await Service.call("get", `/api/sc/event/ticket`);
     dispatch(setSCEvents(events));
-    console.log('events', events)
-    console.log('tickets', tickets)
     setLoadingSc(false);
   };
 
@@ -49,8 +41,6 @@ const RootProvider = () => {
       throw new Error("failed to get app config");
     }
 
-
-
     resp = await Service.call("get", `/api/admin`);
 
     if (!resp || resp.status <= 0) {
@@ -58,7 +48,7 @@ const RootProvider = () => {
       dispatch(setLoading(false));
       return;
     }
-    setLoadingSc(true)
+
     loadBlockchain();
 
     if (resp.userData[0].role === 1) {

@@ -30,7 +30,7 @@ exports.init = (ns) => {
   namespace = ns;
   webConfig = config.get(namespace);
 
-  WebServer.setAuthentication('AdminAuth', async function(req, callback) {
+  WebServer.setAuthentication('AdminAuth', async function (req, callback) {
     try {
       // Do your custom user finding logic here, or set to false based on req object
       // let {session_context, user_id} = req.session;
@@ -38,6 +38,7 @@ exports.init = (ns) => {
       // if (session_context === namespace && user_id > 0) {
       //   return callback(null, user_id);
       // }
+      console.log('test');
       // return callback(null, false);
       let postData = {
         email: '',
@@ -46,7 +47,7 @@ exports.init = (ns) => {
       postData = helper.validateFormData(req.body, postData);
 
       // Admin Account
-      let [userRc] = await model.admin.selectAccount({
+      let [userRc] = await adminModel.selectAccount({
         where: {
           email: postData.email
         }
@@ -80,14 +81,14 @@ exports.init = (ns) => {
       /* ERROR HANDLE END */
 
       /* Success */
-      return callback(null, {admin_id: userRc.admin_id});
+      return callback(null, { admin_id: userRc.admin_id });
     } catch (err) {
       console.error(err);
       callback(err);
     }
   });
 
-  WebServer.setAuthentication('UserAuth', async function(req, callback) {
+  WebServer.setAuthentication('UserAuth', async function (req, callback) {
     try {
       // Do your custom user finding logic here, or set to false based on req object
       let postData = {
@@ -95,7 +96,7 @@ exports.init = (ns) => {
         password: '',
       };
       postData = helper.validateFormData(req.body, postData);
-      console.log(postData)
+      console.log('test', postData)
 
       let [userRc] = await userModel.selectUser({
         where: {
@@ -103,10 +104,20 @@ exports.init = (ns) => {
         }
       });
       if (!userRc || userRc.password !== postData.password) {
-        return callback(null, false);
+        return callback(null, {
+          user_id: 0,
+          status: -1,
+          errorCode: -50001,
+          errorMessage: ERROR_CODE[-50001]
+        });
       }
       if (userRc.is_active !== 1) {
-        return callback(null, false);
+        return callback(null, {
+          user_id: 0,
+          status: -1,
+          errorCode: -50002,
+          errorMessage: ERROR_CODE[-50002]
+        });
       }
       return callback(null, {
         user_id: userRc.user_id,
@@ -117,7 +128,7 @@ exports.init = (ns) => {
     }
   });
 
-  WebServer.setAuthentication('CompanyAdminAuth', async function(req, callback) {
+  WebServer.setAuthentication('CompanyAdminAuth', async function (req, callback) {
     try {
       // Do your custom user finding logic here, or set to false based on req object
       let postData = {
@@ -128,7 +139,7 @@ exports.init = (ns) => {
       postData = helper.validateFormData(req.body, postData);
 
       let [companyRc] = await model.company.company.selectCompany({
-        where : {company_key: postData.company_key}
+        where: { company_key: postData.company_key }
       })
       if (!companyRc) {
         return callback(null, {
@@ -144,7 +155,7 @@ exports.init = (ns) => {
           company_id: companyRc.company_id,
         }
       });
-      
+
       if (!companyAdminRc) {
         return callback(null, {
           status: -1,

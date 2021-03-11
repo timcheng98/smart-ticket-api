@@ -54,32 +54,42 @@ contract('Ticket', (accounts) => {
         endDateSell: 1607701444
       };
       await contract.createEvent(accounts[0], JSON.stringify(detailObj));
-      await contract.addApproval(accounts[0]);
-      await contract.addApproval(accounts[1]);
+      // await contract.addApproval(accounts[0]);
+      // await contract.addApproval(accounts[1]);
 
-      let ownerBalance = await contract.eventOwnerBalanceOf(accounts[0]);
-      let eventOwner = await contract.getEventOwner(0);
-      let isApprovel = await contract.isApprovel(accounts[1]);
-      let event_id = await contract.getEventId();
-      assert.equal(event_id, 1)
-      assert.equal(isApprovel, true)
-      assert.equal(eventOwner, accounts[0])
-      assert.equal(ownerBalance, 1)
+      // let ownerBalance = await contract.eventOwnerBalanceOf(accounts[0]);
+      // let eventOwner = await contract.getEventOwner(0);
+      // let isApprovel = await contract.isApprovel(accounts[1]);
+      // let event_id = await contract.getEventId();
+      // assert.equal(event_id, 1)
+      // assert.equal(isApprovel, true)
+      // assert.equal(eventOwner, accounts[0])
+      // assert.equal(ownerBalance, 1)
 
       let obj = {
         area: 'area1',
         row: 1,
         column: 1,
-        seat: `ROW ${row} - COL ${column}`,
+        seat: `ROW 1 - COL 1`,
         available: true
       }
-      await contract.mint(obj);
+      await contract.mint([JSON.stringify(obj)]);
     });
   })
 
   describe('indexing', async () => {
     it('lists tickets', async () => {
-      await contract.safeTransferFrom(accounts[0], accounts[1], 0);
+      // await contract.safeTransferFrom(accounts[0], accounts[1], 0);
+      const owner = await contract.ownerOf(0);
+      const tickets = await contract.tickets(0);
+      await contract.sellTicketsOnMarketplace('0x2804D900ada024996DD187531890eF57ca81FFA8', 0);
+      // await contract.sellTicketsOnMarketplace('0x19EE78BAC3D3b2f9f6c6d162f4347f763021C038', 0);
+      const marketplace_ticket = await contract.marketplaceTickets(0);
+      // const sell_ticket_owner = await contract.getTicketOnMarketplace(0);
+      console.log('owner', owner)
+      console.log('tickets', tickets)
+      console.log('marketplace_ticket', marketplace_ticket)
+      // console.log('sell_ticket_owner', sell_ticket_owner)
       // for (let i = 0; i <= 4; i++) {
       //   let ticket = await contract.tickets(i)
       //   assert.equal(ticket.eventId, 0)

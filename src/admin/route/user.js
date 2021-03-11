@@ -1,15 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-const config = require('config');
 const _ = require('lodash');
-const express = require('express');
-const passport = require('passport');
 const AppError = require('../../lib/app-error');
 const helper = require('../../lib/helper');
 const model = require('../../model');
 const userKycModel = require('../../model/user/kyc');
 const eventModel = require('../../model/smart-contract/event');
-const userModel = require('../../model/user');
 const middleware = require('./middleware');
 
 const ERROR_CODE = {
@@ -25,22 +19,21 @@ module.exports = exports = {
     // router.get('/api/user/list', getUserList);
     // router.get('/api/user/kyc', getUserKycList);
     // router.get('/api/user/kyc/:id', getUserKyc);
-    router.get('/api/user', getUser);
-    router.post('/api/user', createUser);
+    router.get('/api/admin/user', getUser);
+    // router.post('/api/user', createUser);
     router.post('/api/user/decrypt', decryptAccountWallet);
     // router.patch('/api/user', patchUser);
     
-    router.get('/api/user/list', getUserList);
-    router.get('/api/user/kyc', getUserKycList);
-    router.get('/api/user/kyc/:id', getUserKyc);
-    router.post('/api/user/kyc', postUserKyc);
-    router.patch('/api/user/kyc', patchUserKyc);
+    router.get('/api/admin/user/list', getUserList);
+    router.get('/api/admin/user/kyc', getUserKycList);
+    router.get('/api/admin/user/kyc/:id', getUserKyc);
+    router.post('/api/admin/user/kyc', postUserKyc);
+    router.patch('/api/admin/user/kyc', patchUserKyc);
   }
 };
 
 const getUser = async (req, res) => {
   try {
-    console.log(req.user)
     let [result] = await userModel.selectUser({
       where: {
         email: req.body.email

@@ -1,7 +1,6 @@
 const moment = require('moment');
 const db = require('@ikoala/node-mysql-promise');
 const model = require('../index');
-const controllerModel = require('../controller');
 
 const TABLE = {
   user_kyc: ['user_kyc', 'user_kyc_id'],

@@ -16,7 +16,7 @@ const CustomStrategy = require('passport-custom').Strategy;
 const config = require('config');
 const WebSocket = require('ws');
 const cors = require('cors');
-const websocketController = require('./websocket-controller');
+// const websocketController = require('./websocket-controller');
 
 const debug = require('debug')('app:web-server');
 
@@ -167,18 +167,18 @@ exports.createServer = function (_opts) {
 
     debug(`request.url `, request.url);
 
-    const controllerSession = await websocketController.authorize(access_token);
+    // const controllerSession = await websocketController.authorize(access_token);
 
-    if (!controllerSession) {
-      socket.destroy();
-      return;
-    }
+    // if (!controllerSession) {
+    //   socket.destroy();
+    //   return;
+    // }
 
-    wss.handleUpgrade(request, socket, head, function (ws) {
-      ws.session = controllerSession;
-      websocketController.registerConnection(controllerSession, ws);
-      wss.emit('connection', ws, request);
-    });
+    // wss.handleUpgrade(request, socket, head, function (ws) {
+    //   ws.session = controllerSession;
+    //   websocketController.registerConnection(controllerSession, ws);
+    //   wss.emit('connection', ws, request);
+    // });
   });
 
   wss.on('connection', function (ws, request) {
@@ -190,9 +190,9 @@ exports.createServer = function (_opts) {
 
     // ws.send('hello world!!');
 
-    websocketController.sendCommandToController(ws.session.access_token, {
-      action: 'acknowlege',
-    });
+    // websocketController.sendCommandToController(ws.session.access_token, {
+    //   action: 'acknowlege',
+    // });
 
     ws.on('message', function (message) {
       //
@@ -203,12 +203,12 @@ exports.createServer = function (_opts) {
 
     ws.on('close', function () {
       console.log(`ws connection close`);
-      websocketController.unregisterConnection(ws.session);
+      // websocketController.unregisterConnection(ws.session);
     });
 
     ws.on('error', (err) => {
       console.error(err);
-      websocketController.unregisterConnection(ws.session);
+      // websocketController.unregisterConnection(ws.session);
     });
   });
 

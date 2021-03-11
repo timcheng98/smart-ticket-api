@@ -114,18 +114,18 @@ const CompanyEvent = (props) => {
                           record.is_approval_doc_verified ? (
                             <FileProtectOutlined />
                           ) : (
-                              <FileSearchOutlined />
-                            )
+                            <FileSearchOutlined />
+                          )
                         }
                       />
                     </Tooltip>
                   </Link>
                 </Col>
               }
-              {sc_events[record.event_id] && (
+              {!_.isEmpty(sc_events[record.event_id]) && (
                 <Col>
                   <Tooltip title={"On the Blochain Already"}>
-                    <Button shape="circle" icon={<GlobalOutlined />} />
+                    <Button shape="circle" icon={<GlobalOutlined style={{ color: '#1890ff' }} />} />
                   </Tooltip>
                 </Col>
               )}
@@ -142,31 +142,31 @@ const CompanyEvent = (props) => {
       {
         title: "Event Name",
         dataIndex: "name",
-        sorter: (a, b) => a.name.localeCompare(b.name),
+        // sorter: (a, b) => a.name.localeCompare(b.name),
       },
       {
         title: "Start Time",
         dataIndex: "start_time",
         render: (value) => UI.momentFormat(value, "YYYY-MM-DD HH:mm"),
-        sorter: (a, b) => a.start_time.localeCompare(b.start_time),
+        // sorter: (a, b) => a.start_time.localeCompare(b.start_time),
       },
       {
         title: "End Time",
         dataIndex: "end_time",
         render: (value) => UI.momentFormat(value, "YYYY-MM-DD HH:mm"),
-        sorter: (a, b) => a.end_time.localeCompare(b.end_time),
+        // sorter: (a, b) => a.end_time.localeCompare(b.end_time),
       },
       {
         title: "Start Sell Date",
         dataIndex: "released_date",
         render: (value) => UI.momentFormat(value, "YYYY-MM-DD HH:mm"),
-        sorter: (a, b) => a.released_date.localeCompare(b.released_date),
+        // sorter: (a, b) => a.released_date.localeCompare(b.released_date),
       },
       {
         title: "End Sell Date",
         dataIndex: "close_date",
         render: (value) => UI.momentFormat(value, "YYYY-MM-DD HH:mm"),
-        sorter: (a, b) => a.close_date.localeCompare(b.close_date),
+        // sorter: (a, b) => a.close_date.localeCompare(b.close_date),
       },
       // {
       //   title: 'Mobile',
@@ -191,7 +191,10 @@ const CompanyEvent = (props) => {
     <AppLayout title={title} selectedKey={selectedKey}>
       <Row gutter={[0, 20]}>
         <Col>
-          <Link to="/company/event/form">
+          <Link to={{
+            pathname: '/company/event/form',
+            state: { event_id: 0 }
+          }}>
             <Button className="custom-btn" htmlType="submit">
               Create Event
           </Button>

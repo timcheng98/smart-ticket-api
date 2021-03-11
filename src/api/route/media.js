@@ -64,7 +64,7 @@ exports.initRouter = (router) => {
     upload.fields([
       { name: 'file', maxCount: 1 },
     ]),
-    middleware.session.authorize(),
+    // middleware.session.authorize(),
     saveAllFiles(),
     postMedia
   );

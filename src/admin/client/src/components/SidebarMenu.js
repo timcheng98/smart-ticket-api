@@ -93,12 +93,12 @@ const AdminLevelItems = [
     path: '/admin/user/list',
     icon: <TeamOutlined />
   },
-  {
-    key: 'user_kyc',
-    title: 'User KYC',
-    path: '/admin/user/kyc',
-    icon: <SolutionOutlined />
-  },
+  // {
+  //   key: 'user_kyc',
+  //   title: 'User KYC',
+  //   path: '/admin/user/kyc',
+  //   icon: <SolutionOutlined />
+  // },
   {
     key: 'event_list',
     title: 'Event List',
@@ -117,7 +117,7 @@ const CompanyLevelItems = [
   {
     key: 'company_kyc',
     title: 'Company Kyc',
-    path: '/company/kyc',
+    path: '/company/kyc/list',
     icon: <ShopOutlined />
   },
   {

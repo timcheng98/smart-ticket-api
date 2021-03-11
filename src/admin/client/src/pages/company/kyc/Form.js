@@ -49,7 +49,7 @@ const CompanyKycForm = (props) => {
               <Col span={24}><CheckCircleFilled style={{fontSize: 48}}/></Col>
               <Col span={24}>Application Submitted Successfully.</Col>
               <Col span={24}>Reference No. {referenceNumber}</Col>
-              <Col span={24}><Button type="primary" onClick={() => history.push('/')}>Back</Button></Col>  
+              <Col span={24}><Button type="primary" onClick={() => history.push('/company/kyc/list')}>Back</Button></Col>  
             </Row>
             
           </Col>
@@ -103,14 +103,20 @@ const BasicInformation = (props) => {
     let resp = await Service.call('get', `/api/company/admin/kyc/single`);
     // if (data.)
     if (resp.company_kyc_id) {
-      await Service.call('patch', url, dataObj);
+      await Service.call('patch', url, {
+        ...dataObj,
+        status: 0
+      });
       message.success('success');
       props.setReferenceNumber(resp.reference_no)
       return props.setStep(2);
     }
     
     // POST
-    resp = await Service.call('post', url, dataObj);
+    resp = await Service.call('post', url, {
+      ...dataObj,
+      status: 0
+    });
     if (resp.errorMessage) {
       return message.error(resp.errorMessage);
       // return props.openModal(true);
@@ -132,56 +138,56 @@ const BasicInformation = (props) => {
       <Form.Item
         label="Company Code"
         name="company_code"
-        rules={[{ required: false, message: 'Please input Company Code.' }]}
+        rules={[{ required: true, message: 'Please input Company Code.' }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
         label="Name"
         name="name"
-        rules={[{ required: false, message: 'Please input Company Name.' }]}
+        rules={[{ required: true, message: 'Please input Company Name.' }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
         label="Owner"
         name="owner"
-        rules={[{ required: false, message: 'Please input Company Owner.' }]}
+        rules={[{ required: true, message: 'Please input Company Owner.' }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
         label="Description"
         name="description"
-        rules={[{ required: false, message: 'Please input Company Description.' }]}
+        rules={[{ required: true, message: 'Please input Company Description.' }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
         label="Size"
         name="company_size"
-        rules={[{ required: false, message: 'Please input Company Size.' }]}
+        rules={[{ required: true, message: 'Please input Company Size.' }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
         label="Address"
         name="address"
-        rules={[{ required: false, message: 'Please input Address.' }]}
+        rules={[{ required: true, message: 'Please input Address.' }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
         label="Industry"
         name="industry"
-        rules={[{ required: false, message: 'Please input Industry.' }]}
+        rules={[{ required: true, message: 'Please input Industry.' }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
         label="Found Date"
         name="found_date"
-        rules={[{ required: false, message: 'Please input Found Date.' }]}
+        rules={[{ required: true, message: 'Please input Found Date.' }]}
       >
         <DatePicker />
       </Form.Item>
@@ -230,11 +236,10 @@ const SupportDocument = (props) => {
         let patchObj = {
           company_doc: info.file.response.filename
         }
-        await Service.call('patch', '/api/company/admin/kyc', patchObj);
 
         let path = info.file.response.url;
         setImageURL(`${app.config.STATIC_SERVER_URL}/media/${info.file.response.filename}`)
-        setFileInfo(info.file);
+        setFileInfo(info.file.response.filename);
       }
       else{
         message.error('上載失敗')
@@ -286,7 +291,11 @@ const SupportDocument = (props) => {
             <Button
               className="custom-btn"
               onClick={async () => {
-                await Service.call('patch', '/api/company/admin/kyc', { status: 1 });
+                let status = 0;
+                if (fileInfo) {
+                  status = 1;
+                }
+                await Service.call('patch', '/api/company/admin/kyc', { status, company_doc: fileInfo });
                 props.setStep(3)
               }}
             >

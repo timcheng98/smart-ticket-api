@@ -62,7 +62,7 @@ exports.authorizeUser = function(_opts) {
   return async (req, res, next) => {
     try {
       debug(`authorize() :: ${req.url}`);
-
+      console.log('req', req.user);
       let opts = _opts || {};
       const { redirect } = opts;
       if (req.isAuthenticated() && _.toInteger(req.user.user_id) > 0) {

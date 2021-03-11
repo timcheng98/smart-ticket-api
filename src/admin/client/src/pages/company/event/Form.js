@@ -30,6 +30,8 @@ import * as CommonActions from '../../../redux/actions/common';
 import FormUploadFile from "../../../components/FormUploadFile";
 import { formItemLayout, tailLayout } from "../../../components/ModalLayout";
 
+const { Option } = Select;
+
 const ipfsClient = require('ipfs-http-client')
 const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
 
@@ -52,7 +54,25 @@ const openNotification = () => {
 const EventForm = (props) => {
   const [step, setStep] = useState(1);
   const history = useHistory();
+  const location = useLocation();
   const form_data = useSelector(state => state.form.form_data)
+  const [eventId, setEventId] = useState(0)
+  const [eventCode, setEventCode] = useState('')
+
+  useEffect(() => {
+    getEventId();
+  }, []);
+
+  const getEventId = () => {
+    if (!location.state) {
+      return setEventId(0);
+    }
+    setEventId(location.state.event_id)
+  }
+
+  useEffect(() => {
+    setEventCode(form_data.event_code)
+  }, [form_data])
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
@@ -67,12 +87,16 @@ const EventForm = (props) => {
           <Col span={24}>
             <BasicInformation
               setStep={setStep}
+              eventId={eventId}
             />
           </Col>
         )}
         {step === 2 && (
           <Col span={24}>
-            <SupportDocument setStep={setStep} />
+            <SupportDocument
+              setStep={setStep}
+              eventId={eventId}
+            />
           </Col>
         )}
         {step === 3 && (
@@ -86,7 +110,7 @@ const EventForm = (props) => {
                 <CheckCircleFilled style={{ fontSize: 48 }} />
               </Col>
               <Col span={24}>Application Submitted Successfully.</Col>
-              <Col span={24}>Reference No. {form_data.event_code}</Col>
+              <Col span={24}>Reference No. {eventCode}</Col>
               <Col span={24}>
                 <Button
                   type="primary"
@@ -155,11 +179,19 @@ const BasicInformation = (props) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(CommonActions.setFormData({}));
     getInitialValue();
-  }, [location]);
+  }, [props.eventId]);
+
+  useEffect(() => {
+    infoForm.setFieldsValue({
+      ...form_data
+    })
+  }, [form_data])
 
   const getInitialValue = async () => {
-    let resp = await Service.call("get", `/api/event?event_id=${location.state.event_id}`);
+
+    let resp = await Service.call("get", `/api/event?event_id=${props.eventId}`);
     if (_.isEmpty(resp.eventRc)) {
       return dispatch(CommonActions.setFormData({}));
     }
@@ -178,32 +210,77 @@ const BasicInformation = (props) => {
     <Form
       form={infoForm}
       {...formItemLayout}
+      onFinishFailed={({ values, errorFields, outOfDate }) => notification.warning(errorFields)}
     >
       <Form.Item
-        label="Name"
+        label="Event Name"
         name="name"
-        rules={[{ required: false, message: "Please input Company Code." }]}
+        rules={[{ required: true, message: "Please input Company Code." }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
+        label="Performer"
+        name="performer"
+        rules={[{ required: true, message: "Please input Company Code." }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        label="Organization"
+        name="organization"
+        rules={[{ required: true, message: "Please input Company Code." }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        label="Contact Number"
+        name="contact_no"
+        rules={[{ required: true, message: "Please input Company Code." }]}
+      >
+        <Input placeholder="Format: +Code-Tel" />
+      </Form.Item>
+      <Form.Item
+        label="Email"
+        name="email"
+        rules={[{ required: true, message: "Please input Company Code." }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        label="Category"
+        name="category"
+        rules={[{ required: true, message: "Please input Company Code." }]}
+      >
+        <Select mode="tags" style={{ width: '100%' }} placeholder="Multiple Select/Add by yourself">
+          <Option value="sing">Sing</Option>
+          <Option value="dance">Dance</Option>
+          <Option value="music">Music</Option>
+          <Option value="gaming">Gaming</Option>
+          <Option value="sport">Sport</Option>
+          <Option value="charity">charity</Option>
+          <Option value="band">Band</Option>
+          <Option value="talk">Talk</Option>
+        </Select>
+      </Form.Item>
+      <Form.Item
         label="Short Description"
         name="short_desc"
-        rules={[{ required: false, message: "Please input Company Name." }]}
+        rules={[{ required: true, message: "Please input Company Name." }]}
       >
         <Input.TextArea autoSize={{ minRows: 3 }} />
       </Form.Item>
       <Form.Item
         label="Long Description"
         name="long_desc"
-        rules={[{ required: false, message: "Please input Company Owner." }]}
+        rules={[{ required: true, message: "Please input Company Owner." }]}
       >
         <Input.TextArea autoSize={{ minRows: 5 }} />
       </Form.Item>
       <Form.Item
         label="Event Period"
         name="start_end_time"
-        rules={[{ required: false, message: "Please input Found Date." }]}
+        rules={[{ required: true, message: "Please input Found Date." }]}
       >
         <DatePicker.RangePicker
           disabledDate={(current) => current && current < moment().subtract(1, 'day')}
@@ -220,7 +297,7 @@ const BasicInformation = (props) => {
       <Form.Item
         label="Sell Period"
         name="released_close_date"
-        rules={[{ required: false, message: "Please input Found Date." }]}
+        rules={[{ required: true, message: "Please input Found Date." }]}
       >
         <DatePicker.RangePicker
           disabledDate={(current) => current && current < moment().subtract(1, 'day')}
@@ -234,12 +311,115 @@ const BasicInformation = (props) => {
           format="YYYY-MM-DD HH:mm"
         />
       </Form.Item>
+      <Form.Item
+        label="Country"
+        name="country"
+        rules={[{ required: true, message: "Please input Company Name." }]}
+      >
+        <Input placeholder="if no, fill N/A" />
+      </Form.Item>
+      <Form.Item
+        label="Region"
+        name="region"
+        rules={[{ required: true, message: "Please input Company Name." }]}
+      >
+        <Input placeholder="if no, fill N/A" />
+      </Form.Item>
+      <Form.Item
+        label="District"
+        name="district"
+        rules={[{ required: true, message: "Please input Company Name." }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        label="Venue"
+        name="Venue"
+        rules={[{ required: true, message: "Please input Company Name." }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        label="Address"
+        name="address"
+        rules={[{ required: true, message: "Please input Company Name." }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        label="Geolocation: Latitude"
+        name="latitude"
+        rules={[{ required: true, message: "Please input Company Name." }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        label="Geolocation: Longitude"
+        name="longitude"
+        rules={[{ required: true, message: "Please input Company Name." }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        label="Tags"
+        name="tags"
+        rules={[{ required: true, message: "Please input Company Name." }]}
+      >
+        <Select mode="tags" style={{ width: '100%' }} placeholder="Multiple Select/Add by yourself">
+          <Option value="famous">Famous</Option>
+          <Option value="hot">Hot</Option>
+          <Option value="dance">Dance</Option>
+          <Option value="sing">Sing</Option>
+          <Option value="gaming">Gaming</Option>
+          <Option value="esports">E-sports</Option>
+          <Option value="compeition">Competition</Option>
+          <Option value="band">Band</Option>
+          <Option value="charity">charity</Option>
+          <Option value="sport">sport</Option>
+          <Option value="hk">HK</Option>
+          <Option value="uk">UK</Option>
+          <Option value="live">Live</Option>
+        </Select>
+      </Form.Item>
+      <Form.Item
+        label="Target"
+        name="target"
+        rules={[{ required: true, message: "Please input Company Code." }]}
+      >
+        <Select style={{ width: '100%' }} placeholder="Please Select">
+          <Option value="adult">Adult or above</Option>
+          <Option value="teenage">Teengages or above</Option>
+          <Option value="children">Children or above</Option>
+        </Select>
+      </Form.Item>
+      <Form.Item
+        label="Need KYC?"
+        name="need_kyc"
+        rules={[{ required: true, message: "Please input Company Code." }]}
+      >
+        <Select style={{ width: '100%' }} placeholder="Please Select">
+          <Option value={0}>No</Option>
+          <Option value={1}>Yes</Option>
+        </Select>
+      </Form.Item>
       <Divider style={{ border: "none" }} />
       <Row justify="space-between" style={{ padding: "0 5%" }}>
         <Col></Col>
         <Col>
           <Form.Item>
             <Button className="custom-btn" onClick={() => {
+              let errors = []
+              _.each(infoForm.getFieldsValue(), (value, key) => {
+                if (!value) {
+                  errors.push(key)
+                }
+              })
+              if (errors) {
+                _.map(errors, (value) => {
+                  return notification.warning({ message: `${value} is required` })
+                });
+                return;
+              }
               dispatch(CommonActions.setFormData({ ...form_data, ...infoForm.getFieldsValue() }))
               props.setStep(2);
             }}>
@@ -255,18 +435,19 @@ const BasicInformation = (props) => {
 const SupportDocument = (props) => {
   const [imageURL, setImageURL] = useState("");
   const [fileInfo, setFileInfo] = useState({});
-  const [proress, setProgress] = useState(0);
-  const app = useSelector((state) => state.app);
   const form_data = useSelector((state) => state.form.form_data);
   const dispatch = useDispatch();
   const location = useLocation();
 
   useEffect(() => {
     getInitialValue();
-  }, []);
+  }, [form_data]);
 
   const getInitialValue = async () => {
-    setImageURL(form_data.approval_doc);
+    console.log(form_data);
+    if (form_data.approval_doc) {
+      setImageURL(form_data.approval_doc);
+    }
   };
 
   const uploadOnChange = async (info) => {
@@ -336,11 +517,10 @@ const SupportDocument = (props) => {
             <Button
               className="custom-btn"
               onClick={async () => {
-                console.log(location)
                 let { start_end_time, released_close_date } = form_data;
                 let dataObj = {
                   ...form_data,
-                  event_id: location.state.event_id,
+                  event_id: props.eventId,
                   start_time: start_end_time[0],
                   end_time: start_end_time[1],
                   released_date: released_close_date[0],
@@ -353,12 +533,12 @@ const SupportDocument = (props) => {
                     status: 0
                   }
                 }
-                if (location.state.event_id === 0) { 
+                if (props.eventId === 0) {
                   const result = await Service.call('post', '/api/event', dataObj);
                   props.setStep(3);
                   return dispatch(CommonActions.setFormData({ ...form_data, ...result.eventRc }));
                 }
-              
+
                 const result = await Service.call('patch', '/api/event', dataObj);
                 props.setStep(3);
                 return dispatch(CommonActions.setFormData({ ...form_data, ...result.eventRc }));

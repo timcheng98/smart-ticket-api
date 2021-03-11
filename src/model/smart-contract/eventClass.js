@@ -98,8 +98,8 @@ export class EventAPI {
 
   async getOwnerTicket(address) {
     let tickets = await this.getTicketAll();
-	// console.log('tickets', tickets)
-	console.log('address', address)
+    // console.log('tickets', tickets)
+    // console.log('address', address)
     let ticketOwner = [];
     let promise = _.map(tickets, async (val) => {
       let owner = await this.contract.methods
@@ -114,7 +114,7 @@ export class EventAPI {
 
 
     await Promise.all(promise);
-	console.log(ticketOwner)
+    // console.log(ticketOwner)
 
     tickets = _.groupBy(ticketOwner, "eventId");
     let ticketIdArr = [];
@@ -127,18 +127,23 @@ export class EventAPI {
       let event = await this.getEvent(val);
       events = {
         ...events,
-        [val]: event,
+        [val]: {...event, eventId: val},
       };
     });
     await Promise.all(promise);
 
-    let eventArr = [];
-    _.each(tickets, (val, key) => {
+    let eventArr = {};
+    _.each(events, (event, key) => {
       let detailObj = {
-        total: val.length,
-        event: events[key],
+        event,
+        ticket_own: ticketOwner.length,
+        tickets: ticketOwner,
       };
-      eventArr.push(detailObj);
+      eventArr = {
+        ...eventArr,
+        [event.eventId]: detailObj
+      }
+      // eventArr.push();
     });
     return eventArr;
   }
@@ -151,9 +156,9 @@ export class EventAPI {
     return result;
   }
 
-  async testMint() {
-    await this.contract.methods.mint(["123"]).send({ from: this.accounts[0] });
-  }
+  // async testMint() {
+  //   await this.contract.methods.mint(["123"]).send({ from: this.accounts[0] });
+  // }
 
   async getTicketAll() {
     let tickets = [];
@@ -226,12 +231,12 @@ export class EventAPI {
         .call({ from: this.accounts[0] });
 
       if (ticket_owner === this.default_account && area === ticketDetail.area && ticketDetail.available) {
-      	ticketDetail = {
-      		...ticketDetail,
-      		eventId: data.eventId,
-      		ticketId: data.ticketId,
-      	};
-      	onSellTicketIdArr.push(ticketDetail);
+        ticketDetail = {
+          ...ticketDetail,
+          eventId: data.eventId,
+          ticketId: data.ticketId,
+        };
+        onSellTicketIdArr.push(ticketDetail);
       }
     }
 
@@ -241,10 +246,10 @@ export class EventAPI {
   async buyTicket(address, tickets, total) {
     let onSellTicketIdArr = [];
     let onSellTicketCount = 0;
-	let sell_tickets = _.slice(tickets, 0, total)
-   	_.map(sell_tickets, (item) => {
-        onSellTicketIdArr.push(item.ticketId);
-        onSellTicketCount++;
+    let sell_tickets = _.slice(tickets, 0, total)
+    _.map(sell_tickets, (item) => {
+      onSellTicketIdArr.push(item.ticketId);
+      onSellTicketCount++;
     });
 
     let transaction;
@@ -279,12 +284,6 @@ export class EventAPI {
     });
   }
 
-  async createSeats(_seats) {
-    let result = await this.contract.methods
-      .mint(_seats)
-      .send({ from: this.accounts[0] });
-  }
-
   async autoSignEventTransaction(_eventObj) {
     let eventObj = JSON.stringify(_eventObj);
     let transaction = this.contract.methods.createEvent(
@@ -292,19 +291,44 @@ export class EventAPI {
       eventObj
     );
     console.log("step 1 -- post data", eventObj);
-    console.log("step 2 -- transaction", transaction);
+    // console.log("step 2 -- transaction");
     return this.signTransaction(transaction, function (confirmedMessage) {
       console.log("event confirmedMessage", confirmedMessage);
-      // return getStore().dispatch(CommonActions.setEvents(true))
     });
   }
 
+  async getTicketOnMarketplace(ticketId) {
+    let address = await this.contract.methods.getTicketOnMarketplace(
+      _.toInteger(ticketId)
+    ).call({ from: this.accounts[0] });
+    return address;
+  }
+
+  async sellTicketsOnMarketplace(seller, ticketId) {
+    const owner = await this.contract.methods.ownerOf(ticketId).call({ from: this.accounts[0] })
+    if (seller !== owner) {
+      return { status: -1, errorMessage: 'Seller is not the ticket owner.' };
+    }
+
+    const marketplaceTicket = await this.getTicketOnMarketplace(ticketId);
+    if (marketplaceTicket !== '0x0000000000000000000000000000000000000000' && marketplaceTicket === seller) {
+      return { status: -1, errorMessage: 'Ticket already on the marketplace.' }
+    }
+
+    let transaction = await this.contract.methods.sellTicketsOnMarketplace(
+      seller,
+      _.toInteger(ticketId)
+    );
+
+    await this.signTransaction(transaction, function (confirmedMessage) {
+      console.log("event confirmedMessage", confirmedMessage);
+    });
+    return { status: 1 }
+  }
+
   async signTransaction(transaction, cb) {
-    // getStore().dispatch(CommonActions.setLoading(true))
 
     let gas = await transaction.estimateGas({ from: this.default_account });
-
-    console.log("gas", gas);
 
     let nonce = await this.web3.eth.getTransactionCount(this.default_account);
 
@@ -314,6 +338,7 @@ export class EventAPI {
       gas,
       nonce,
     };
+
 
     let signedTransaction = await this.web3.eth.accounts.signTransaction(
       options,
@@ -329,11 +354,11 @@ export class EventAPI {
       })
       .on("confirmation", (confirmationNumber) => {
         console.log("step 3 -- confirmation: " + confirmationNumber);
-        // getStore().dispatch(CommonActions.setLoading(false))
-        if (confirmationNumber == 1) {
+        if (confirmationNumber >= 24) {
           cb("Transaction Confirmed");
         }
       })
       .on("error", console.error);
+    // .on('receipt', (receipt) => console.log('tsest', receipt))
   }
 }

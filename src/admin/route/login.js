@@ -7,6 +7,7 @@ const passport = require('passport');
 const model = require('../../model');
 const AppError = require('../../lib/app-error');
 const userModel = require('../../model/user');
+const eventModel = require('../../model/smart-contract/event');
 const middleware = require('./middleware');
 const helper = require('../../lib/helper');
 const _ = require('lodash');
@@ -21,6 +22,33 @@ AppError.setErrorCode(ERROR_CODE);
 
 exports.initRouter = (router) => {
   router.post(
+    '/api/user/register',
+    // passport.authenticate('UserAuth'),
+    createUser,
+  );
+
+  router.post(
+    '/api/login/user',
+    passport.authenticate('UserAuth'),
+    getUser
+  );
+
+
+
+  router.use('/api/user', middleware.session.authorizeUser());
+
+  router.get(
+    '/api/user',
+    getUser
+  );
+
+  router.post(
+    '/api/user/logout',
+    postUserLogout,
+  );
+  
+
+  router.post(
     '/api/login/admin',
     passport.authenticate('AdminAuth'),
     getAdmin,
@@ -30,17 +58,6 @@ exports.initRouter = (router) => {
     postLogout,
   );
 
-  router.post(
-    '/api/login/user',
-    passport.authenticate('UserAuth'),
-    getUser,
-  );
-
-  router.use('/api/user', middleware.session.authorizeUser());
-  router.get(
-    '/api/user',
-    getUser
-  );
 
 
   router.use('/api/admin', middleware.session.authorize());
@@ -58,7 +75,7 @@ exports.initRouter = (router) => {
   //   '/api/login/company_admin/logout',
   //   postCompanyAdminLogout,
   // )
-  
+
   router.use('/api/login/get_company_admin', middleware.session.authorize());
   router.get(
     '/api/login/get_company_admin',
@@ -66,6 +83,36 @@ exports.initRouter = (router) => {
   )
   // router.patch('/api/admin', patchUser);
 };
+
+const createUser = async (req, res) => {
+  try {
+    let dataObj = {};
+
+    _.each(_.pick(req.body, [
+      'email', 'password'
+    ]), (val, key) => {
+      dataObj[key] = _.toString(val);
+    });
+
+    let account = await eventModel.createAccount()
+    const { address, encrypt } = account;
+    const keystore = encrypt(req.body.password);
+    dataObj = {
+      ...dataObj,
+      wallet_address: address
+    }
+
+    let [userRc] = await userModel.selectUser({ where: { email: dataObj.email } });
+    if (userRc) {
+      return res.apiResponse({ status: -1, errorMessage: 'Email has been registered' })
+    }
+
+    await userModel.insertUser(dataObj);
+    res.apiResponse({ status: 1, result: keystore })
+  } catch (error) {
+    res.apiError(error)
+  }
+}
 
 const getAdmin = async (req, res) => {
   try {
@@ -92,9 +139,11 @@ const getAdmin = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     let { user_id } = req.user;
-    if (user_id == null) {
-      throw new AppError(-71001);
-    }
+    if (req.user.user_id === 0 ) throw new AppError(req.user.errorCode)
+    console.log('req.user', req.user);
+    // if (user_id == null) {
+    //   throw new AppError(-71001);
+    // }
 
     let result = await userModel.selectUser(user_id, {
       fields: ['user_id', 'is_active', 'first_name', 'last_name', 'email', 'mobile', 'wallet_address', 'need_kyc', 'user_kyc_id']
@@ -112,13 +161,13 @@ const getUser = async (req, res) => {
 
 const getCompanyAdmin = async (req, res) => {
   try {
-    let { company_admin_id, company_key, company_id} = req.user;
-    if(company_admin_id == null) {
+    let { company_admin_id, company_key, company_id } = req.user;
+    if (company_admin_id == null) {
       throw new AppError(-71002);
     }
 
     let userData = await model.company.admin.selectAdmin(company_admin_id);
-    
+
     res.apiResponse({
       status: 1,
       userData,
@@ -194,6 +243,18 @@ const getCompanyAdmin = async (req, res) => {
 //     res.apiError(error);
 //   }
 // }
+
+const postUserLogout = async (req, res) => {
+  try {
+    req.logout();
+    res.apiResponse({
+      message: 'ok',
+    });
+  } catch (err) {
+    res.apiError(err);
+  }
+}
+
 
 const postLogout = async (req, res) => {
   try {
