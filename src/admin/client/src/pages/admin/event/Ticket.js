@@ -416,7 +416,7 @@ const CreateEventForm = () => {
     let element = [];
     let sc_events = await Service.call('get', '/api/sc/event');
     {
-      _.each(sc_events, (item, key) => {
+      _.map(sc_events, (item, key) => {
         return element.push(
           <Select.Option key={item.eventId} value={item.eventId}>
             {item.name}

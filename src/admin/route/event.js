@@ -86,15 +86,15 @@ const postEvent = async (req, res) => {
       end_time: moment(req.body.end_time).unix(),
       released_date: moment(req.body.released_date).unix(),
       close_date: moment(req.body.close_date).unix(),
-      event_code: shortid.generate().replace(/-/g, ''),
-      country: '',
-      region: '',
-      location: '',
-      address: '',
+      event_code: shortid.generate().toUpperCase().replace(/-/g, ''),
+      tags: JSON.stringify(req.body,tags),
+      categories: JSON.stringify(req.body,categories),
+      // country: '',
+      // region: '',
+      // address: '',
       status: 1, // Pending
       issued_tickets: 0,
       type: 0,
-      approval_doc: req.body.approval_doc
     };
     delete postObj.start_end_time;
     delete postObj.released_close_date;
@@ -119,8 +119,8 @@ const patchEvent = async (req, res) => {
     let postData = {}
 
     _.each(_.pick(req.body, [
-      'name','country', 'region', 'location', 'address', 'short_desc',
-      'long_desc', 'approval_doc', 'seat_doc', 'reject_reason'
+      'name','country', 'region', 'district', 'address', 'short_desc',
+      'long_desc', 'approval_doc', 'seat_doc', 'reject_reason', 'venue', 'target', 'email', 'performer', 'organization', 'contact_no', 'banner_1', 'banner_2', 'thumbnail'
     ]), (val, key) => {
       postData[key] = _.toString(val);
     });
@@ -129,6 +129,18 @@ const patchEvent = async (req, res) => {
       'status',  'need_kyc', 'is_seat_doc_verified', 'is_approval_doc_verified'
     ]), (val, key) => {
       postData[key] = _.toInteger(val);
+    });
+
+    _.each(_.pick(req.body, [
+      'longitude', 'latitude',
+    ]), (val, key) => {
+      postData[key] = _.toNumber(val);
+    });
+
+    _.each(_.pick(req.body, [
+      'tags', 'categories'
+    ]), (val, key) => {
+      postData[key] = JSON.stringify(val);
     });
 
     _.each(_.pick(req.body, [
@@ -151,19 +163,19 @@ const patchEvent = async (req, res) => {
 const patchEventByAdmin = async (req, res) => {
   try {
     let postData = {}
-
+    console.log('req.body', req.body);
     _.each(_.pick(req.body, [
-      'name','country', 'region', 'location', 'address', 'short_desc',
-      'long_desc', 'approval_doc', 'seat_doc', 'reject_reason'
+      'name','country', 'region', 'address', 'short_desc',
+      'long_desc', 'approval_doc', 'seat_doc', 'reject_reason', 'banner_1', 'banner_2', 'thumbnail'
     ]), (val, key) => {
       postData[key] = _.toString(val);
     });
 
-    // _.each(_.pick(req.body, [
-    //   'released_date', 'close_date', 'start_time', 'end_time'
-    // ]), (val, key) => {
-    //   postData[key] = _.toInteger(moment(val).unix());
-    // });
+    _.each(_.pick(req.body, [
+      'tags', 'categories'
+    ]), (val, key) => {
+      postData[key] = JSON.stringify(val);
+    });
 
     _.each(_.pick(req.body, [
       'status', 'is_seat_doc_verified', 'is_approval_doc_verified', 'admin_id'
@@ -171,6 +183,7 @@ const patchEventByAdmin = async (req, res) => {
       postData[key] = _.toInteger(val);
     });
 
+    console.log('postData', postData);
     let [eventRC] = await eventModel.updateEvent(req.body.event_id, postData);
 
     res.apiResponse({

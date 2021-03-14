@@ -12,6 +12,8 @@ contract Ticket is ERC721Full, Event {
 
     // mapping(uint256 => address) public ticketApprovals;
     mapping(uint256 => address) public marketplaceTickets;
+    uint256[] public marketplaceTicketList;
+    uint256 public marketplaceTicketId;
 
     constructor() public ERC721Full("Ticket", "TCK") {
         ticketContractOwner = msg.sender;
@@ -29,6 +31,10 @@ contract Ticket is ERC721Full, Event {
 
     function getTicketCount() public view returns (uint256) {
         return ticketCount;
+    }
+
+    function getMarketplaceTicketId() public view returns (uint256) {
+        return marketplaceTicketId;
     }
 
     function mint(string[] memory _tickets) public {
@@ -73,14 +79,30 @@ contract Ticket is ERC721Full, Event {
         require(marketplaceTickets[ticketId] != seller, "Ticket already on the marketplace");
         require(seller == owner, "ERC721: seller is not the ticket owner");
         marketplaceTickets[ticketId] = seller;
+        marketplaceTicketList.push(ticketId);
+        marketplaceTicketId += 1;
     }
 
-    // function buyTicketsOnMarketplace(address buyer, uint256 ticketId) public {
-    //     address owner = ownerOf(ticketId);
-    //     require(buyer != owner, "ERC721: buyer is not the ticket owner");
-    //     safeTransferFrom(owner, buyer, ticketId);
-    //     marketplaceTickets[ticketId] = address(0);
-    // }
+    function buyTicketOnMarketplace(address buyer, uint256 ticketId) public {
+        address owner = ownerOf(ticketId);
+        require(buyer != owner, "ERC721: buyer is not the ticket owner");
+        require(_existMarketplaceTicket(ticketId), "Ticket is not sell on the mareketplace");
+        transferFromByContractOwner(owner, buyer, ticketId);
+        marketplaceTickets[ticketId] = address(0);
+    }
+
+    function _existMarketplaceTicket(uint256 ticketId) internal view returns (bool) {
+        address owner = marketplaceTickets[ticketId];
+        return owner != address(0);
+    }
+
+    function transferFromByContractOwner(address from, address to, uint256 tokenId) public {
+        require(msg.sender == from || msg.sender == ticketContractOwner, "ERC721: transfer caller is not owner nor approved");
+
+        super._transferFrom(from, to, tokenId);
+    }
+
+    
 
     function getTicketOnMarketplace(uint256 ticketId) public view returns (address) {
         return marketplaceTickets[ticketId];

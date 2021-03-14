@@ -22,18 +22,18 @@ const RootProvider = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setLoading(true));
     init();
   }, []);
 
   const loadBlockchain = async () => {
     setLoadingSc(true)
     let events = await Service.call("get", `/api/sc/event`);
-    dispatch(setSCEvents(events));
+    dispatch(setSCEvents(_.keyBy(events, 'event_id')));
     setLoadingSc(false);
   };
 
   const init = async () => {
+    dispatch(setLoading(true));
     let resp = await Service.call("get", "/api/config");
     if (resp && resp.status > 0) {
       dispatch(setConfig(resp));
@@ -42,14 +42,15 @@ const RootProvider = () => {
     }
 
     resp = await Service.call("get", `/api/admin`);
+    await loadBlockchain();
 
     if (!resp || resp.status <= 0) {
+      dispatch(setSCEvents({}));
       dispatch(setAuth(false));
       dispatch(setLoading(false));
       return;
     }
 
-    loadBlockchain();
 
     if (resp.userData[0].role === 1) {
       dispatch(setAdmin(resp.userData[0]));

@@ -27,8 +27,9 @@ module.exports = exports = {
     router.post('/api/sc/event/ticket/onsell', getOnSellTicketsByArea);
     router.post('/api/sc/event/ticket/buy', buyTicket);
     router.post('/api/sc/event/ticket/owner', getOwnerTicket);
-    router.get('/api/sc/event/ticket/approve', getTicketOnMarketplace);
-    router.post('/api/sc/event/ticket/approve', sellTicketsOnMarketplace);
+    router.get('/api/sc/event/ticket/marketplace', getTicketOnMarketplaceAll);
+    router.post('/api/sc/event/ticket/marketplace/sell', sellTicketsOnMarketplace);
+    router.post('/api/sc/event/ticket/marketplace/buy', buyTicketOnMarketplace);
     // router.get('/api/sc/event/secret', getSecret);
 
   }
@@ -37,7 +38,7 @@ module.exports = exports = {
 const getEventAll = async (req, res) => {
   try {
     let result = await eventModel.getEventAll();
-    result = _.keyBy(result, 'event_id')
+    // result = _.keyBy(result, 'event_id')
     res.apiResponse({
       status: 1,
       result
@@ -162,7 +163,33 @@ const sellTicketsOnMarketplace = async (req, res) => {
   }
 }
 
-const getTicketOnMarketplace = async (req, res) => {
+const buyTicketOnMarketplace = async (req, res) => {
+  try {
+    console.log(req.body);
+    let { ticketId, buyer } = req.body;
+    if (!_.isInteger(ticketId)) {
+      return res.apiResponse({
+        status: -1
+      });
+    }
+    console.log({buyer, ticketId});
+    let result = await eventModel.buyTicketOnMarketplace(buyer, ticketId);
+    if (result.status === -1) {
+      return res.apiResponse({
+        status: -1,
+        errorMessage: result.errorMessage
+      });
+    }
+    res.apiResponse({
+      status: 1
+    });
+  } catch (error) {
+    console.error(error);
+    res.apiError(error);
+  }
+}
+
+const getTicketOnMarketplaceAll = async (req, res) => {
   try {
     let { ticketId } = req.query;
     if (!_.isInteger(_.toInteger(ticketId))) {
@@ -171,7 +198,7 @@ const getTicketOnMarketplace = async (req, res) => {
       });
     }
 
-    let address = await eventModel.getTicketOnMarketplace(ticketId);
+    let address = await eventModel.getTicketOnMarketplaceAll();
     res.apiResponse({
       status: 1,
       result: address

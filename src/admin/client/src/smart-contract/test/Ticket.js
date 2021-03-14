@@ -82,13 +82,25 @@ contract('Ticket', (accounts) => {
       // await contract.safeTransferFrom(accounts[0], accounts[1], 0);
       const owner = await contract.ownerOf(0);
       const tickets = await contract.tickets(0);
-      await contract.sellTicketsOnMarketplace('0x2804D900ada024996DD187531890eF57ca81FFA8', 0);
+      await contract.sellTicketsOnMarketplace(owner, 0);
+      let data = await contract.marketplaceTickets(1);
       // await contract.sellTicketsOnMarketplace('0x19EE78BAC3D3b2f9f6c6d162f4347f763021C038', 0);
       const marketplace_ticket = await contract.marketplaceTickets(0);
       // const sell_ticket_owner = await contract.getTicketOnMarketplace(0);
+      console.log('data', data)
       console.log('owner', owner)
       console.log('tickets', tickets)
-      console.log('marketplace_ticket', marketplace_ticket)
+      console.log('marketplace_ticket_before', marketplace_ticket)
+
+      await contract.buyTicketOnMarketplace('0x2804D900ada024996DD187531890eF57ca81FFA8', 0);
+      const marketplace_ticket1 = await contract.marketplaceTickets(0);
+      const owner_1 = await contract.ownerOf(0);
+      console.log('marketplace_ticket1', marketplace_ticket1)
+      console.log('owner_1', owner_1)
+
+
+      await contract.sellTicketsOnMarketplace(owner, 0);
+
       // console.log('sell_ticket_owner', sell_ticket_owner)
       // for (let i = 0; i <= 4; i++) {
       //   let ticket = await contract.tickets(i)

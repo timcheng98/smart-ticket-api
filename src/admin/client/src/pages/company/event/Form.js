@@ -177,6 +177,10 @@ const BasicInformation = (props) => {
   const location = useLocation();
   const [infoForm] = Form.useForm();
   const dispatch = useDispatch();
+  const [mapLocation, setMapLocation] = useState({
+    lng: '',
+    lat: ''
+  })
 
   useEffect(() => {
     dispatch(CommonActions.setFormData({}));
@@ -199,13 +203,17 @@ const BasicInformation = (props) => {
     let eventRc = resp.eventRc[0];
     let formData = {
       ...eventRc,
+      tags: JSON.parse(eventRc.tags),
+      categories: JSON.parse(eventRc.categories),
       start_end_time: [moment.unix(eventRc.start_time), moment.unix(eventRc.end_time)],
       released_close_date: [moment.unix(eventRc.released_date), moment.unix(eventRc.close_date)]
     }
-    infoForm.setFieldsValue(formData)
+    infoForm.setFieldsValue(formData);
+    setMapLocation({ lng: formData.longitude, lat: formData.latitude })
     return dispatch(CommonActions.setFormData(formData));
   };
 
+  console.log(mapLocation);
   return (
     <Form
       form={infoForm}
@@ -248,8 +256,8 @@ const BasicInformation = (props) => {
         <Input />
       </Form.Item>
       <Form.Item
-        label="Category"
-        name="category"
+        label="Categories"
+        name="categories"
         rules={[{ required: true, message: "Please input Company Code." }]}
       >
         <Select mode="tags" style={{ width: '100%' }} placeholder="Multiple Select/Add by yourself">
@@ -334,7 +342,7 @@ const BasicInformation = (props) => {
       </Form.Item>
       <Form.Item
         label="Venue"
-        name="Venue"
+        name="venue"
         rules={[{ required: true, message: "Please input Company Name." }]}
       >
         <Input />
@@ -351,15 +359,20 @@ const BasicInformation = (props) => {
         name="latitude"
         rules={[{ required: true, message: "Please input Company Name." }]}
       >
-        <Input />
+        <InputNumber onChange={(value) => setMapLocation({ ...mapLocation, lat: value })} style={{ width: '100%' }} />
       </Form.Item>
       <Form.Item
         label="Geolocation: Longitude"
         name="longitude"
         rules={[{ required: true, message: "Please input Company Name." }]}
       >
-        <Input />
+        <InputNumber onChange={(value) => setMapLocation({ ...mapLocation, lng: value })} style={{ width: '100%' }} />
       </Form.Item>
+      {
+        (mapLocation.lat !== '' && mapLocation.lng !== '') && <Form.Item label="Map Preview">
+          <iframe src={`https://maps.google.com/maps?q=${mapLocation.lat}, ${mapLocation.lng}&z=18&output=embed&language=zh-HK`} width="100%" height="400" frameborder="0" ></iframe>
+        </Form.Item>
+      }
       <Form.Item
         label="Tags"
         name="tags"
@@ -387,9 +400,9 @@ const BasicInformation = (props) => {
         rules={[{ required: true, message: "Please input Company Code." }]}
       >
         <Select style={{ width: '100%' }} placeholder="Please Select">
-          <Option value="adult">Adult or above</Option>
-          <Option value="teenage">Teengages or above</Option>
-          <Option value="children">Children or above</Option>
+          <Option value="adult or above">Adult or above</Option>
+          <Option value="teenage or above">Teengages or above</Option>
+          <Option value="children or above">Children or above</Option>
         </Select>
       </Form.Item>
       <Form.Item
@@ -414,7 +427,9 @@ const BasicInformation = (props) => {
                   errors.push(key)
                 }
               })
-              if (errors) {
+              console.log(errors)
+              console.log(infoForm.getFieldsValue())
+              if (!_.isEmpty(errors)) {
                 _.map(errors, (value) => {
                   return notification.warning({ message: `${value} is required` })
                 });
@@ -433,8 +448,13 @@ const BasicInformation = (props) => {
 };
 
 const SupportDocument = (props) => {
-  const [imageURL, setImageURL] = useState("");
-  const [fileInfo, setFileInfo] = useState({});
+  const [imageURL, setImageURL] = useState({
+    approval_doc: '',
+    banner_1: '',
+    banner_2: '',
+    thumbnail: '',
+    seat_doc: ''
+  });
   const form_data = useSelector((state) => state.form.form_data);
   const dispatch = useDispatch();
   const location = useLocation();
@@ -444,13 +464,16 @@ const SupportDocument = (props) => {
   }, [form_data]);
 
   const getInitialValue = async () => {
-    console.log(form_data);
-    if (form_data.approval_doc) {
-      setImageURL(form_data.approval_doc);
-    }
-  };
+    setImageURL({
+      seat_doc: form_data.seat_doc,
+      approval_doc: form_data.approval_doc,
+      banner_1: form_data.banner_1,
+      banner_2: form_data.banner_2,
+      thumbnail: form_data.thumbnail
+    });
+  }
 
-  const uploadOnChange = async (info) => {
+  const uploadOnChange = async (info, key_field) => {
     const { status, response } = info.file;
     if (status === "done") {
       if (response.status > 0) {
@@ -459,16 +482,18 @@ const SupportDocument = (props) => {
         reader.onload = async (e) => {
           let result = await ipfs.add(Buffer(e.target.result))
           let patchObj = {
-            approval_doc: `https://ipfs.io/ipfs/${result.path}`,
-            status: 0 // pending
+            [key_field]: `https://ipfs.io/ipfs/${result.path}`,
           };
+
           dispatch(CommonActions.setFormData({ ...form_data, ...patchObj }))
         }
 
         message.success("Upload Success");
         let path = info.file.response.url;
-        setImageURL(path);
-        setFileInfo(info.file);
+        setImageURL({
+          ...imageURL,
+          [key_field]: path
+        });
       } else {
         message.error("Upload Failed");
       }
@@ -476,8 +501,7 @@ const SupportDocument = (props) => {
   };
 
   const onRemove = () => {
-    setFileInfo({});
-    setImageURL("");
+    setImageURL({});
   };
 
 
@@ -490,13 +514,77 @@ const SupportDocument = (props) => {
       </Row>
       <Row justify="center" style={{ padding: 50 }}>
         <Col span={24}>
-          <FormUploadFile
-            type="one"
-            data={{ scope: "private" }}
-            onChange={uploadOnChange}
-            onRemove={onRemove}
-            imageURL={imageURL}
-          />
+          <Form.Item
+            label="Approval Document"
+          >
+            <FormUploadFile
+              type="one"
+              data={{ scope: "private" }}
+              onChange={(file) => uploadOnChange(file, 'approval_doc')}
+              onRemove={onRemove}
+              imageURL={imageURL.approval_doc}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row justify="center" style={{ padding: 50 }}>
+        <Col span={24}>
+          <Form.Item
+            label="Banner 1"
+          >
+            <FormUploadFile
+              type="one"
+              data={{ scope: "private" }}
+              onChange={(file) => uploadOnChange(file, 'banner_1')}
+              onRemove={onRemove}
+              imageURL={imageURL.banner_1}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row justify="center" style={{ padding: 50 }}>
+        <Col span={24}>
+          <Form.Item
+            label="Seat Document "
+          >
+            <FormUploadFile
+              type="one"
+              data={{ scope: "private" }}
+              onChange={(file) => uploadOnChange(file, 'seat_doc')}
+              onRemove={onRemove}
+              imageURL={imageURL.seat_doc}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row justify="center" style={{ padding: 50 }}>
+        <Col span={24}>
+          <Form.Item
+            label="Banner 2"
+          >
+            <FormUploadFile
+              type="one"
+              data={{ scope: "private" }}
+              onChange={(file) => uploadOnChange(file, 'banner_2')}
+              onRemove={onRemove}
+              imageURL={imageURL.banner_2}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row justify="center" style={{ padding: 50 }}>
+        <Col span={24}>
+          <Form.Item
+            label="Thumbnail"
+          >
+            <FormUploadFile
+              type="one"
+              data={{ scope: "private" }}
+              onChange={(file) => uploadOnChange(file, 'thumbnail')}
+              onRemove={onRemove}
+              imageURL={imageURL.thumbnail}
+            />
+          </Form.Item>
         </Col>
       </Row>
       <Divider style={{ border: "none" }} />
@@ -517,7 +605,7 @@ const SupportDocument = (props) => {
             <Button
               className="custom-btn"
               onClick={async () => {
-                let { start_end_time, released_close_date } = form_data;
+                let { start_end_time, released_close_date, tags, categories } = form_data;
                 let dataObj = {
                   ...form_data,
                   event_id: props.eventId,
@@ -527,7 +615,7 @@ const SupportDocument = (props) => {
                   close_date: released_close_date[1],
                   status: 1
                 }
-                if (!dataObj.approval_doc) {
+                if (!dataObj.approval_doc || !dataObj.banner_1 || !dataObj.banner_2 || !dataObj.thumbnail || !dataObj.seat_doc) {
                   dataObj = {
                     ...dataObj,
                     status: 0

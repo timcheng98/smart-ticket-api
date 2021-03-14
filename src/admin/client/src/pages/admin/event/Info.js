@@ -59,12 +59,16 @@ const EventInfo = () => {
   const [text, setText] = useState("");
   const history = useHistory();
   const [dataSource, setDataSource] = useState({});
-
+  const [loading, setLoading] = useState(false);
   const [events, setEvent] = useState({})
 
   useEffect(() => {
+    // setLoading(true);
+    // if (sc_events) {
     getInitalState();
-  }, [])
+    // }
+    // setLoading(false);
+  }, []);
 
   const getInitalState = async () => {
     setDataSource(history.location.state.dataSource)
@@ -95,21 +99,29 @@ const EventInfo = () => {
   };
 
   const onChainProcess = async (e) => {
+    let postObj = dataSource;
+    delete postObj.type;
+    delete postObj.status;
+    delete postObj.reject_reason;
+    delete postObj.admin_id;
+    delete postObj.is_approval_doc_verified;
+    delete postObj.is_seat_doc_verified;
+    delete postObj.reject_reason;
+
     dispatch(CommonActions.setLoading(true));
-    await Service.call('post', '/api/sc/event', { event: dataSource });
-    await Service.call('post', '/api/sc/event', { event: dataSource });
+    await Service.call('post', '/api/sc/event', { event: postObj });
     let events = await Service.call("get", `/api/sc/event`);
-    dispatch(CommonActions.setSCEvents(events));
+    dispatch(CommonActions.setSCEvents(_.keyBy(events, 'event_id')));
     dispatch(CommonActions.setLoading(false));
-    // history.push('/admin/event/info')
+    history.push('/admin/event/info')
   }
 
   const onTextChange = (e) => {
     setText(e.target.value);
   };
 
-
-
+  console.log('sc_events', dataSource.event_id);
+  console.log('sc_events', sc_events);
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
 
@@ -145,45 +157,79 @@ const EventInfo = () => {
             // title="Event Information"
             bordered
             column={1}
-            layout='vertical'
+            layout="vertical"
           >
-            {dataSource.status === -1 && (
-              <Descriptions.Item label="Reject Reason(s)" style={{ color: 'black', fontWeight: 'bold' }}>
-                <span style={{ color: 'black', fontWeight: 'bold' }}>{dataSource.reject_reason}</span>
-              </Descriptions.Item>
-            )}
-            {/* {dataSource.check_by !== 0 && (
+            {/* {event.check_by !== 0 && (
             <Descriptions.Item label="Check By">
-              {dataSource.check_by}
+              {event.check_by}
             </Descriptions.Item>
           )} */}
             <Descriptions.Item label="Event Name">
               {dataSource.name}
             </Descriptions.Item>
+            <Descriptions.Item label="Performer">
+              {dataSource.performer}
+            </Descriptions.Item>
+            <Descriptions.Item label="Organization">
+              {dataSource.organization}
+            </Descriptions.Item>
+            <Descriptions.Item label="Target">
+              {dataSource.target}
+            </Descriptions.Item>
+            <Descriptions.Item label="Need KYC?">
+              {dataSource.need_kyc === 1 ? 'Yes' : 'No'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Categories">
+              {dataSource.categories && _.map(JSON.parse(dataSource.categories), (value) => <Tag color="blue">{value}</Tag>)}
+            </Descriptions.Item>
+            <Descriptions.Item label="Tags">
+              {dataSource.tags && _.map(JSON.parse(dataSource.tags), (value) => <Tag color="blue">{value}</Tag>)}
+            </Descriptions.Item>
             <Descriptions.Item label="Short Description">{dataSource.short_desc}</Descriptions.Item>
             <Descriptions.Item label="Long Description">{dataSource.long_desc}</Descriptions.Item>
-            <Descriptions.Item label="Event Code">
-              {dataSource.event_code}
-            </Descriptions.Item>
-            <Descriptions.Item label="Type">
-              {dataSource.type}
-            </Descriptions.Item>
-
-            <Descriptions.Item label="Address">
-              {dataSource.address}
+          </Descriptions>
+        </TabPane>
+        <TabPane tab="Location" key="3">
+          <Descriptions
+            bordered
+            column={1}
+            layout="vertical"
+          >
+            <Descriptions.Item label="Country">
+              {dataSource.country}
             </Descriptions.Item>
             <Descriptions.Item label="Region">
               {dataSource.region}
             </Descriptions.Item>
-            <Descriptions.Item label="Location">
-              {dataSource.location}
+            <Descriptions.Item label="District">
+              {dataSource.district}
             </Descriptions.Item>
-            <Descriptions.Item label="Country">
-              {dataSource.country}
+            <Descriptions.Item label="Venue">
+              {dataSource.venue}
+            </Descriptions.Item>
+            <Descriptions.Item label="Address">
+              {dataSource.address}
+            </Descriptions.Item>
+            <Descriptions.Item label="Location">
+              <iframe src={`https://maps.google.com/maps?q=${dataSource.latitude}, ${dataSource.longitude}&z=19&output=embed&language=zh-HK`} width="100%" height="400" frameborder="0" ></iframe>
             </Descriptions.Item>
           </Descriptions>
         </TabPane>
-        <TabPane tab="Date" key="3">
+        <TabPane tab="Contact Method" key="4">
+          <Descriptions
+            bordered
+            column={1}
+            layout="vertical"
+          >
+            <Descriptions.Item label="Email">
+              {dataSource.email}
+            </Descriptions.Item>
+            <Descriptions.Item label="Contact Number">
+              {dataSource.contact_no}
+            </Descriptions.Item>
+          </Descriptions>
+        </TabPane>
+        <TabPane tab="Date" key="5">
           <Descriptions
             bordered
             column={1}
@@ -203,11 +249,11 @@ const EventInfo = () => {
             </Descriptions.Item>
           </Descriptions>
         </TabPane>
-        <TabPane tab="Documents" key="4">
+        <TabPane tab="Documents" key="6">
           <Descriptions
             bordered
             column={1}
-            layout='vertical'
+            layout="vertical"
           >
             <Descriptions.Item
               label="Event Document"
@@ -216,8 +262,61 @@ const EventInfo = () => {
               <Image.PreviewGroup>
                 <Image
                   id="event_doc"
+                  // width={300}
                   style={{ width: '100%', maxWidth: 300 }}
-                  src={`${dataSource.approval_doc}`}
+                  src={dataSource.approval_doc}
+                />
+              </Image.PreviewGroup>
+            </Descriptions.Item>
+            <Descriptions.Item
+              label="Seat Document"
+              contentStyle={{ padding: 20 }}
+            >
+              <Image.PreviewGroup>
+                <Image
+                  id="seat_doc"
+                  // width={300}
+                  style={{ width: '100%', maxWidth: 300 }}
+                  src={dataSource.seat_doc}
+                />
+              </Image.PreviewGroup>
+            </Descriptions.Item>
+            <Descriptions.Item
+              label="Thumbnail"
+              contentStyle={{ padding: 20 }}
+            >
+              <Image.PreviewGroup>
+                <Image
+                  id="thumbnail"
+                  // width={300}
+                  style={{ width: '100%', maxWidth: 300 }}
+                  src={dataSource.thumbnail}
+                />
+              </Image.PreviewGroup>
+            </Descriptions.Item>
+            <Descriptions.Item
+              label="Banner 1"
+              contentStyle={{ padding: 20 }}
+            >
+              <Image.PreviewGroup>
+                <Image
+                  id="banner_1"
+                  // width={300}
+                  style={{ width: '100%', maxWidth: 300 }}
+                  src={dataSource.banner_1}
+                />
+              </Image.PreviewGroup>
+            </Descriptions.Item>
+            <Descriptions.Item
+              label="Banner 2"
+              contentStyle={{ padding: 20 }}
+            >
+              <Image.PreviewGroup>
+                <Image
+                  id="banner_2"
+                  // width={300}
+                  style={{ width: '100%', maxWidth: 300 }}
+                  src={dataSource.banner_2}
                 />
               </Image.PreviewGroup>
             </Descriptions.Item>
