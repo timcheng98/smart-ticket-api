@@ -57,7 +57,8 @@ const EventForm = (props) => {
   const location = useLocation();
   const form_data = useSelector(state => state.form.form_data)
   const [eventId, setEventId] = useState(0)
-  const [eventCode, setEventCode] = useState('')
+  const [eventCode, setEventCode] = useState('');
+  const dispatch = useDispatch();
 
   useEffect(() => {
     getEventId();
@@ -107,16 +108,19 @@ const EventForm = (props) => {
               gutter={[0, 20]}
             >
               <Col span={24}>
-                <CheckCircleFilled style={{ fontSize: 48 }} />
+                <CheckCircleFilled style={{ fontSize: 68, color: '#52c41a' }} />
               </Col>
-              <Col span={24}>Application Submitted Successfully.</Col>
-              <Col span={24}>Reference No. {eventCode}</Col>
+              <Col span={24} style={{fontSize: 20, fontWeight: 'bold'}}>Application Submitted Successfully.</Col>
+              <Col span={24} style={{fontSize: 18, fontWeight: 'bold'}}>Reference No. {eventCode}</Col>
               <Col span={24}>
                 <Button
-                  type="primary"
-                  onClick={() => history.push("/company/event/list")}
+                  className="custom-btn"
+                  onClick={() => {
+                    dispatch(CommonActions.setFormData({}))
+                    history.push("/company/event/list")
+                  }}
                 >
-                  Back
+                  Go Back Home
                 </Button>
               </Col>
             </Row>
@@ -408,7 +412,7 @@ const BasicInformation = (props) => {
       <Form.Item
         label="Need KYC?"
         name="need_kyc"
-        rules={[{ required: true, message: "Please input Company Code." }]}
+        rules={[{ required: false, message: "Please input Company Code." }]}
       >
         <Select style={{ width: '100%' }} placeholder="Please Select">
           <Option value={0}>No</Option>
@@ -423,12 +427,13 @@ const BasicInformation = (props) => {
             <Button className="custom-btn" onClick={() => {
               let errors = []
               _.each(infoForm.getFieldsValue(), (value, key) => {
-                if (!value) {
+                console.log(value)
+                if (_.isUndefined(value)) {
                   errors.push(key)
                 }
               })
+              
               console.log(errors)
-              console.log(infoForm.getFieldsValue())
               if (!_.isEmpty(errors)) {
                 _.map(errors, (value) => {
                   return notification.warning({ message: `${value} is required` })
@@ -605,7 +610,7 @@ const SupportDocument = (props) => {
             <Button
               className="custom-btn"
               onClick={async () => {
-                let { start_end_time, released_close_date, tags, categories } = form_data;
+                let { start_end_time, released_close_date } = form_data;
                 let dataObj = {
                   ...form_data,
                   event_id: props.eventId,

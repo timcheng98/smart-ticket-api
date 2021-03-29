@@ -15,7 +15,8 @@ import {
   Row,
   Col,
 } from "antd";
-import { GlobalOutlined } from "@ant-design/icons";
+import QrReader from 'react-qr-reader'
+import { GlobalOutlined, QrcodeOutlined } from "@ant-design/icons";
 import moment from "moment";
 import _ from "lodash";
 import * as UI from "../../../core/UI";
@@ -44,6 +45,9 @@ const EventList = (props) => {
   const [dataList, setDataList] = useState([]);
   const [loading, setLoading] = useState(true);
   const sc_events = useSelector((state) => state.smartContract.sc_events);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [qrCodeResult, setQrCodeResult] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState({});
 
   useEffect(() => {
     getAllData();
@@ -76,7 +80,7 @@ const EventList = (props) => {
               button = (
                 <Col>
                   <Tooltip title={"On the Blochain Already"}>
-                    <Button shape="circle" icon={<GlobalOutlined style={{color: '#1890ff'}}/>} />
+                    <Button shape="circle" icon={<GlobalOutlined style={{ color: '#1890ff' }} />} />
                   </Tooltip>
                 </Col>
               )
@@ -121,8 +125,8 @@ const EventList = (props) => {
                         record.is_approval_doc_verified ? (
                           <FileProtectOutlined />
                         ) : (
-                            <FileSearchOutlined />
-                          )
+                          <FileSearchOutlined />
+                        )
                       }
                     />
                   </Tooltip>
@@ -172,15 +176,46 @@ const EventList = (props) => {
     return columns;
   };
 
+  const handleScan = data => {
+    if (data) {
+      setQrCodeResult(data);
+
+    }
+  }
+  const handleError = err => {
+    console.error(err)
+  }
+
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
       <Table
+        className="custom-table"
         loading={loading}
         rowKey={tableIDName}
         scroll={{ x: "max-content" }}
         dataSource={dataList}
         columns={setTableHeader()}
       />
+      {/* <Modal
+        visible={modalVisible}
+        closable
+        // width="400"
+        title={selectedEvent.name}
+        footer={null}
+        onCancel={() => setModalVisible(false)}
+      >
+        <div>
+
+          <QrReader
+            delay={300}
+            onError={handleError}
+            onScan={handleScan}
+            style={{ width: '100%' }}
+          />
+          <p>{qrCodeResult}</p>
+        </div>
+
+      </Modal> */}
     </AppLayout>
   );
 };

@@ -17,12 +17,12 @@ export function setIsAdmin(admin) {
     admin_id: 0
   }
 
-  if (admin.role === 1 && admin.admin_id > 0) {
+  if (admin.role === 'admin' && admin.admin_id > 0) {
     is_admin.admin = true;
     is_admin.admin_id = admin.admin_id;
   }
 
-  if (admin.role === 2 && admin.admin_id > 0) {
+  if (admin.role === 'company' && admin.admin_id > 0) {
     is_admin.company_admin = true;
     is_admin.admin_id = admin.admin_id;
   }

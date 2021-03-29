@@ -26,7 +26,7 @@ const FormUploadFile = (
   const uploadProps = {
     name: 'file',
     multiple: false,
-    action: '/api/admin/media',
+    action: '/api/media',
     beforeUpload: (file) => {
       if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
         message.error('Invalid Format');

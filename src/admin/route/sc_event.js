@@ -21,12 +21,14 @@ module.exports = exports = {
     // router.use('/api/sc/event', middleware.session.authorize());
 
     router.get('/api/sc/event', getEventAll);
+    router.get('/api/sc/event/single', getEvent);
     router.post('/api/sc/event', createEvent);
     router.get('/api/sc/event/ticket', getTicketAll);
+    router.get('/api/sc/event/ticket/owner/single', getTicketOwner);
     router.post('/api/sc/event/ticket', createTicket);
     router.post('/api/sc/event/ticket/onsell', getOnSellTicketsByArea);
     router.post('/api/sc/event/ticket/buy', buyTicket);
-    router.post('/api/sc/event/ticket/owner', getOwnerTicket);
+    router.post('/api/sc/event/ticket/owner', getOwnerTickets);
     router.get('/api/sc/event/ticket/marketplace', getTicketOnMarketplaceAll);
     router.post('/api/sc/event/ticket/marketplace/sell', sellTicketsOnMarketplace);
     router.post('/api/sc/event/ticket/marketplace/buy', buyTicketOnMarketplace);
@@ -49,6 +51,20 @@ const getEventAll = async (req, res) => {
   }
 }
 
+const getEvent = async (req, res) => {
+  try {
+    let result = await eventModel.getEvent(req.query.eventId);
+    // result = _.keyBy(result, 'event_id')
+    res.apiResponse({
+      status: 1,
+      result
+    });
+  } catch (error) {
+    console.error(error);
+    res.apiError(error);
+  }
+}
+
 const createEvent = async (req, res) => {
   try {
     if (_.isEmpty(req.body.event)) {
@@ -56,7 +72,7 @@ const createEvent = async (req, res) => {
         status: -1
       });
     }
-    await eventModel.createEvent(req.body.event);
+    await eventModel.createEvent(req.user, req.body.event);
     res.apiResponse({
       status: 1
     });
@@ -80,7 +96,21 @@ const getTicketAll = async (req, res) => {
   }
 }
 
-const getOwnerTicket = async (req, res) => {
+
+const getTicketOwner = async (req, res) => {
+  try {
+    let result = await eventModel.getTicketOwner(req.query.ticketId);
+    res.apiResponse({
+      status: 1,
+      result
+    });
+  } catch (error) {
+    console.error(error);
+    res.apiError(error);
+  }
+}
+
+const getOwnerTickets = async (req, res) => {
   try {
     let result = await eventModel.getOwnerTicket(req.body.address);
     res.apiResponse({
@@ -108,7 +138,7 @@ const getOnSellTicketsByArea = async (req, res) => {
 
 const buyTicket = async (req, res) => {
   try {
-    let result = await eventModel.buyTicket(req.body.address, req.body.tickets, req.body.total);
+    let result = await eventModel.buyTicket(req.user, req.body.address, req.body.tickets, req.body.total);
     res.apiResponse({
       status: 1,
       result
@@ -128,7 +158,7 @@ const createTicket = async (req, res) => {
       });
     }
 
-    await eventModel.createTicket(tickets);
+    await eventModel.createTicket(req.user, tickets);
     res.apiResponse({
       status: 1
     });
@@ -147,7 +177,7 @@ const sellTicketsOnMarketplace = async (req, res) => {
       });
     }
 
-    let result = await eventModel.sellTicketsOnMarketplace(seller, ticketId);
+    let result = await eventModel.sellTicketsOnMarketplace(req.user, seller, ticketId);
     if (result.status === -1) {
       return res.apiResponse({
         status: -1,
@@ -165,15 +195,13 @@ const sellTicketsOnMarketplace = async (req, res) => {
 
 const buyTicketOnMarketplace = async (req, res) => {
   try {
-    console.log(req.body);
     let { ticketId, buyer } = req.body;
     if (!_.isInteger(ticketId)) {
       return res.apiResponse({
         status: -1
       });
     }
-    console.log({buyer, ticketId});
-    let result = await eventModel.buyTicketOnMarketplace(buyer, ticketId);
+    let result = await eventModel.buyTicketOnMarketplace(req.user, buyer, ticketId);
     if (result.status === -1) {
       return res.apiResponse({
         status: -1,

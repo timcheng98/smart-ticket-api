@@ -7,6 +7,7 @@ const passport = require('passport');
 const model = require('../../model');
 const AppError = require('../../lib/app-error');
 const userModel = require('../../model/user');
+const kycModel = require('../../model/user/kyc');
 const eventModel = require('../../model/smart-contract/event');
 const middleware = require('./middleware');
 const helper = require('../../lib/helper');
@@ -47,6 +48,12 @@ exports.initRouter = (router) => {
     postUserLogout,
   );
   
+
+  router.post(
+    '/api/admin/register',
+    // passport.authenticate('UserAuth'),
+    createAdminUser,
+  );
 
   router.post(
     '/api/login/admin',
@@ -114,6 +121,38 @@ const createUser = async (req, res) => {
   }
 }
 
+const createAdminUser = async (req, res) => {
+  try {
+    let dataObj = {};
+
+    _.each(_.pick(req.body, [
+      'email', 'password'
+    ]), (val, key) => {
+      dataObj[key] = _.toString(val);
+    });
+
+    let account = await eventModel.createAccount()
+    const { address, encrypt } = account;
+    // const keystore = encrypt(req.body.password);
+    dataObj = {
+      ...dataObj,
+      role: 'company',
+      need_kyc: 1,
+      wallet_address: address
+    }
+
+    let [adminRc] = await model.admin.selectAccount({ where: { email: dataObj.email } });
+    if (adminRc) {
+      return res.apiResponse({ status: -1, errorMessage: 'Email has been registered' })
+    }
+
+    await model.admin.insertAccount(dataObj);
+    res.apiResponse({ status: 1 })
+  } catch (error) {
+    res.apiError(error)
+  }
+}
+
 const getAdmin = async (req, res) => {
   try {
     let { admin_id } = req.user;
@@ -146,8 +185,18 @@ const getUser = async (req, res) => {
     // }
 
     let result = await userModel.selectUser(user_id, {
-      fields: ['user_id', 'is_active', 'first_name', 'last_name', 'email', 'mobile', 'wallet_address', 'need_kyc', 'user_kyc_id']
+      fields: ['user_id', 'is_active', 'email', 'mobile', 'wallet_address', 'need_kyc', 'credit_card_number', 'credit_card_name', 'credit_card_expiry_date']
     });
+
+
+    let kyc = await kycModel.selectKyc(user_id, {
+      fields: ['user_kyc_id']
+    });
+
+    result.user_kyc_id = 0;
+    if (!_.isEmpty(kyc)) {
+      result.user_kyc_id = kyc.user_kyc_id
+    }
 
     res.apiResponse({
       status: 1,

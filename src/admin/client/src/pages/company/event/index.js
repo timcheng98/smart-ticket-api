@@ -202,6 +202,7 @@ const CompanyEvent = (props) => {
         </Col>
       </Row>
       <Table
+        className="custom-table"
         rowKey={tableIDName}
         scroll={{ x: "max-content" }}
         dataSource={dataSource}

@@ -87,19 +87,17 @@ const postEvent = async (req, res) => {
       released_date: moment(req.body.released_date).unix(),
       close_date: moment(req.body.close_date).unix(),
       event_code: shortid.generate().toUpperCase().replace(/-/g, ''),
-      tags: JSON.stringify(req.body,tags),
-      categories: JSON.stringify(req.body,categories),
+      tags: JSON.stringify(req.body.tags),
+      categories: JSON.stringify(req.body.categories),
       // country: '',
       // region: '',
       // address: '',
-      status: 1, // Pending
+      // status: 1, // Pending
       issued_tickets: 0,
       type: 0,
     };
     delete postObj.start_end_time;
     delete postObj.released_close_date;
-
-    console.log(postObj);
 
     let eventRc = await eventModel.insertEvent(postObj);
 

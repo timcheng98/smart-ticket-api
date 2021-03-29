@@ -222,8 +222,9 @@ const SupportDocument = (props) => {
 
   const getInitialValue = async () => {
     let data = await Service.call('get', `/api/company/admin/kyc/single`);
-
-    if (data) {
+    console.log('data')
+    if (!_.isEmpty(data.company_doc)) {
+      console.log('test');
       setImageURL(`${app.config.STATIC_SERVER_URL}/media/${data.company_doc}`)
     }
   }
@@ -252,7 +253,7 @@ const SupportDocument = (props) => {
     setImageURL('');
   }
 
-  console.log(fileInfo)
+  console.log(imageURL)
 
   return (
     <Form
@@ -263,7 +264,7 @@ const SupportDocument = (props) => {
       </Row>
       <Row justify="center" style={{padding: 50}}>
         <Col span={12}>
-          <FormUploadFile type='one' data={{ scope: "private" }}  onChange={uploadOnChange} onRemove={onRemove} imageURL={imageURL} />
+          <FormUploadFile type='one' data={{ scope: "public" }}  onChange={uploadOnChange} onRemove={onRemove} imageURL={imageURL} />
         </Col>
       </Row>
       <Divider style={{border: 'none'}} />

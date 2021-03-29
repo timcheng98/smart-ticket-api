@@ -14,9 +14,12 @@ import Home from '../pages/admin/Home';
 import CompanyKycInfoAll from '../pages/admin/company/kyc/Info';
 import CompanyKycListAll from '../pages/admin/company/kyc/List';
 import EventTicket from '../pages/admin/event/Ticket';
+import TicketVerification from '../pages/admin/event/TicketVerification'
 import EventList from '../pages/admin/event/List';
 import EventInfo from '../pages/admin/event/Info';
 import UserKyc from '../pages/admin/user/kyc/List';
+import UserKycInfo from '../pages/admin/user/kyc/Info';
+import TransactionHistoryList from '../pages/admin/transaction/List';
 
 //Company
 import CompanyKycList from '../pages/company/kyc/List';
@@ -44,9 +47,12 @@ const Path = (props) => {
         <Private path="/admin/company/kyc/info" component={CompanyKycInfoAll} exact level={Main.LEVEL.ADMIN} />
         <Private path="/admin/event/ticket" component={EventTicket} exact level={Main.LEVEL.ADMIN} />
         <Private path="/admin/event/list" component={EventList} exact level={Main.LEVEL.ADMIN} />
+        <Private path="/admin/event/ticket/verify" component={TicketVerification} exact level={Main.LEVEL.ADMIN} />
         <Private path="/admin/event/info" component={EventInfo} exact level={Main.LEVEL.ADMIN} />
         <Private path="/admin/user/list" component={UserList} exact level={Main.LEVEL.ADMIN} />
         <Private path="/admin/user/kyc" component={UserKyc} exact level={Main.LEVEL.ADMIN} />
+        <Private path="/admin/user/kyc/info" component={UserKycInfo} exact level={Main.LEVEL.ADMIN} />
+        <Private path="/admin/transaction/history" component={TransactionHistoryList} exact level={Main.LEVEL.ADMIN} />
 
         <Private path="/company/kyc/list" component={CompanyKycList} exact level={Main.LEVEL.COMPANY} />
         <Private path="/company/kyc/form" component={CompanyKycForm} exact level={Main.LEVEL.COMPANY} />

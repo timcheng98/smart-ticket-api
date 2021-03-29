@@ -24,7 +24,7 @@ import AppLayout from '../../../../components/AppLayout';
 // Initial States
 const debug = require('debug')('app:admin:client:src:AdvertisementList');
 const API = {
-  GET_ALL: `/api/user/kyc`,
+  GET_ALL: `/api/admin/user/kyc`,
   POST: `/api/user/kyc`,
   PATCH: `/api/user/kyc`,
   PUT: `/api/user/kyc`
@@ -54,8 +54,8 @@ const UserKycList = (props) => {
   const getAllData = async () => {
     let dataList =[];
     try {
-
-      let data = await Service.call('get', API.GET_ALL);
+      
+      let data = await Service.call('get', '/api/admin/user/kyc');
       dataList = _.orderBy(data, ['ctime'], ['desc']);
       toggleLoading(false)
     } catch (error) {
@@ -88,8 +88,8 @@ const UserKycList = (props) => {
             <span>
               <Link
                 to={{
-                  pathname: "/admin/company/kyc/info",
-                  state: {company: record}
+                  pathname: "/admin/user/kyc/info",
+                  state: {dataSource: record}
                 }}
               >
                 <Tooltip title={record.is_company_doc_verified ? 'Verified' : 'Check verification' }>
@@ -105,39 +105,40 @@ const UserKycList = (props) => {
         }
       },
       {
-        title: 'Check By',
-        dataIndex: 'check_by',
-        sorter: (a, b) => a.check_by.localeCompare(b.check_by)
-      },
-      {
         title: 'Status',
-        dataIndex: 'is_company_doc_verified',
-        render: (value) => UI.displayStatus(value, {1: 'Approved', 0: 'Pending', '-1': 'Rejected', default: 'ERROR'}),
-        sorter: (a, b) => a.status - b.status
+        dataIndex: 'status',
+        render: (value) => UI.displayStatus(value, { "1": 'Activate', "0": 'Pending', "-1": 'Reject', default: 'Reject' }),
       },
       {
-        title: 'Owner',
-        dataIndex: 'owner',
-        sorter: (a, b) => a.owner.localeCompare(b.owner)
+        title: 'First Name',
+        dataIndex: 'first_name',
       },
       {
-        title: 'Industry',
-        dataIndex: 'industry',
-        sorter: (a, b) => a.industry.localeCompare(b.industry)
+        title: 'Last Name',
+        dataIndex: 'last_name',
       },
       {
-        title: 'company_size',
-        dataIndex: 'company_size',
-        sorter: (a, b) => a.company_size.localeCompare(b.company_size)
+        title: 'National ID',
+        dataIndex: 'national_id',
       },
       {
-        title: 'address',
-        dataIndex: 'address',
-        sorter: (a, b) => a.address.localeCompare(b.address)
+        title: 'Birthday',
+        dataIndex: 'birthday',
+        render: (value) => UI.momentFormat(value),
       },
       {
-        title: 'Company Doc',
-        dataIndex: 'company_doc',
+        title: 'Update@',
+        dataIndex: 'utime',
+        render: (value) => UI.momentFormat(value),
+      },
+      {
+        title: 'Create@',
+        dataIndex: 'ctime',
+        render: (value) => UI.momentFormat(value),
+      },
+      {
+        title: 'Face Doc',
+        dataIndex: 'face_doc',
         render: (value) => {
           const imageUrl = `${app.config.STATIC_SERVER_URL}/media/${value}`;
           return (
@@ -156,11 +157,25 @@ const UserKycList = (props) => {
         },
       },
       {
-        title: 'Found Date',
-        dataIndex: 'found_date',
-        render: (value) => UI.momentFormat(value),
-        sorter: (a, b) => a.found_date - b.found_date
-      }
+        title: 'National Doc',
+        dataIndex: 'national_doc',
+        render: (value) => {
+          const imageUrl = `${app.config.STATIC_SERVER_URL}/media/${value}`;
+          return (
+            <Button
+              type="primary"
+              onClick={() => {
+                toggleModal({
+                  modalVisible: true,
+                  imageUrl
+                })
+              }}
+            >
+              Show
+            </Button>
+          );
+        },
+      },
     ];
     return columns;
   }
@@ -170,9 +185,7 @@ const UserKycList = (props) => {
   };
 
   return (
-    <AppLayout title={metaData.title} selectedKey={metaData.selectedKey}>
-
-      <Divider />
+    <>
       <Table
         className="custom-table"
         rowKey={metaData.tableID}
@@ -193,7 +206,7 @@ const UserKycList = (props) => {
         }}
         url={modal.imageUrl}
       />
-    </AppLayout>
+    </>
   )  
 }
 

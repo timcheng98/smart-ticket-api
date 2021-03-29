@@ -4,7 +4,7 @@ const AppError = require('../../lib/app-error');
 const helper = require('../../lib/helper');
 const middleware = require('./middleware');
 const moment = require('moment');
-const kyc = require('../../model/company/kyc');
+const kycModel = require('../../model/company/kyc');
 
 
 const ERROR_CODE = {
@@ -31,7 +31,7 @@ module.exports = exports = {
 
 const getKycList = async (req, res) => {
   try {
-    let result = await kyc.selectKyc({
+    let result = await kycModel.selectKyc({
       all: true
     });
     res.apiResponse({
@@ -44,7 +44,7 @@ const getKycList = async (req, res) => {
 
 const getKycById = async (req, res) => {
   try {
-    let result = await kyc.selectKyc(req.user.admin_id);
+    let result = await kycModel.selectKyc(req.user.admin_id);
     console.log('test_test', result );
 
     res.apiResponse({
@@ -76,7 +76,7 @@ const postKyc = async (req, res) => {
     postData = helper.validateFormData(req.body, postData);
     let postObj = postData;
     postObj.reference_no = `${moment().format('YYMMDD')}-${uuidv4().split('-')[1]}`
-    let result = await kyc.insertKyc(postObj);
+    let result = await kycModel.insertKyc(postObj);
     res.apiResponse({
       status: 1, result
     })
@@ -108,7 +108,7 @@ const patchKyc = async (req, res) => {
     });
  
     let postObj = postData;
-    let result = await kyc.updateKyc(req.user.admin_id, postObj);
+    let result = await kycModel.updateKyc(req.user.admin_id, postObj);
     res.apiResponse({
       status: 1, result
     })
@@ -134,7 +134,7 @@ const patchKycById = async (req, res) => {
     });
  
     let postObj = postData;
-    let result = await kyc.updateKyc(postObj.admin_id, postObj);
+    let result = await kycModel.updateKyc(postObj.admin_id, postObj);
     res.apiResponse({
       status: 1, result
     })

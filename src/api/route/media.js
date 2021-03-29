@@ -60,7 +60,7 @@ AppError.setErrorCode(ERROR_CODE);
 
 exports.initRouter = (router) => {
   router.post(
-    '/api/admin/media',
+    '/api/media',
     upload.fields([
       { name: 'file', maxCount: 1 },
     ]),

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Modal
+  Modal, Image
 } from 'antd';
 import _ from 'lodash';
 
@@ -20,9 +20,13 @@ const ImageModal = ({
       footer={null}
       onCancel={() => { setVisible(false) }}
     >
-      <div style={{width: '100%', textAlign: 'center'}}>
-        <img src={url} alt="" style={{width: '100%'}} />
-      </div>
+      <Image.PreviewGroup>
+        <Image
+          width={'100%'}
+          src={url}
+        />
+      </Image.PreviewGroup>
+
     </Modal>
   );
 }

@@ -54,10 +54,12 @@ const KycInformation = () => {
   const getInitalState = async () => {
     let data = await Service.call('get', '/api/company/admin/kyc/single');
     if (data.company_kyc_id) {
+      console.log(data);
       setCompany(data);
     }
   }
 
+  console.log('company.company_doc', company.company_doc);
   const applyKycAgain = async (e) => {
     await Service.call("patch", "/api/company/admin/kyc/single", {
       admin_id: company.admin_id,
@@ -83,8 +85,8 @@ const KycInformation = () => {
             />
           </Descriptions.Item>
           {company.status === -1 && (
-            <Descriptions.Item label="Reject Reason(s)" style={{color: 'black', fontWeight: 'bold'}}>
-            <span style={{color: 'black', fontWeight: 'bold'}}>{ company.reject_reason}</span>
+            <Descriptions.Item label="Reject Reason(s)" style={{ color: 'black', fontWeight: 'bold' }}>
+              <span style={{ color: 'black', fontWeight: 'bold' }}>{company.reject_reason}</span>
             </Descriptions.Item>
           )}
           {company.check_by !== 0 && (
@@ -118,16 +120,17 @@ const KycInformation = () => {
             label="Company Document(Click to zoom)"
             contentStyle={{ padding: 20 }}
           >
-            <Image.PreviewGroup>
-              <Image
-                id="company_doc"
-                width={300}
-                src={`${app.config.STATIC_SERVER_URL}/media/${company.company_doc}`}
-              />
-            </Image.PreviewGroup>
+            {company.company_doc && (
+              <Image.PreviewGroup>
+                <Image
+                  id="company_doc"
+                  width={300}
+                  src={`${app.config.STATIC_SERVER_URL}/media/${company.company_doc}`}
+                />
+              </Image.PreviewGroup>)}
           </Descriptions.Item>
         </Descriptions>
-        {company.status === -1 && (<Button onClick={applyKycAgain} style={{margin: 20}} type="primary">Apply again</Button>)}
+        {company.status === -1 && (<Button onClick={applyKycAgain} style={{ margin: 20 }} type="primary">Apply again</Button>)}
       </div>
     </AppLayout>
   );

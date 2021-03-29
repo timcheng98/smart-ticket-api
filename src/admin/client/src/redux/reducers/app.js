@@ -2,7 +2,7 @@ import * as types from '../actions/types';
 import Immutable from 'seamless-immutable';
 
 const initialState = Immutable({
-  auth: false,
+  auth: null,
   config: {
     STATIC_SERVER_URL: null,
   },
@@ -11,7 +11,7 @@ const initialState = Immutable({
     company_admin: false,
     admin_id: 0
   },
-  loading: false,
+  loading: true,
   // admin: {
   //   admin_id: 0,
   //   username: null,

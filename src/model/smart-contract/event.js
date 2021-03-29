@@ -25,21 +25,33 @@ exports.getEventAll = async () => {
   return events;
 }
 
-
-exports.createEvent = async (event) => {
+exports.getEvent = async (eventId) => {
   await eventAPI.init();
-  return eventAPI.autoSignEventTransaction(event);
+  let events = await eventAPI.getEvent(eventId)
+
+  return events;
 }
 
-exports.createTicket = async (tickets) => {
+exports.createEvent = async (user, event) => {
   await eventAPI.init();
-  let created_tickets = await eventAPI.autoCreateTickets(tickets);
+  return eventAPI.autoSignEventTransaction(user, event);
+}
+
+exports.createTicket = async (user, tickets) => {
+  await eventAPI.init();
+  let created_tickets = await eventAPI.autoCreateTickets(user, tickets);
   return created_tickets;
 }
 
 exports.getTicketAll = async () => {
   await eventAPI.init();
   let tickets = await eventAPI.getTicketAll()
+  return tickets;
+}
+
+exports.getTicketOwner = async (ticketId) => {
+  await eventAPI.init();
+  let tickets = await eventAPI.getTicketOwner(ticketId)
   return tickets;
 }
 
@@ -56,22 +68,22 @@ exports.getOnSellTicketsByArea = async (selectedArea) => {
   return tickets;
 }
 
-exports.buyTicket = async (address, tickets, total) => {
+exports.buyTicket = async (user, address, tickets, total) => {
   await eventAPI.init();
-  let result = await eventAPI.buyTicket(address, tickets, total)
+  let result = await eventAPI.buyTicket(user, address, tickets, total)
   return result;
 }
 
 
-exports.sellTicketsOnMarketplace = async (seller, ticket_id) => {
+exports.sellTicketsOnMarketplace = async (user, seller, ticket_id) => {
   await eventAPI.init();
-  let result = await eventAPI.sellTicketsOnMarketplace(seller, ticket_id)
+  let result = await eventAPI.sellTicketsOnMarketplace(user, seller, ticket_id)
   return result;
 }
 
-exports.buyTicketOnMarketplace = async (buyer, ticket_id) => {
+exports.buyTicketOnMarketplace = async (user, buyer, ticket_id) => {
   await eventAPI.init();
-  let result = await eventAPI.buyTicketOnMarketplace(buyer, ticket_id)
+  let result = await eventAPI.buyTicketOnMarketplace(user, buyer, ticket_id)
   return result;
 }
 

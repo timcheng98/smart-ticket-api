@@ -6,7 +6,8 @@ import {
   ShopOutlined,
   TeamOutlined,
   SolutionOutlined,
-  CalendarOutlined
+  CalendarOutlined,
+  HistoryOutlined
 } from '@ant-design/icons';
 import _ from 'lodash';
 import * as Main from '../core/Main'
@@ -104,6 +105,12 @@ const AdminLevelItems = [
     title: 'Event List',
     path: '/admin/event/list',
     icon: <CalendarOutlined />
+  },
+  {
+    key: 'transaction_history',
+    title: 'Transaction',
+    path: '/admin/transaction/history',
+    icon: <HistoryOutlined />
   },
   // {
   //   key: 'event_ticket',

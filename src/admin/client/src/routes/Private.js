@@ -9,7 +9,8 @@ const Private = ({
     level
   }) => {
     const app = useSelector(state => state.app)
-    if (app.auth === null || !app.auth) return <LoadingScreen></LoadingScreen>
+    console.log(app)
+    if (app.auth === null) return <LoadingScreen></LoadingScreen>
     return (
       <Route
         render={

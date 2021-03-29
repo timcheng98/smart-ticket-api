@@ -60,11 +60,11 @@ AppError.setErrorCode(ERROR_CODE);
 
 exports.initRouter = (router) => {
   router.post(
-    '/api/admin/media',
+    '/api/media',
     upload.fields([
       { name: 'file', maxCount: 1 },
     ]),
-    middleware.session.authorize(),
+    // middleware.session.authorize(),
     saveAllFiles(),
     postMedia
   );
@@ -72,7 +72,7 @@ exports.initRouter = (router) => {
   // Private media route handler
   router.get(
     '/media/:filename',
-    middleware.session.authorize(),
+    // middleware.session.authorize(),
     getMediaFile
   );
 }

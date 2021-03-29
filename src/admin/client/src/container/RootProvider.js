@@ -18,7 +18,7 @@ import LoadingScreen from '../components/LoadingScreen'
 
 const RootProvider = () => {
   const loading = useSelector((state) => state.app.loading);
-  const [loadingSc, setLoadingSc] = useState(false);
+  const [loadingSc, setLoadingSc] = useState(true);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -34,6 +34,7 @@ const RootProvider = () => {
 
   const init = async () => {
     dispatch(setLoading(true));
+    await loadBlockchain();
     let resp = await Service.call("get", "/api/config");
     if (resp && resp.status > 0) {
       dispatch(setConfig(resp));
@@ -42,29 +43,28 @@ const RootProvider = () => {
     }
 
     resp = await Service.call("get", `/api/admin`);
-    await loadBlockchain();
 
     if (!resp || resp.status <= 0) {
       dispatch(setSCEvents({}));
+      dispatch(setLoading(false));
       dispatch(setAuth(false));
-      dispatch(setLoading(false));
       return;
     }
 
 
-    if (resp.userData[0].role === 1) {
+    if (resp.userData[0].role === 'admin') {
       dispatch(setAdmin(resp.userData[0]));
-      dispatch(setAuth(true));
       dispatch(setIsAdmin(resp.userData[0]));
       dispatch(setLoading(false));
+      dispatch(setAuth(true));
       return;
     }
 
-    if (resp.userData[0].role === 2) {
+    if (resp.userData[0].role === 'company') {
       dispatch(setCompanyAdmin(resp.userData[0]));
-      dispatch(setAuth(true));
       dispatch(setIsAdmin(resp.userData[0]));
       dispatch(setLoading(false));
+      dispatch(setAuth(true));
       return;
     }
   };

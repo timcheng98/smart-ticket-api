@@ -2,6 +2,11 @@ const Web3 = require("web3");
 const Ticket = require("../../admin/client/src/smart-contract/abis/Ticket.json");
 const _ = require("lodash");
 const config = require("config");
+const transactionModel = require('./transaction');
+
+const createTransaction = async (obj) => {
+  return transactionModel.insertTransaction(obj)
+}
 
 export class EventAPI {
   constructor() {
@@ -165,6 +170,15 @@ export class EventAPI {
     return tickets;
   }
 
+  async getTicketOwner(ticketId) {
+    let owner = await this.contract.methods
+      .ownerOf(ticketId)
+      .call({ from: this.accounts[0] });
+
+    return owner;
+  }
+
+
   async getOnSellTicketsAll(type) {
     let total = await this.contract.methods.ticketCount.call({
       from: this.accounts[0],
@@ -225,7 +239,7 @@ export class EventAPI {
     return onSellTicketIdArr;
   }
 
-  async buyTicket(address, tickets, total) {
+  async buyTicket(user, address, tickets, total) {
     let onSellTicketIdArr = [];
     let onSellTicketCount = 0;
     let sell_tickets = _.slice(tickets, 0, total)
@@ -250,23 +264,22 @@ export class EventAPI {
       );
     }
 
-    await this.signTransaction(transaction, (confirmedMessage) => {
+    await this.signTransaction({...user, user_address: address}, transaction, (confirmedMessage) => {
       console.log(" ticket confirmedMessage", confirmedMessage);
       // return getStore().dispatch(CommonActions.setEvents(true))
     });
   }
 
-  async autoCreateTickets(_seats) {
+  async autoCreateTickets(user, _seats) {
     let transaction = this.contract.methods.mint(_seats);
-
     console.log("auto create ticket step 1 data >>>", _seats);
     console.log("auto create ticket step 2 transaction");
-    return this.signTransaction(transaction, function (confirmedMessage) {
+    return this.signTransaction(user, transaction, function (confirmedMessage) {
       console.log(" ticket confirmedMessage", confirmedMessage);
     });
   }
 
-  async autoSignEventTransaction(_eventObj) {
+  async autoSignEventTransaction(user, _eventObj) {
     let eventObj = JSON.stringify(_eventObj);
     let transaction = this.contract.methods.createEvent(
       this.accounts[0],
@@ -274,7 +287,7 @@ export class EventAPI {
     );
     console.log("step 1 -- post data", eventObj);
     // console.log("step 2 -- transaction");
-    return this.signTransaction(transaction, function (confirmedMessage) {
+    return this.signTransaction(user, transaction, function (confirmedMessage) {
       console.log("event confirmedMessage", confirmedMessage);
     });
   }
@@ -304,14 +317,14 @@ export class EventAPI {
     return tickets;
   }
 
-  async sellTicketsOnMarketplace(seller, ticketId) {
+  async sellTicketsOnMarketplace(user, seller, ticketId) {
     const owner = await this.contract.methods.ownerOf(ticketId).call({ from: this.accounts[0] })
     if (seller !== owner) {
       return { status: -1, errorMessage: 'Seller is not the ticket owner.' };
     }
 
     const marketplaceTicket = await this.getTicketOnMarketplace(ticketId);
-    if (marketplaceTicket !== '0x0000000000000000000000000000000000000000')  {
+    if (marketplaceTicket !== '0x0000000000000000000000000000000000000000') {
       return { status: -1, errorMessage: 'Ticket already on the marketplace.' }
     }
     if (marketplaceTicket === seller) {
@@ -323,16 +336,16 @@ export class EventAPI {
       _.toInteger(ticketId)
     );
 
-    await this.signTransaction(transaction, function (confirmedMessage) {
+    await this.signTransaction({...user, user_address: seller}, transaction, function (confirmedMessage) {
       console.log("event confirmedMessage", confirmedMessage);
     });
     return { status: 1 }
   }
 
-  async buyTicketOnMarketplace(buyer, ticketId) {
+  async buyTicketOnMarketplace(user, buyer, ticketId) {
     const owner = await this.contract.methods.ownerOf(ticketId).call({ from: this.accounts[0] })
     console.log('owner', owner);
-    console.log({buyer, ticketId});
+    console.log({ buyer, ticketId });
     if (buyer === owner) {
       return { status: -1, errorMessage: 'Buyer is the ticket owner.' };
     }
@@ -350,13 +363,13 @@ export class EventAPI {
       _.toInteger(ticketId)
     );
 
-    await this.signTransaction(transaction, function (confirmedMessage) {
+    await this.signTransaction({...user, user_address: buyer}, transaction, function (confirmedMessage) {
       console.log("event confirmedMessage", confirmedMessage);
     });
     return { status: 1 }
   }
 
-  async signTransaction(transaction, cb) {
+  async signTransaction(user, transaction, cb) {
 
     let gas = await transaction.estimateGas({ from: this.default_account });
 
@@ -388,7 +401,25 @@ export class EventAPI {
           cb("Transaction Confirmed");
         }
       })
+      .on('receipt', async (receipt) => {
+        const obj = {
+          block_hash: receipt.blockHash,
+          block_number: receipt.blockNumber,
+          transaction_hash: receipt.transactionHash,
+          transaction_index: receipt.transactionIndex,
+          sender: receipt.from,
+          receiver: receipt.to,
+          status: receipt.status ? 1 : 0,
+          contract_address: this.address,
+          cumulative_gas_used: receipt.cumulativeGasUsed,
+          gas_used: receipt.gasUsed,
+          logs: JSON.stringify(receipt.logs),
+          user_address: '',
+          ...user
+        }
+
+        await createTransaction(obj)
+      })
       .on("error", console.error);
-    // .on('receipt', (receipt) => console.log('tsest', receipt))
   }
 }

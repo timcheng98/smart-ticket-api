@@ -18,13 +18,10 @@ const Navbar = (props) => {
   const [name, setName] = useState('');
   const dispatch = useDispatch();
   useEffect(() => {
-    if (!_.isEmpty(app.admin)) {
-      setName(app.admin.first_name[0]?.toUpperCase());
+    if (!_.isEmpty(app.admin.first_name)) {
+      setName(app.admin.first_name[0].toUpperCase());
     }
 
-    if (!_.isEmpty(app.company_admin)) {
-      setName(app.company_admin.first_name[0].toUpperCase());
-    }
   }, [app])
   return (
     <Header style={styles.container}>
