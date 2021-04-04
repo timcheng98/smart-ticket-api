@@ -32,7 +32,9 @@ const initialState = Immutable({
 
 const smartContractInitalState = Immutable({
   sc_event: {},
-  events: {}
+  events: {},
+  sc_kyc_users: {},
+  sc_kyc_companies: {} 
 });
 
 const formInitialState = Immutable({
@@ -106,6 +108,12 @@ const appReducer = {
       }
       case types.SET_SC_EVENTS: {
         return {...state, sc_events: action.data};
+      }
+      case types.SET_SC_KYC_USER: {
+        return {...state, sc_kyc_users: action.data};
+      }
+      case types.SET_SC_KYC_COMPANY: {
+        return {...state, sc_kyc_companies: action.data};
       }
       default:
         return state;

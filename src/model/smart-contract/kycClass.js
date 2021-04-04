@@ -1,5 +1,5 @@
 const Web3 = require("web3");
-const Ticket = require("../../admin/client/src/smart-contract/abis/Kyc.json");
+const Kyc = require("../../admin/client/src/smart-contract/abis/Kyc.json");
 const _ = require("lodash");
 const config = require("config");
 const transactionModel = require('./transaction');
@@ -33,7 +33,6 @@ export class KycAPI {
 
   async loadRemoteWeb3() {
     let web3 = new Web3(config.get("TRUFFLE.ORIGIN"));
-
     this.web3 = web3;
   }
 
@@ -41,9 +40,9 @@ export class KycAPI {
     // Load accountc
     this.accounts = await this.web3.eth.getAccounts();
     const networkId = await this.web3.eth.net.getId();
-    const networkData = Ticket.networks[networkId];
+    const networkData = Kyc.networks[networkId];
     if (networkData) {
-      const abi = Ticket.abi;
+      const abi = Kyc.abi;
       const address = networkData.address;
       this.address = address;
 
@@ -62,27 +61,33 @@ export class KycAPI {
   }
 
   async verifyUserCredential(id, hashHex) {
-    return this.contract.methods.verifyUser(id, hashHex);
+    return this.contract.methods.verifyUser(id, hashHex).call({ from: this.accounts[0] });
   }
 
   async getTotalUserCount() {
-    return this.contract.methods.getTotalUserCount();
+    return this.contract.methods.getTotalUserCount().call({ from: this.accounts[0] });
   }
 
   async getTotalUser(ids) {
-    return this.contract.methods.getTotalUser(ids);
+    return this.contract.methods.getTotalUser(ids).call({ from: this.accounts[0] });
   }
 
   async getUser(id) {
-    return this.contract.methods.getUser(id);
+    return this.contract.methods.getUser(_.toInteger(id)).call({ from: this.accounts[0] });
   }
 
-  async renewUserCredential(id) {
-    return this.contract.methods.renewUser(id);
+  async renewUserCredential(user, id, hashHex) {
+    const transaction = this.contract.methods.renewUser(id, hashHex);
+    return this.signTransaction(user, transaction, function (confirmedMessage) {
+      console.log(" Company credential confirmedMessage", confirmedMessage);
+    });
   }
 
-  async burnUserCredential(id) {
-    return this.contract.methods.burnUser(id);
+  async burnUserCredential(user, id) {
+    const transaction = this.contract.methods.burnUser(id, hashHex);
+    return this.signTransaction(user, transaction, function (confirmedMessage) {
+      console.log(" Company credential confirmedMessage", confirmedMessage);
+    });
   }
 
   async createCompanyCredential(user, id, hashHex) {
@@ -93,27 +98,33 @@ export class KycAPI {
   }
 
   async verifyCompanyCredential(id, hashHex) {
-    return this.contract.methods.verifyCompany(id, hashHex);
+    return this.contract.methods.verifyCompany(id, hashHex).call({ from: this.accounts[0] });
   }
 
   async getTotalCompanyCount() {
-    return this.contract.methods.getTotalCompanyCount();
+    return this.contract.methods.getTotalCompanyCount().call({ from: this.accounts[0] });
   }
 
   async getTotalCompany(ids) {
-    return this.contract.methods.getTotalCompany(ids);
+    return this.contract.methods.getTotalCompany(ids).call({ from: this.accounts[0] });
   }
 
   async getCompany(id) {
-    return this.contract.methods.getCompany(id);
+    return this.contract.methods.getCompany(id).call({ from: this.accounts[0] });
   }
 
-  async renewCompanyCredential(id) {
-    return this.contract.methods.renewCompany(id);
+  async renewCompanyCredential(user, id, hashHex) {
+    const transaction = this.contract.methods.renewCompany(id, hashHex);
+    return this.signTransaction(user, transaction, function (confirmedMessage) {
+      console.log(" Company credential confirmedMessage", confirmedMessage);
+    });
   }
 
-  async burnCompanyCredential(id) {
-    return this.contract.methods.burnCompany(id);
+  async burnCompanyCredential(user, id) {
+    const transaction = this.contract.methods.burnCompany(id, hashHex);
+    return this.signTransaction(user, transaction, function (confirmedMessage) {
+      console.log(" Company credential confirmedMessage", confirmedMessage);
+    });
   }
 
   async signTransaction(user, transaction, cb) {

@@ -117,9 +117,24 @@ export function setSCEventAPI(data) {
     data: data
   };
 }
+
 export function setSCEvents(data) {
   return {
     type: types.SET_SC_EVENTS,
+    data: data
+  };
+}
+
+export function setSCKycCompanies(data) {
+  return {
+    type: types.SET_SC_KYC_USER,
+    data: data
+  };
+}
+
+export function setSCKycUsers(data) {
+  return {
+    type: types.SET_SC_KYC_COMPANY,
     data: data
   };
 }

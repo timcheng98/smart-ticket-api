@@ -8,6 +8,8 @@ import {
   setIsAdmin,
   setSCEventAPI,
   setSCEvents,
+  setSCKycUsers,
+  setSCKycCompanies,
   setLoading,
 } from "../redux/actions/common";
 import * as Service from "../core/Service";
@@ -25,7 +27,7 @@ const RootProvider = () => {
     init();
   }, []);
 
-  const loadBlockchain = async () => {
+  const loadEventBlockchain = async () => {
     setLoadingSc(true)
     let events = await Service.call("get", `/api/sc/event`);
     dispatch(setSCEvents(_.keyBy(events, 'event_id')));
@@ -34,7 +36,7 @@ const RootProvider = () => {
 
   const init = async () => {
     dispatch(setLoading(true));
-    await loadBlockchain();
+    await loadEventBlockchain();
     let resp = await Service.call("get", "/api/config");
     if (resp && resp.status > 0) {
       dispatch(setConfig(resp));

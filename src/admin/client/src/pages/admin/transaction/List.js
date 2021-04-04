@@ -13,13 +13,16 @@ import {
   Tag,
   Tooltip,
   Row,
+  Typography,
   Col,
+  Popover
 } from "antd";
 import QrReader from 'react-qr-reader'
-import { GlobalOutlined, QrcodeOutlined } from "@ant-design/icons";
+import { GlobalOutlined, QrcodeOutlined, EyeOutlined } from "@ant-design/icons";
 import moment from "moment";
 import _ from "lodash";
 import * as UI from "../../../core/UI";
+import * as Main from "../../../core/Main";
 import { useSelector } from "react-redux";
 import * as Service from "../../../core/Service";
 import AppLayout from "../../../components/AppLayout";
@@ -40,9 +43,11 @@ const involvedModelName = "transaction";
 const title = "Trsanction History";
 const selectedKey = "transaction_history";
 const tableIDName = "transaction_id";
+const { Paragraph, Text } = Typography;
 
 const TransactionHistoryList = (props) => {
   const [dataList, setDataList] = useState([]);
+  const [current_eth, setCurrentEth] = useState(0);
   const [loading, setLoading] = useState(true);
   const sc_events = useSelector((state) => state.smartContract.sc_events);
   const [modalVisible, setModalVisible] = useState(false);
@@ -51,7 +56,8 @@ const TransactionHistoryList = (props) => {
 
   useEffect(() => {
     getAllData();
-    setLoading(false)
+    setLoading(false);
+    getCurrentEth();
   }, []);
 
   const getAllData = async () => {
@@ -67,7 +73,12 @@ const TransactionHistoryList = (props) => {
     }
   };
 
-  console.log(dataList);
+  const getCurrentEth = async () => {
+    const response = await fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=HKD');
+    let result = await response.text()
+    let current_eth_hkd = JSON.parse(result);
+    setCurrentEth(current_eth_hkd.HKD);
+  }
 
   const setTableHeader = () => {
     const columns = [
@@ -140,66 +151,144 @@ const TransactionHistoryList = (props) => {
       //   },
       // },
       {
-        title: "Status",
-        dataIndex: "status",
-        render: (value) => UI.displayStatus(value, { "1": 'Confirm', "0": 'Fail', "-1": 'Fail', default: 'Fail' }),
-        sorter: (a, b) => a.status - b.status,
+        title: "Txn Hash",
+        dataIndex: "transaction_hash",
+        render: (value, record) => {
+          return (
+            <>
+              <Popover
+                placement="right"
+                content={(<Row gutter={[0, 12]} style={{ width: 300 }}>
+                  <Col span={24}>Status</Col>
+                  <Col span={24}>{UI.displayStatus(record.status, { "1": 'Confirm', "0": 'Fail', "-1": 'Fail', default: 'Fail' })}</Col>
+                  {record.admin_id > 0 && <>
+                    <Col span={24}>
+                    Admin ID
+                  </Col>
+                  <Col span={24}>
+                    {record.admin_id}
+                  </Col>
+                  </>}
+                  {record.user_id > 0 && 
+                  <>
+                  <Col span={24}>
+                    User ID
+                  </Col>
+                  <Col span={24}>
+                    {record.user_id} <br />
+                    <Tooltip title={record.user_address}><span style={{ color: '#3498db' }}>{record.user_address.substring(0, 32)}...</span></Tooltip>
+
+                  </Col>
+                  </>
+                }
+                  <Col span={24}>Block Hash</Col>
+                  <Col span={24}>
+                    <Tooltip title={record.block_hash}><span style={{ color: '#3498db' }}>{record.block_hash.substring(0, 32)}...</span></Tooltip>
+
+                  </Col>
+                  <Col span={24}>Contract Address</Col>
+                  <Col span={24}>
+                    <Tooltip title={record.contract_address}><span style={{ color: '#3498db' }}>{record.contract_address.substring(0, 32)}...</span></Tooltip>
+                  </Col>
+                  <Col span={24}>Logs</Col>
+                  <Col span={24} style={{ width: 280, wordWrap: 'break-word'}}>
+                  <Paragraph ellipsis={{
+  rows: 2,
+  expandable: true,
+  symbol: 'more',
+}}>
+       {record.logs}
+      </Paragraph>
+                  </Col>
+
+                </Row>)}
+              >
+                <EyeOutlined style={{ marginRight: 12 }} />
+              </Popover>
+              <Tooltip title={value}><span style={{ color: '#3498db' }}>{value.substring(0, 17)}...</span></Tooltip>
+            </>
+
+          )
+        }
       },
       {
-        title: "User ID",
-        dataIndex: "user_id",
+        title: "Block",
+        dataIndex: "block_number",
       },
+      // {
+      //   title: "Status",
+      //   dataIndex: "status",
+      //   render: (value) => UI.displayStatus(value, { "1": 'Confirm', "0": 'Fail', "-1": 'Fail', default: 'Fail' }),
+      //   sorter: (a, b) => a.status - b.status,
+      // },
       {
-        title: "Admin ID",
-        dataIndex: "admin_id",
-      },
-      {
-        title: "User Address",
-        dataIndex: "user_address",
+        title: "Age",
+        dataIndex: "ctime",
+        render: (value) => {
+          return moment(moment.unix(value)).fromNow()
+        }
       },
       {
         title: "Sender",
         dataIndex: "sender",
+        render: (value) => {
+          return (
+            <Tooltip title={value}><span style={{ color: '#3498db' }}>{value.substring(0, 17)}...</span></Tooltip>
+          )
+        }
       },
       {
         title: "Receiver",
         dataIndex: "receiver",
-      },
-      {
-        title: "Transaction Hash",
-        dataIndex: "transaction_hash",
-      },
-      {
-        title: "Transaction Index",
-        dataIndex: "transaction_index",
-      },
-     
-      {
-        title: "Block Hash",
-        dataIndex: "block_hash",
-      },
-      {
-        title: "Block Number",
-        dataIndex: "block_number",
-      },
-     
-      {
-        title: "Contract Address",
-        dataIndex: "contract_address",
-      },
-      {
-        title: "Cumulative Gas Used",
-        dataIndex: "cumulative_gas_used",
+        render: (value) => {
+          return (
+            <Tooltip title={value}><span style={{ color: '#3498db' }}>{value.substring(0, 17)}...</span></Tooltip>
+          )
+        }
       },
       {
         title: "Gas Used",
         dataIndex: "gas_used",
+        render: (value) => {
+          console.log('current_eth', current_eth);
+          let price = Main.gasFeeToHKD(current_eth, value);
+          return `${value} gwei ≈ ${price} hkd`
+        }
       },
-      {
-        title: "Create Time",
-        dataIndex: "ctime",
-        render: (value) => UI.momentFormat(value, "YYYY-MM-DD HH:mm"),
-      },
+      // {
+      //   title: "User ID",
+      //   dataIndex: "user_id",
+      // },
+      // {
+      //   title: "Admin ID",
+      //   dataIndex: "admin_id",
+      // },
+      // {
+      //   title: "User Address",
+      //   dataIndex: "user_address",
+      //   render: (value) => {
+      //     return (
+      //       <Tooltip title={value}><span style={{ color: '#3498db' }}>{value.substring(0, 17)}...</span></Tooltip>
+      //     )
+      //   }
+      // },
+      // {
+      //   title: "Transaction Index",
+      //   dataIndex: "transaction_index",
+      // },
+
+      // {
+      //   title: "Block Hash",
+      //   dataIndex: "block_hash",
+      // },
+      // {
+      //   title: "Contract Address",
+      //   dataIndex: "contract_address",
+      // },
+      // {
+      //   title: "Cumulative Gas Used",
+      //   dataIndex: "cumulative_gas_used",
+      // },
     ];
     return columns;
   };

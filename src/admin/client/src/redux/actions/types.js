@@ -11,4 +11,6 @@ export const SET_TOTAL_SEATS = 'SET_TOTAL_SEATS';
 export const SET_EVENTS = 'SET_EVENTS';
 export const SET_SC_EVENT_API = 'SET_SC_EVENT_API';
 export const SET_SC_EVENTS = 'SET_SC_EVENTS';
+export const SET_SC_KYC_USER = 'SET_SC_KYC_USER';
+export const SET_SC_KYC_COMPANY = 'SET_SC_KYC_COMPANY';
 export const SET_FORM_DATA = 'SET_FORM_DATA';

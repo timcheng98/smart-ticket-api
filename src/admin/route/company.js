@@ -128,7 +128,7 @@ const patchKycById = async (req, res) => {
     });
 
     _.each(_.pick(req.body, [
-      'is_company_doc_verified', 'admin_id', 'status'
+      'is_company_doc_verified', 'admin_id', 'status', 'check_by'
     ]), (val, key) => {
       postData[key] = _.toInteger(val);
     });

@@ -25,12 +25,12 @@ contract Kyc {
         companyCount += 1;
     }
 
-    function resetUser(uint256 _id) public onlyOwner {
-        users[_id] = '0';
+    function renewUser(uint256 _id, string memory _hashValue) public onlyOwner {
+        users[_id] = _hashValue;
     }
 
-    function resetCompany(uint256 _id) public onlyOwner {
-        companies[_id] = '0';
+    function renewCompany(uint256 _id, string memory _hashValue) public onlyOwner {
+        companies[_id] = _hashValue;
     }
 
     function burnUser(uint256 _id) public onlyOwner {
@@ -87,7 +87,6 @@ contract Kyc {
     }
 
     function validateCompany(uint256 _id, string memory _hashValue) public onlyOwner {
-        require(owner == msg.sender, "required contract owner");
         companies[_id] = _hashValue;
         incrementCompanyCount();
     }

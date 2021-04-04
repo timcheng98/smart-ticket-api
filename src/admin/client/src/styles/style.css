@@ -66,6 +66,20 @@
   border: none !important;
 }
 
+.ant-tooltip {
+  border-radius: 5% !important;
+}
+
+.ant-tooltip-content {
+  background-color: #21325b;
+}
+
+.ant-tooltip-inner {
+  color: #fff;
+  font-weight: bold;
+  padding: 10px 15px;
+}
+
 .custom-btn {
   font-weight: 400;
   height: 40px;

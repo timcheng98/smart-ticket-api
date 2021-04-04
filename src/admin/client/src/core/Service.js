@@ -33,7 +33,7 @@ export async function call(_method, _endpoint, _data) {
       return errorObj;
     }
     // TODO :: resmove result in response
-    if (result) {
+    if (!_.isUndefined(result)) {
       return result;
     } else {
       return respData;

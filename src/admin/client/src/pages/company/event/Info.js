@@ -286,6 +286,25 @@ const EventInfo = () => {
           </Descriptions>
         </TabPane>
       </Tabs>
+      {
+        sc_events[event.event_id] && (
+          <Link
+            to={{
+              pathname: "/company/event/ticket",
+              state: { dataSource: event, eventId: sc_events[event.event_id].eventId },
+            }}
+          >
+            <Button
+              style={{ margin: 20 }}
+              type="primary"
+            // onClick={onChainProcess}
+            >
+              Create Tickets
+          </Button>
+          </Link>
+
+        )
+      }
 
       {event.status === -1 && (<Button onClick={applyKycAgain} style={{ margin: 20 }} type="primary">Apply again</Button>)}
     </AppLayout>

@@ -21,6 +21,7 @@ import {
   Progress,
 } from "antd";
 import { CheckCircleFilled, RightOutlined } from "@ant-design/icons";
+import GooglePlacesAutocomplete, { geocodeByPlaceId, getLatLng } from 'react-google-places-autocomplete';
 import { useHistory, Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
@@ -59,6 +60,7 @@ const EventForm = (props) => {
   const [eventId, setEventId] = useState(0)
   const [eventCode, setEventCode] = useState('');
   const dispatch = useDispatch();
+  const [mapValue, setMapValue] = useState(null);
 
   useEffect(() => {
     getEventId();
@@ -110,8 +112,8 @@ const EventForm = (props) => {
               <Col span={24}>
                 <CheckCircleFilled style={{ fontSize: 68, color: '#52c41a' }} />
               </Col>
-              <Col span={24} style={{fontSize: 20, fontWeight: 'bold'}}>Application Submitted Successfully.</Col>
-              <Col span={24} style={{fontSize: 18, fontWeight: 'bold'}}>Reference No. {eventCode}</Col>
+              <Col span={24} style={{ fontSize: 20, fontWeight: 'bold' }}>Application Submitted Successfully.</Col>
+              <Col span={24} style={{ fontSize: 18, fontWeight: 'bold' }}>Reference No. {eventCode}</Col>
               <Col span={24}>
                 <Button
                   className="custom-btn"
@@ -181,6 +183,7 @@ const BasicInformation = (props) => {
   const location = useLocation();
   const [infoForm] = Form.useForm();
   const dispatch = useDispatch();
+  const [mapValue, setMapValue] = useState(null)
   const [mapLocation, setMapLocation] = useState({
     lng: '',
     lat: ''
@@ -217,7 +220,6 @@ const BasicInformation = (props) => {
     return dispatch(CommonActions.setFormData(formData));
   };
 
-  console.log(mapLocation);
   return (
     <Form
       form={infoForm}
@@ -361,22 +363,43 @@ const BasicInformation = (props) => {
       <Form.Item
         label="Geolocation: Latitude"
         name="latitude"
-        rules={[{ required: true, message: "Please input Company Name." }]}
+        hidden
+      // rules={[{ required: true, message: "Please input Company Name." }]}
       >
-        <InputNumber onChange={(value) => setMapLocation({ ...mapLocation, lat: value })} style={{ width: '100%' }} />
+        {/* <InputNumber onChange={(value) => setMapLocation({ ...mapLocation, lat: value })} style={{ width: '100%' }} /> */}
       </Form.Item>
       <Form.Item
         label="Geolocation: Longitude"
         name="longitude"
-        rules={[{ required: true, message: "Please input Company Name." }]}
+        hidden
+      // rules={[{ required: true, message: "Please input Company Name." }]}
       >
-        <InputNumber onChange={(value) => setMapLocation({ ...mapLocation, lng: value })} style={{ width: '100%' }} />
+        {/* <InputNumber onChange={(value) => setMapLocation({ ...mapLocation, lng: value })} style={{ width: '100%' }} /> */}
       </Form.Item>
-      {
-        (mapLocation.lat !== '' && mapLocation.lng !== '') && <Form.Item label="Map Preview">
-          <iframe src={`https://maps.google.com/maps?q=${mapLocation.lat}, ${mapLocation.lng}&z=18&output=embed&language=zh-HK`} width="100%" height="400" frameborder="0" ></iframe>
-        </Form.Item>
-      }
+
+      <Form.Item label="Location">
+        <GooglePlacesAutocomplete
+          apiKey="AIzaSyC43U2-wqXxYEk1RBrTLdkYt3aDoOxO4Fw"
+          selectProps={{
+            mapValue,
+            onChange: (map) => {
+              geocodeByPlaceId(map.value.place_id)
+                .then(results => getLatLng(results[0]))
+                .then(({ lat, lng }) => {
+                  infoForm.setFieldsValue({ latitude: lat, longitude: lng });
+                  setMapLocation({
+                    lat,
+                    lng
+                  })
+                }
+                )
+                .catch(error => console.error(error));
+            },
+          }}
+        />
+        <iframe src={`https://maps.google.com/maps?q=${mapLocation.lat}, ${mapLocation.lng}&z=19&output=embed&language=zh-HK`} width="100%" height="400" frameborder="0" ></iframe>
+      </Form.Item>
+
       <Form.Item
         label="Tags"
         name="tags"
@@ -432,7 +455,7 @@ const BasicInformation = (props) => {
                   errors.push(key)
                 }
               })
-              
+
               console.log(errors)
               if (!_.isEmpty(errors)) {
                 _.map(errors, (value) => {

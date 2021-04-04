@@ -10,7 +10,7 @@ import * as Service from '../../../../core/Service';
 import * as UI from '../../../../core/UI';
 import AppLayout from '../../../../components/AppLayout';
 import ImageModal from '../../../../components/ImageModal';
-import { EditOutlined, StopOutlined, CheckOutlined, FileProtectOutlined, FileSearchOutlined, ZoomInOutlined } from '@ant-design/icons';
+import { EditOutlined, StopOutlined, CheckOutlined, FileProtectOutlined, FileSearchOutlined, GlobalOutlined } from '@ant-design/icons';
 
 
 const debug = require('debug')('app:admin:client:src:AdvertisementList');
@@ -21,6 +21,7 @@ const selectedKey = 'company_kyc';
 const tableIDName = "company_kyc_id";
 
 const CompanyList = (props) => {
+  const [kycData, setKycData] = useState({});
   const [dataList, setDataList] = useState([]);
   const app = useSelector(state => state.app);
   const [loading, toggleLoading] = useState(true);
@@ -33,8 +34,13 @@ const CompanyList = (props) => {
     getAllData();
   }, []);
 
+  useEffect(() => {
+    getKycData();
+  }, [dataList]);
+
+
   const getAllData = async () => {
-    let dataList =[];
+    let dataList = [];
     try {
       let url = `/api/${involvedModelName}/admin/kyc`;
       let data = await Service.call('get', url);
@@ -45,6 +51,14 @@ const CompanyList = (props) => {
     } finally {
       setDataList(dataList)
     }
+  }
+
+  const getKycData = async () => {
+    let data = await Service.call('post', '/api/sc/kyc/company/target', {
+      ids: _.map(dataList, 'admin_id')
+    });
+      console.log(_.keyBy(data, 'admin_id'))
+    setKycData(_.keyBy(data, 'admin_id'))
   }
 
   const setTableHeader = () => {
@@ -67,30 +81,39 @@ const CompanyList = (props) => {
             wordings = 'Enable';
           }
           return (
-            <span>
-              <Link
-                to={{
-                  pathname: "/admin/company/kyc/info",
-                  state: {company: record}
-                }}
-              >
-                <Tooltip title={record.is_company_doc_verified ? 'Verified' : 'Check verification' }>
-                  <Button
-                    shape="circle"
-                    style={{marginLeft: 8, color: record.is_company_doc_verified ? 'green' : 'black'}}
-                    icon={record.is_company_doc_verified ? (<FileProtectOutlined />) : (<FileSearchOutlined />)}
-                  />
-                </Tooltip>
-              </Link> 
-            </span>
+            <Row gutter={[12, 0]}>
+              <Col>
+                <Link
+                  to={{
+                    pathname: "/admin/company/kyc/info",
+                    state: { dataSource: record }
+                  }}
+                >
+                  <Tooltip title={record.is_company_doc_verified ? 'Verified' : 'Check verification'}>
+                    <Button
+                      shape="circle"
+                      style={{ marginLeft: 8, color: record.is_company_doc_verified ? 'green' : 'black' }}
+                      icon={record.is_company_doc_verified ? (<FileProtectOutlined />) : (<FileSearchOutlined />)}
+                    />
+                  </Tooltip>
+                </Link>
+              </Col>
+              {(!_.isEmpty(kycData) && kycData[record.admin_id].company_credential !== '') &&
+                <Col>
+                  <Tooltip title={"On the Blochain Already"}>
+                    <Button shape="circle" icon={<GlobalOutlined style={{ color: '#1890ff' }} />} />
+                  </Tooltip>
+                </Col>
+              }
+            </Row>
           )
         }
       },
-      {
-        title: 'Check By',
-        dataIndex: 'check_by',
-        sorter: (a, b) => a.check_by.localeCompare(b.check_by)
-      },
+      // {
+      //   title: 'Check By',
+      //   dataIndex: 'check_by',
+      //   sorter: (a, b) => a.check_by.localeCompare(b.check_by)
+      // },
       {
         title: 'Status',
         dataIndex: 'status',
@@ -156,11 +179,11 @@ const CompanyList = (props) => {
       <Table
         className="custom-table"
         rowKey={tableIDName}
-        scroll={{x: 'max-content'}}
+        scroll={{ x: 'max-content' }}
         dataSource={dataList}
         columns={setTableHeader()}
       />
-      
+
 
       <ImageModal
         title="Company Document"
@@ -174,7 +197,7 @@ const CompanyList = (props) => {
         url={modal.imageUrl}
       />
     </AppLayout>
-  )  
+  )
 }
 
 

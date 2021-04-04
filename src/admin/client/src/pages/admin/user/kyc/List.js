@@ -9,9 +9,9 @@ import { useSelector } from 'react-redux';
 // UI Display
 import * as UI from '../../../../core/UI';
 import {
-  Button, Divider, Table, Tooltip, Spin
+  Button, Divider, Table, Tooltip, Spin, Col, Row
 } from 'antd';
-import { FileProtectOutlined, FileSearchOutlined } from '@ant-design/icons';
+import { FileProtectOutlined, FileSearchOutlined, GlobalOutlined } from '@ant-design/icons';
 
 // Logic
 import * as Service from '../../../../core/Service';
@@ -37,6 +37,7 @@ const metaData = {
 
 const UserKycList = (props) => {
   const [dataList, setDataList] = useState([]);
+  const [kycData, setKycData] = useState({});
   const history = useHistory();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState({});
@@ -51,6 +52,10 @@ const UserKycList = (props) => {
     getAllData();
   }, []);
 
+  useEffect(() => {
+    getKycData();
+  }, [dataList]);
+
   const getAllData = async () => {
     let dataList =[];
     try {
@@ -63,6 +68,14 @@ const UserKycList = (props) => {
     } finally {
       setDataList(dataList)
     }
+  }
+
+  const getKycData = async () => {
+      let data = await Service.call('post', '/api/sc/kyc/user/target', {
+        ids: _.map(dataList, 'user_id')
+      });
+      console.log(data)
+      setKycData(_.keyBy(data, 'user_id'))
   }
 
   const setTableHeader = () => {
@@ -84,8 +97,10 @@ const UserKycList = (props) => {
             icon = 'check';
             wordings = 'Enable';
           }
+          
           return (
-            <span>
+            <Row gutter={[12, 0]}>
+              <Col>
               <Link
                 to={{
                   pathname: "/admin/user/kyc/info",
@@ -100,7 +115,15 @@ const UserKycList = (props) => {
                   />
                 </Tooltip>
               </Link> 
-            </span>
+              </Col>
+             {(!_.isEmpty(kycData) && kycData[record.user_id].user_credential !== '') &&
+                <Col>
+                  <Tooltip title={"On the Blochain Already"}>
+                    <Button shape="circle" icon={<GlobalOutlined style={{ color: '#1890ff' }} />} />
+                  </Tooltip>
+                </Col>
+              }
+            </Row>
           )
         }
       },

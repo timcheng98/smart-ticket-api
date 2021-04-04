@@ -23,7 +23,7 @@ import {
   message,
 } from "antd";
 import {
-  CheckCircleOutlined, GlobalOutlined
+  CheckCircleOutlined, GlobalOutlined, SafetyCertificateOutlined
 } from '@ant-design/icons';
 import { useHistory, Link } from "react-router-dom";
 import moment from "moment";
@@ -44,7 +44,6 @@ import {
   FileSearchOutlined,
   ZoomInOutlined,
 } from "@ant-design/icons";
-import { localeData } from "moment";
 
 const { TabPane } = Tabs;
 const involvedModelName = "user_kyc";
@@ -57,6 +56,8 @@ const KYCInformation = () => {
   const dispatch = useDispatch();
   const app = useSelector((state) => state.app);
   const [isReject, setReject] = useState(false);
+  const [isMatch, setMatch] = useState(false);
+  const [userCredential, setUserCredential] = useState('');
   const [text, setText] = useState("");
   const history = useHistory();
   const [dataSource, setDataSource] = useState({});
@@ -66,8 +67,33 @@ const KYCInformation = () => {
     getInitalState();
   }, []);
 
+  useEffect(() => {
+    if (_.isEmpty(dataSource)) return;
+    getUserCredential();
+    verifyUserCredential();
+  }, [dataSource]);
+
   const getInitalState = async () => {
-    setDataSource(history.location.state.dataSource)
+    setDataSource(history.location.state.dataSource);
+  }
+
+  const getUserCredential = async () => {
+    let result = await Service.call('get', `/api/sc/kyc/user?user_id=${dataSource.user_id}`);
+    setUserCredential(result);
+  }
+
+  const verifyUserCredential = async () => {
+    const { user_id, user_kyc_id, national_doc, face_doc, birthday, first_name, last_name, national_id } = dataSource;
+
+    let encryptString = `${user_id}${user_kyc_id}${national_id}${first_name}${last_name}${birthday}${national_doc}${face_doc}`;
+
+    const digestHex = await Main.sha256(JSON.stringify(encryptString));
+    let result = await Service.call('post', `/api/sc/kyc/user/verify`, {
+      id: dataSource.user_id,
+      hashHex: digestHex
+    });
+
+    setMatch(result);
   }
 
 
@@ -104,19 +130,28 @@ const KYCInformation = () => {
 
   const onChainProcess = async () => {
     const { face_doc_verified, national_doc_verified, status, national_doc, face_doc, birthday, first_name, last_name, national_id } = dataSource;
-    // if (_.isEmpty(dataSource)) return message.warning('cannot found kyc instance.');
-    // if (face_doc_verified <= 0) return message.warning('face document is not verified.');
-    // if (national_doc_verified <= 0) return message.warning('national document is not verified.');
-    // if (status <= 0) return message.warning('kyc is not activate.');
+    if (_.isEmpty(dataSource)) return message.warning('cannot found kyc instance.');
+    if (face_doc_verified <= 0) return message.warning('face document is not verified.');
+    if (national_doc_verified <= 0) return message.warning('national document is not verified.');
+    if (status <= 0) return message.warning('kyc is not activate.');
 
     let encryptString = `${national_id}${first_name}${last_name}${birthday}${national_doc}${face_doc}`;
 
     const digestHex = await Main.sha256(JSON.stringify(encryptString));
+
+    let resp = await Service.call('post', '/api/sc/kyc/user/credential/create', {
+      admin_id: app.admin.admin_id,
+      id: dataSource.user_id,
+      hashHex: digestHex
+    });
+
+    getUserCredential();
+    verifyUserCredential();
   }
 
 
   return (
-    <AppLayout title={title} selectedKey={selectedKey}>
+    <AppLayout title={`${title}`} selectedKey={selectedKey}>
 
       <Tabs type="card">
         <TabPane tab="Progress" key="1">
@@ -158,7 +193,7 @@ const KYCInformation = () => {
             </Descriptions.Item>
           </Descriptions>
         </TabPane>
-        <TabPane tab="Documents" key="6">
+        <TabPane tab="Documents" key="3">
           <Descriptions
             bordered
             column={1}
@@ -190,21 +225,39 @@ const KYCInformation = () => {
             </Descriptions.Item>
           </Descriptions>
         </TabPane>
+        <TabPane tab="Blockchain Information" key="4">
+          <Descriptions
+            bordered
+            column={1}
+            layout="vertical"
+          >
+            <Descriptions.Item 
+            label={<>Credential
+            {isMatch ? <Button
+                      shape="circle"
+                      style={{ marginLeft: 8, color: 'green' }}
+                      icon={<SafetyCertificateOutlined />}
+                    /> : null}
+            </>}
+                    >
+              {userCredential}
+            </Descriptions.Item>
+          </Descriptions>
+        </TabPane>
       </Tabs>
 
       <div style={{ marginBottom: 100 }}>
 
         <Row>
           {
-            // dataSource.status === 2 && !sc_events[dataSource.event_id] && (
+           ( dataSource.status === 1 && userCredential === '') && (
             <Button
               style={{ margin: 20 }}
               type="primary"
               onClick={onChainProcess}
             >
               Create KYC On BlockChain
-              </Button>
-            // )
+              </Button>)
           }
           {(!isReject && dataSource.status !== 1 && !dataSource.reject_reason) && (
             <>
