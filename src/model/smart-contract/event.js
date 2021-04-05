@@ -74,6 +74,12 @@ exports.buyTicket = async (user, address, tickets, total) => {
   return result;
 }
 
+exports.getBuyTicketEstimateGass = async (user, address, tickets, total) => {
+  await eventAPI.init();
+  let result = await eventAPI.getBuyTicketEstimateGass(user, address, tickets, total)
+  return result;
+}
+
 
 exports.sellTicketsOnMarketplace = async (user, seller, ticket_id) => {
   await eventAPI.init();
@@ -84,6 +90,12 @@ exports.sellTicketsOnMarketplace = async (user, seller, ticket_id) => {
 exports.buyTicketOnMarketplace = async (user, buyer, ticket_id) => {
   await eventAPI.init();
   let result = await eventAPI.buyTicketOnMarketplace(user, buyer, ticket_id)
+  return result;
+}
+
+exports.getBuyTicketOnMarketplaceEstimateGas = async (user, buyer, ticket_id) => {
+  await eventAPI.init();
+  let result = await eventAPI.getBuyTicketOnMarketplaceEstimateGas(user, buyer, ticket_id)
   return result;
 }
 

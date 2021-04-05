@@ -9,12 +9,20 @@ const middleware = require('./middleware');
 const { DefaultAzureCredential } = require("@azure/identity");
 const { SecretClient } = require("@azure/keyvault-secrets");
 const debug = require('debug')(`app:event`);
-
+const axios = require('axios');
 const ERROR_CODE = {
 
 };
 
 AppError.setErrorCode(ERROR_CODE);
+
+function gasFeeToHKD(current_eth, gasUsed) {
+  let normal_gas_price_per_gwei = 10;
+  let total_cost = gasUsed * normal_gas_price_per_gwei;
+  let GWEI_PER_ETH = 1000000000;
+  let gas_fee_per_hkd = (current_eth * total_cost) / (GWEI_PER_ETH);
+  return _.round(gas_fee_per_hkd, 2);
+}
 
 module.exports = exports = {
   initRouter: (router) => {
@@ -28,10 +36,12 @@ module.exports = exports = {
     router.post('/api/sc/event/ticket', createTicket);
     router.post('/api/sc/event/ticket/onsell', getOnSellTicketsByArea);
     router.post('/api/sc/event/ticket/buy', buyTicket);
+    router.post('/api/sc/event/ticket/buy/commission', getBuyTicketCommission);
     router.post('/api/sc/event/ticket/owner', getOwnerTickets);
     router.get('/api/sc/event/ticket/marketplace', getTicketOnMarketplaceAll);
     router.post('/api/sc/event/ticket/marketplace/sell', sellTicketsOnMarketplace);
     router.post('/api/sc/event/ticket/marketplace/buy', buyTicketOnMarketplace);
+    router.post('/api/sc/event/ticket/marketplace/buy/commission', getBuyTicketOnMarketplaceCommission);
     // router.get('/api/sc/event/secret', getSecret);
 
   }
@@ -149,6 +159,24 @@ const buyTicket = async (req, res) => {
   }
 }
 
+const getBuyTicketCommission = async (req, res) => {
+  try {
+    let result = await eventModel.getBuyTicketEstimateGass(req.user, req.body.address, req.body.tickets, req.body.total);
+
+    const response = await axios('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=HKD');
+    
+    const commission = gasFeeToHKD(response.data.HKD, result.gas)
+
+    res.apiResponse({
+      status: 1,
+      result: { commission: _.round(commission, 2) }
+    });
+  } catch (error) {
+    console.error(error);
+    res.apiError(error);
+  }
+}
+
 const createTicket = async (req, res) => {
   try {
     let { tickets } = req.body;
@@ -210,6 +238,35 @@ const buyTicketOnMarketplace = async (req, res) => {
     }
     res.apiResponse({
       status: 1
+    });
+  } catch (error) {
+    console.error(error);
+    res.apiError(error);
+  }
+}
+
+const getBuyTicketOnMarketplaceCommission = async (req, res) => {
+  try {
+    let { ticketId, buyer } = req.body;
+    if (!_.isInteger(ticketId)) {
+      return res.apiResponse({
+        status: -1
+      });
+    }
+    let result = await eventModel.getBuyTicketOnMarketplaceEstimateGas(req.user, buyer, ticketId);
+
+    const response = await axios('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=HKD');
+    
+    const commission = gasFeeToHKD(response.data.HKD, result.gas)
+    if (result.status === -1) {
+      return res.apiResponse({
+        status: -1,
+        errorMessage: result.errorMessage
+      });
+    }
+    res.apiResponse({
+      status: 1,
+      result: { commission: _.round(commission, 2) }
     });
   } catch (error) {
     console.error(error);

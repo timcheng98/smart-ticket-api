@@ -31,9 +31,9 @@ module.exports = exports = {
     router.get('/api/admin/user/kyc', getUserKycList);
     router.post('/api/admin/user/kyc', postUserKyc);
     router.patch('/api/admin/user/kyc', patchUserKyc);
-    // router.get('/api/user/kyc', getUserKyc);
-
+    
     router.patch('/api/user', patchUser);
+    router.get('/api/user/kyc', getUserKyc);
     router.post('/api/user/kyc', postUserKyc);
     router.patch('/api/user/kyc', patchUserKyc);
   }

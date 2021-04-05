@@ -12,6 +12,9 @@ contract Kyc {
         owner = msg.sender;
     }
 
+    event Create(uint256 _id, string _hashValue);
+    event Identity(uint256 _id);
+
     modifier onlyOwner() {
         require(owner == msg.sender, 'sender is not a owner');
         _;
@@ -27,18 +30,22 @@ contract Kyc {
 
     function renewUser(uint256 _id, string memory _hashValue) public onlyOwner {
         users[_id] = _hashValue;
+        emit Identity(_id);
     }
 
     function renewCompany(uint256 _id, string memory _hashValue) public onlyOwner {
         companies[_id] = _hashValue;
+        emit Identity(_id);
     }
 
     function burnUser(uint256 _id) public onlyOwner {
         users[_id] = "0";
+        emit Identity(_id);
     }
 
     function burnCompany(uint256 _id) public onlyOwner {
         companies[_id] = "0";
+        emit Identity(_id);
     }
 
     function getUser(uint256 _id) public onlyOwner view returns (string memory) {
@@ -84,10 +91,12 @@ contract Kyc {
     function validateUser(uint256 _id, string memory _hashValue) public onlyOwner {
         users[_id] = _hashValue;
         incrementUserCount();
+        emit Create(_id, _hashValue);
     }
 
     function validateCompany(uint256 _id, string memory _hashValue) public onlyOwner {
         companies[_id] = _hashValue;
         incrementCompanyCount();
+        emit Create(_id, _hashValue);
     }
 }

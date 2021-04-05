@@ -69,7 +69,7 @@ contract('KYC', (accounts) => {
 
     it('burn user', async () => {
       const result = await contract.burnUser(1);
-      console.log('burn user id 1 success')
+      console.log('burn user id 1 success', result.receipt)
       // SUCCESS
     });
 
@@ -81,7 +81,7 @@ contract('KYC', (accounts) => {
     });
 
     it('get target users', async () => {
-      let ids = [1, 5, 'a'];
+      let ids = [1, 5];
       const result = await contract.getTotalUser(ids);
       console.log('get target user >>> ', result)
       // SUCCESS

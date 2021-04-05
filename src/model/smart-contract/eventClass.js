@@ -270,6 +270,35 @@ export class EventAPI {
     });
   }
 
+  async getBuyTicketEstimateGass(user, address, tickets, total) {
+    let onSellTicketIdArr = [];
+    let onSellTicketCount = 0;
+    let sell_tickets = _.slice(tickets, 0, total)
+    _.map(sell_tickets, (item) => {
+      onSellTicketIdArr.push(item.ticketId);
+      onSellTicketCount++;
+    });
+
+    let transaction;
+    if (total > 1) {
+      transaction = this.contract.methods.multiTransferFrom(
+        this.default_account,
+        address,
+        onSellTicketIdArr
+      );
+    } else {
+      let ticketId = onSellTicketIdArr[0];
+      transaction = this.contract.methods.safeTransferFrom(
+        this.default_account,
+        address,
+        ticketId
+      );
+    }
+
+    const gas = await transaction.estimateGas({ from: this.default_account });
+    return { gas }
+  }
+
   async autoCreateTickets(user, _seats) {
     let transaction = this.contract.methods.mint(_seats);
     console.log("auto create ticket step 1 data >>>", _seats);
@@ -367,6 +396,30 @@ export class EventAPI {
       console.log("event confirmedMessage", confirmedMessage);
     });
     return { status: 1 }
+  }
+
+  async getBuyTicketOnMarketplaceEstimateGas(user, buyer, ticketId) {
+    const owner = await this.contract.methods.ownerOf(ticketId).call({ from: this.accounts[0] })
+    console.log('owner', owner);
+    console.log({ buyer, ticketId });
+    if (buyer === owner) {
+      return { status: -1, errorMessage: 'Buyer is the ticket owner.' };
+    }
+
+    const marketplaceTicket = await this.getTicketOnMarketplace(ticketId);
+    if (marketplaceTicket === '0x0000000000000000000000000000000000000000') {
+      return { status: -1, errorMessage: 'Ticket is not on the marketplace' }
+    }
+    if (marketplaceTicket === buyer) {
+      return { status: -1, errorMessage: 'Cannot buy your own ticket' }
+    }
+
+    let transaction = await this.contract.methods.buyTicketOnMarketplace(
+      buyer,
+      _.toInteger(ticketId)
+    );
+    const gas = await transaction.estimateGas({ from: this.default_account });
+    return { gas }
   }
 
   async signTransaction(user, transaction, cb) {
