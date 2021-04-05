@@ -1,9 +1,11 @@
 import React from "react";
-import { ReloadOutlined  } from "@ant-design/icons";
+import { ReloadOutlined } from "@ant-design/icons";
 import { Spin, Skeleton, Layout, Menu, Row, Col } from "antd";
 
 const LoadingScreen = () => {
-  const antIcon = <ReloadOutlined style={{ fontSize: 36, color: '#2b2b2b' }} spin />;
+  const antIcon = (
+    <ReloadOutlined style={{ fontSize: 36, color: "#2b2b2b" }} spin />
+  );
   return (
     <Layout>
       <Layout.Header
@@ -14,11 +16,7 @@ const LoadingScreen = () => {
           height: 80,
         }}
       >
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ height: "100%" }}
-        >
+        <Row justify="space-between" align="middle" style={{ height: "100%" }}>
           <Col>
             <Skeleton.Avatar size="large" active style={{ marginTop: 12 }} />
           </Col>
@@ -59,8 +57,6 @@ const LoadingScreen = () => {
             </Col>
           </Row>
         </Layout.Content>
-
-
       </Layout>
       <div
         style={{
@@ -71,21 +67,22 @@ const LoadingScreen = () => {
           backgroundColor: "rgb(255, 255, 255, 0.8)",
         }}
       >
-        <div
-
-          style={{ position: "absolute", top: "50%", left: "50%" }}
-        >
-          <Spin
-            size="large"
-            indicator={antIcon}
-          />
-          <p style={{ color: '#2b2b2b', fontSize: 16, transform: 'translate(-35%, 0%)', marginTop: 20 }}>Data Processing ...</p>
+        <div style={{ position: "absolute", top: "50%", left: "50%" }}>
+          <Spin size="large" indicator={antIcon} />
+          <p
+            style={{
+              color: "#2b2b2b",
+              fontSize: 16,
+              transform: "translate(-35%, 0%)",
+              marginTop: 20,
+            }}
+          >
+            Data Processing ...
+          </p>
         </div>
-
       </div>
     </Layout>
-  )
+  );
 };
 
 export default LoadingScreen;
-

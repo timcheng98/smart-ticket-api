@@ -21,16 +21,14 @@ import {
   Col,
   Input,
 } from "antd";
-import {
-  CheckCircleOutlined, GlobalOutlined
-} from '@ant-design/icons';
+import { CheckCircleOutlined, GlobalOutlined } from "@ant-design/icons";
 import { useHistory, Link } from "react-router-dom";
 import moment from "moment";
 import _ from "lodash";
 import { useSelector, useDispatch } from "react-redux";
 import * as Service from "../../../core/Service";
 import * as UI from "../../../core/UI";
-import * as CommonActions from '../../../redux/actions/common'
+import * as CommonActions from "../../../redux/actions/common";
 import AppLayout from "../../../components/AppLayout";
 // import { eventAPI } from '../../../smart-contract/api/Event';
 import ImageModal from "../../../components/ImageModal";
@@ -60,7 +58,7 @@ const EventInfo = () => {
   const history = useHistory();
   const [dataSource, setDataSource] = useState({});
   const [loading, setLoading] = useState(false);
-  const [events, setEvent] = useState({})
+  const [events, setEvent] = useState({});
 
   useEffect(() => {
     // setLoading(true);
@@ -71,18 +69,17 @@ const EventInfo = () => {
   }, []);
 
   const getInitalState = async () => {
-    setDataSource(history.location.state.dataSource)
-  }
-
+    setDataSource(history.location.state.dataSource);
+  };
 
   const confirmReject = async (e) => {
     await Service.call("patch", "/api/admin/event", {
       reject_reason: text,
       is_approval_doc_verified: 0,
       is_seat_doc_verified: 0,
-      approval_doc: '',
+      approval_doc: "",
       status: -1,
-      event_id: dataSource.event_id
+      event_id: dataSource.event_id,
     });
     history.push("/admin/event/list");
   };
@@ -92,8 +89,8 @@ const EventInfo = () => {
       event_id: dataSource.event_id,
       is_approval_doc_verified: 1,
       is_seat_doc_verified: 1,
-      reject_reason: '',
-      status: 2
+      reject_reason: "",
+      status: 2,
     });
     history.push("/admin/event/list");
   };
@@ -109,22 +106,21 @@ const EventInfo = () => {
     delete postObj.reject_reason;
 
     dispatch(CommonActions.setLoading(true));
-    await Service.call('post', '/api/sc/event', { event: postObj });
+    await Service.call("post", "/api/sc/event", { event: postObj });
     let events = await Service.call("get", `/api/sc/event`);
-    dispatch(CommonActions.setSCEvents(_.keyBy(events, 'event_id')));
+    dispatch(CommonActions.setSCEvents(_.keyBy(events, "event_id")));
     dispatch(CommonActions.setLoading(false));
-    history.push('/admin/event/info')
-  }
+    history.push("/admin/event/info");
+  };
 
   const onTextChange = (e) => {
     setText(e.target.value);
   };
 
-  console.log('sc_events', dataSource.event_id);
-  console.log('sc_events', sc_events);
+  console.log("sc_events", dataSource.event_id);
+  console.log("sc_events", sc_events);
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
-
       <Tabs type="card">
         <TabPane tab="Progress" key="1">
           <Row gutter={[0, 12]}>
@@ -141,7 +137,13 @@ const EventInfo = () => {
                   text={
                     <Tag
                       icon={<GlobalOutlined style={{ fontSize: 12 }} />}
-                      style={{ padding: '6px 15px', border: 'none', borderRadius: 15, fontWeight: 'bold', fontSize: 12 }}
+                      style={{
+                        padding: "6px 15px",
+                        border: "none",
+                        borderRadius: 15,
+                        fontWeight: "bold",
+                        fontSize: 12,
+                      }}
                       color="blue"
                     >
                       On the Blochain Already
@@ -177,24 +179,30 @@ const EventInfo = () => {
               {dataSource.target}
             </Descriptions.Item>
             <Descriptions.Item label="Need KYC?">
-              {dataSource.need_kyc === 1 ? 'Yes' : 'No'}
+              {dataSource.need_kyc === 1 ? "Yes" : "No"}
             </Descriptions.Item>
             <Descriptions.Item label="Categories">
-              {dataSource.categories && _.map(JSON.parse(dataSource.categories), (value) => <Tag color="blue">{value}</Tag>)}
+              {dataSource.categories &&
+                _.map(JSON.parse(dataSource.categories), (value) => (
+                  <Tag color="blue">{value}</Tag>
+                ))}
             </Descriptions.Item>
             <Descriptions.Item label="Tags">
-              {dataSource.tags && _.map(JSON.parse(dataSource.tags), (value) => <Tag color="blue">{value}</Tag>)}
+              {dataSource.tags &&
+                _.map(JSON.parse(dataSource.tags), (value) => (
+                  <Tag color="blue">{value}</Tag>
+                ))}
             </Descriptions.Item>
-            <Descriptions.Item label="Short Description">{dataSource.short_desc}</Descriptions.Item>
-            <Descriptions.Item label="Long Description">{dataSource.long_desc}</Descriptions.Item>
+            <Descriptions.Item label="Short Description">
+              {dataSource.short_desc}
+            </Descriptions.Item>
+            <Descriptions.Item label="Long Description">
+              {dataSource.long_desc}
+            </Descriptions.Item>
           </Descriptions>
         </TabPane>
         <TabPane tab="Location" key="3">
-          <Descriptions
-            bordered
-            column={1}
-            layout="vertical"
-          >
+          <Descriptions bordered column={1} layout="vertical">
             <Descriptions.Item label="Country">
               {dataSource.country}
             </Descriptions.Item>
@@ -211,16 +219,17 @@ const EventInfo = () => {
               {dataSource.address}
             </Descriptions.Item>
             <Descriptions.Item label="Location">
-              <iframe src={`https://maps.google.com/maps?q=${dataSource.latitude}, ${dataSource.longitude}&z=19&output=embed&language=zh-HK`} width="100%" height="400" frameborder="0" ></iframe>
+              <iframe
+                src={`https://maps.google.com/maps?q=${dataSource.latitude}, ${dataSource.longitude}&z=19&output=embed&language=zh-HK`}
+                width="100%"
+                height="400"
+                frameborder="0"
+              ></iframe>
             </Descriptions.Item>
           </Descriptions>
         </TabPane>
         <TabPane tab="Contact Method" key="4">
-          <Descriptions
-            bordered
-            column={1}
-            layout="vertical"
-          >
+          <Descriptions bordered column={1} layout="vertical">
             <Descriptions.Item label="Email">
               {dataSource.email}
             </Descriptions.Item>
@@ -230,11 +239,7 @@ const EventInfo = () => {
           </Descriptions>
         </TabPane>
         <TabPane tab="Date" key="5">
-          <Descriptions
-            bordered
-            column={1}
-            layout="vertical"
-          >
+          <Descriptions bordered column={1} layout="vertical">
             <Descriptions.Item label="Start Time">
               {moment.unix(dataSource.start_time).format("YYYY-MM-DD HH:mm")}
             </Descriptions.Item>
@@ -250,11 +255,7 @@ const EventInfo = () => {
           </Descriptions>
         </TabPane>
         <TabPane tab="Documents" key="6">
-          <Descriptions
-            bordered
-            column={1}
-            layout="vertical"
-          >
+          <Descriptions bordered column={1} layout="vertical">
             <Descriptions.Item
               label="Event Document"
               contentStyle={{ padding: 20 }}
@@ -263,7 +264,7 @@ const EventInfo = () => {
                 <Image
                   id="event_doc"
                   // width={300}
-                  style={{ width: '100%', maxWidth: 300 }}
+                  style={{ width: "100%", maxWidth: 300 }}
                   src={dataSource.approval_doc}
                 />
               </Image.PreviewGroup>
@@ -276,46 +277,37 @@ const EventInfo = () => {
                 <Image
                   id="seat_doc"
                   // width={300}
-                  style={{ width: '100%', maxWidth: 300 }}
+                  style={{ width: "100%", maxWidth: 300 }}
                   src={dataSource.seat_doc}
                 />
               </Image.PreviewGroup>
             </Descriptions.Item>
-            <Descriptions.Item
-              label="Thumbnail"
-              contentStyle={{ padding: 20 }}
-            >
+            <Descriptions.Item label="Thumbnail" contentStyle={{ padding: 20 }}>
               <Image.PreviewGroup>
                 <Image
                   id="thumbnail"
                   // width={300}
-                  style={{ width: '100%', maxWidth: 300 }}
+                  style={{ width: "100%", maxWidth: 300 }}
                   src={dataSource.thumbnail}
                 />
               </Image.PreviewGroup>
             </Descriptions.Item>
-            <Descriptions.Item
-              label="Banner 1"
-              contentStyle={{ padding: 20 }}
-            >
+            <Descriptions.Item label="Banner 1" contentStyle={{ padding: 20 }}>
               <Image.PreviewGroup>
                 <Image
                   id="banner_1"
                   // width={300}
-                  style={{ width: '100%', maxWidth: 300 }}
+                  style={{ width: "100%", maxWidth: 300 }}
                   src={dataSource.banner_1}
                 />
               </Image.PreviewGroup>
             </Descriptions.Item>
-            <Descriptions.Item
-              label="Banner 2"
-              contentStyle={{ padding: 20 }}
-            >
+            <Descriptions.Item label="Banner 2" contentStyle={{ padding: 20 }}>
               <Image.PreviewGroup>
                 <Image
                   id="banner_2"
                   // width={300}
-                  style={{ width: '100%', maxWidth: 300 }}
+                  style={{ width: "100%", maxWidth: 300 }}
                   src={dataSource.banner_2}
                 />
               </Image.PreviewGroup>
@@ -325,39 +317,36 @@ const EventInfo = () => {
       </Tabs>
 
       <div style={{ marginBottom: 100 }}>
-
         <Row>
-          {
-            sc_events[dataSource.event_id] && (
-              <Link
-                to={{
-                  pathname: "/admin/event/ticket",
-                  state: { dataSource, eventId: sc_events[dataSource.event_id].eventId },
-                }}
-              >
-                <Button
-                  style={{ margin: 20 }}
-                  type="primary"
-                // onClick={onChainProcess}
-                >
-                  Create Tickets
-              </Button>
-              </Link>
-
-            )
-          }
-          {
-            dataSource.status === 2 && !sc_events[dataSource.event_id] && (
+          {sc_events[dataSource.event_id] && (
+            <Link
+              to={{
+                pathname: "/admin/event/ticket",
+                state: {
+                  dataSource,
+                  eventId: sc_events[dataSource.event_id].eventId,
+                },
+              }}
+            >
               <Button
                 style={{ margin: 20 }}
                 type="primary"
-                onClick={onChainProcess}
+                // onClick={onChainProcess}
               >
-                Create Event On BlockChain
+                Create Tickets
               </Button>
-            )
-          }
-          {(!isReject && dataSource.status !== 2) && (
+            </Link>
+          )}
+          {dataSource.status === 2 && !sc_events[dataSource.event_id] && (
+            <Button
+              style={{ margin: 20 }}
+              type="primary"
+              onClick={onChainProcess}
+            >
+              Create Event On BlockChain
+            </Button>
+          )}
+          {!isReject && dataSource.status !== 2 && (
             <>
               <Button
                 style={{ margin: 20 }}
@@ -365,7 +354,7 @@ const EventInfo = () => {
                 onClick={confirmApprove}
               >
                 Approval
-               </Button>
+              </Button>
               <Button
                 type="danger"
                 style={{ margin: 20 }}

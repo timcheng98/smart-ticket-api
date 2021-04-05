@@ -19,8 +19,8 @@ import _ from "lodash";
 import moment from "moment";
 import AppLayout from "../../../components/AppLayout";
 import { DownCircleOutlined } from "@ant-design/icons";
-import * as Service from '../../../core/Service';
-import LoadingScreen from '../../../components/LoadingScreen'
+import * as Service from "../../../core/Service";
+import LoadingScreen from "../../../components/LoadingScreen";
 
 const title = "Event Ticket";
 const selectedKey = "event_ticket";
@@ -29,7 +29,7 @@ const { Option } = Select;
 const CreateEventForm = () => {
   const [area, setArea] = useState("");
   const [ticketType, setTicketType] = useState(null);
-  const [selectedMenuKey, setSelectedMenuKey] = useState(['vip']);
+  const [selectedMenuKey, setSelectedMenuKey] = useState(["vip"]);
   const [rows, setRows] = useState(null);
   const [columns, setColumns] = useState(null);
   const [price, setPrice] = useState(null);
@@ -99,7 +99,7 @@ const CreateEventForm = () => {
   useEffect(() => {
     dispatch(setLoading(true));
     renderSeats();
-    dispatch(setLoading(false))
+    dispatch(setLoading(false));
   }, [totalSeats]);
 
   // const init = async () => {
@@ -314,10 +314,7 @@ const CreateEventForm = () => {
       } // end for loop rows
 
       _seatTables.push(
-        <div
-          key={`${area}`}
-          className={`seat-table area-${area}`}
-        >
+        <div key={`${area}`} className={`seat-table area-${area}`}>
           {_seatElements}
         </div>
       );
@@ -414,7 +411,7 @@ const CreateEventForm = () => {
   const getEvent = async () => {
     let eventId = location.state.eventId;
     let element = [];
-    let sc_events = await Service.call('get', '/api/sc/event');
+    let sc_events = await Service.call("get", "/api/sc/event");
     {
       _.map(sc_events, (item, key) => {
         return element.push(
@@ -436,22 +433,24 @@ const CreateEventForm = () => {
   const onChainProcess = async () => {
     let seats = {};
     _.each(totalSeats, (item, key) => {
-      if (item.meta.status === 'new') {
-        return seats[key] = item;
+      if (item.meta.status === "new") {
+        return (seats[key] = item);
       }
-    })
+    });
 
     let _ticketList = [];
     _.each(seats, (item) => {
       _.each(item.body, (rows) => {
         _.each(rows, (col) => {
           _ticketList.push(JSON.stringify(col));
-        })
-      })
-    })
+        });
+      });
+    });
 
     if (_.isEmpty(ticketList)) return message.warning("please create seats");
-    await Service.call('post', '/api/sc/event/ticket', { tickets: _ticketList })
+    await Service.call("post", "/api/sc/event/ticket", {
+      tickets: _ticketList,
+    });
   };
 
   // if (_.isEmpty(seatElements)) return <LoadingScreen></LoadingScreen>;
@@ -561,12 +560,15 @@ const CreateEventForm = () => {
         </Col>
       </Row>
       <Row>
-        <Popconfirm title="Are you sure to submit?" onConfirm={async () => {
-          dispatch(setLoading(true))
-          await onChainProcess();
-          await getSeatsFromChain();
-          dispatch(setLoading(false))
-        }}>
+        <Popconfirm
+          title="Are you sure to submit?"
+          onConfirm={async () => {
+            dispatch(setLoading(true));
+            await onChainProcess();
+            await getSeatsFromChain();
+            dispatch(setLoading(false));
+          }}
+        >
           <Button
             type="primary"
             style={{

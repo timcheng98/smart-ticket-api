@@ -15,7 +15,7 @@ import {
   Row,
   Col,
 } from "antd";
-import QrReader from 'react-qr-reader'
+import QrReader from "react-qr-reader";
 import { GlobalOutlined, QrcodeOutlined } from "@ant-design/icons";
 import moment from "moment";
 import _ from "lodash";
@@ -51,7 +51,7 @@ const EventList = (props) => {
 
   useEffect(() => {
     getAllData();
-    setLoading(false)
+    setLoading(false);
   }, []);
 
   const getAllData = async () => {
@@ -80,10 +80,13 @@ const EventList = (props) => {
               button = (
                 <Col>
                   <Tooltip title={"On the Blochain Already"}>
-                    <Button shape="circle" icon={<GlobalOutlined style={{ color: '#1890ff' }} />} />
+                    <Button
+                      shape="circle"
+                      icon={<GlobalOutlined style={{ color: "#1890ff" }} />}
+                    />
                   </Tooltip>
                 </Col>
-              )
+              );
           }
           let color = "#000000";
           let icon = "";
@@ -176,15 +179,14 @@ const EventList = (props) => {
     return columns;
   };
 
-  const handleScan = data => {
+  const handleScan = (data) => {
     if (data) {
       setQrCodeResult(data);
-
     }
-  }
-  const handleError = err => {
-    console.error(err)
-  }
+  };
+  const handleError = (err) => {
+    console.error(err);
+  };
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>

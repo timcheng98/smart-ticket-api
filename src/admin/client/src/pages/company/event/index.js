@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Row, Col, Tooltip, Tag } from 'antd';
+import React, { useState, useEffect } from "react";
+import { Table, Button, Row, Col, Tooltip, Tag } from "antd";
 import {
   FileProtectOutlined,
   FileSearchOutlined,
   GlobalOutlined,
-  EditOutlined
+  EditOutlined,
 } from "@ant-design/icons";
-import _ from 'lodash';
-import moment from 'moment';
+import _ from "lodash";
+import moment from "moment";
 import { useLocation, Link } from "react-router-dom";
-import EventForm from './Form';
-import EventInfo from './Info'
+import EventForm from "./Form";
+import EventInfo from "./Info";
 import { useSelector } from "react-redux";
 import AppLayout from "../../../components/AppLayout";
 
-import * as Service from '../../../core/Service';
+import * as Service from "../../../core/Service";
 import * as UI from "../../../core/UI";
 
 const involvedModelName = "event";
@@ -35,13 +35,12 @@ const CompanyEvent = (props) => {
     // if (location.state) {
     //   setAgain(location.state.again);
     // }
-  }, [])
+  }, []);
 
   const getInitalState = async () => {
-    let resp = await Service.call('get', '/api/company/event');
+    let resp = await Service.call("get", "/api/company/event");
     setDataSource(resp.eventRc);
-  }
-
+  };
 
   const setTableHeader = () => {
     const columns = [
@@ -64,7 +63,7 @@ const CompanyEvent = (props) => {
           }
           return (
             <Row gutter={[8, 0]}>
-              {record.status === 0 &&
+              {record.status === 0 && (
                 <Col>
                   <Link
                     to={{
@@ -72,22 +71,20 @@ const CompanyEvent = (props) => {
                       state: { event_id: record.event_id },
                     }}
                   >
-                    <Tooltip
-                      title="Revise"
-                    >
+                    <Tooltip title="Revise">
                       <Button
                         shape="circle"
                         style={{
                           marginLeft: 8,
-                          color: '#000'
+                          color: "#000",
                         }}
                         icon={<EditOutlined />}
                       />
                     </Tooltip>
                   </Link>
                 </Col>
-              }
-              {(record.status > 0 || record.status === -1) &&
+              )}
+              {(record.status > 0 || record.status === -1) && (
                 <Col>
                   <Link
                     to={{
@@ -121,11 +118,14 @@ const CompanyEvent = (props) => {
                     </Tooltip>
                   </Link>
                 </Col>
-              }
+              )}
               {!_.isEmpty(sc_events[record.event_id]) && (
                 <Col>
                   <Tooltip title={"On the Blochain Already"}>
-                    <Button shape="circle" icon={<GlobalOutlined style={{ color: '#1890ff' }} />} />
+                    <Button
+                      shape="circle"
+                      icon={<GlobalOutlined style={{ color: "#1890ff" }} />}
+                    />
                   </Tooltip>
                 </Col>
               )}
@@ -191,13 +191,15 @@ const CompanyEvent = (props) => {
     <AppLayout title={title} selectedKey={selectedKey}>
       <Row gutter={[0, 20]}>
         <Col>
-          <Link to={{
-            pathname: '/company/event/form',
-            state: { event_id: 0 }
-          }}>
+          <Link
+            to={{
+              pathname: "/company/event/form",
+              state: { event_id: 0 },
+            }}
+          >
             <Button className="custom-btn" htmlType="submit">
               Create Event
-          </Button>
+            </Button>
           </Link>
         </Col>
       </Row>
@@ -210,6 +212,6 @@ const CompanyEvent = (props) => {
       />
     </AppLayout>
   );
-}
+};
 
 export default CompanyEvent;

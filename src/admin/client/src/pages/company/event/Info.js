@@ -19,7 +19,7 @@ import {
   Row,
   Col,
   Input,
-  Tabs
+  Tabs,
 } from "antd";
 import { useHistory, Link, useLocation } from "react-router-dom";
 import moment from "moment";
@@ -32,7 +32,7 @@ import ImageModal from "../../../components/ImageModal";
 import {
   FileProtectOutlined,
   FileSearchOutlined,
-  GlobalOutlined
+  GlobalOutlined,
 } from "@ant-design/icons";
 const { TabPane } = Tabs;
 
@@ -49,8 +49,8 @@ const EventInfo = () => {
   const sc_events = useSelector((state) => state.smartContract.sc_events);
 
   useEffect(() => {
-    getInitalState()
-  }, [location])
+    getInitalState();
+  }, [location]);
 
   const getInitalState = async () => {
     // let resp = await Service.call('get', '/api/event');
@@ -58,7 +58,7 @@ const EventInfo = () => {
     let event = location.state.dataSource;
     setEvent(location.state.dataSource);
     // }
-  }
+  };
 
   const applyKycAgain = async (e) => {
     // await Service.call("patch", "/api/event", {
@@ -71,7 +71,10 @@ const EventInfo = () => {
 
   console.log(event);
   return (
-    <AppLayout title={`Referecne code -- ${event.event_code}`} selectedKey={selectedKey}>
+    <AppLayout
+      title={`Referecne code -- ${event.event_code}`}
+      selectedKey={selectedKey}
+    >
       <Tabs>
         <TabPane tab="Progress" key="1">
           <Row gutter={[0, 24]} style={{ marginTop: 12 }}>
@@ -89,8 +92,13 @@ const EventInfo = () => {
                   column={1}
                   layout="vertical"
                 >
-                  <Descriptions.Item label="Reject Reason(s)" style={{ color: 'black', fontWeight: 'bold' }}>
-                    <span style={{ color: 'black', fontWeight: 'bold' }}>{event.reject_reason}</span>
+                  <Descriptions.Item
+                    label="Reject Reason(s)"
+                    style={{ color: "black", fontWeight: "bold" }}
+                  >
+                    <span style={{ color: "black", fontWeight: "bold" }}>
+                      {event.reject_reason}
+                    </span>
                   </Descriptions.Item>
                 </Descriptions>
               </Col>
@@ -104,7 +112,13 @@ const EventInfo = () => {
                   text={
                     <Tag
                       icon={<GlobalOutlined style={{ fontSize: 12 }} />}
-                      style={{ padding: '6px 15px', border: 'none', borderRadius: 15, fontWeight: 'bold', fontSize: 12 }}
+                      style={{
+                        padding: "6px 15px",
+                        border: "none",
+                        borderRadius: 15,
+                        fontWeight: "bold",
+                        fontSize: 12,
+                      }}
                       color="blue"
                     >
                       On the Blochain Already
@@ -136,68 +150,63 @@ const EventInfo = () => {
             <Descriptions.Item label="Organization">
               {event.organization}
             </Descriptions.Item>
-            <Descriptions.Item label="Target">
-              {event.target}
-            </Descriptions.Item>
+            <Descriptions.Item label="Target">{event.target}</Descriptions.Item>
             <Descriptions.Item label="Need KYC?">
-              {event.need_kyc === 1 ? 'Yes' : 'No'}
+              {event.need_kyc === 1 ? "Yes" : "No"}
             </Descriptions.Item>
             <Descriptions.Item label="Categories">
-              {event.categories && _.map(JSON.parse(event.categories), (value) => <Tag color="blue">{value}</Tag>)}
+              {event.categories &&
+                _.map(JSON.parse(event.categories), (value) => (
+                  <Tag color="blue">{value}</Tag>
+                ))}
             </Descriptions.Item>
             <Descriptions.Item label="Tags">
-              {event.tags && _.map(JSON.parse(event.tags), (value) => <Tag color="blue">{value}</Tag>)}
+              {event.tags &&
+                _.map(JSON.parse(event.tags), (value) => (
+                  <Tag color="blue">{value}</Tag>
+                ))}
             </Descriptions.Item>
-            <Descriptions.Item label="Short Description">{event.short_desc}</Descriptions.Item>
-            <Descriptions.Item label="Long Description">{event.long_desc}</Descriptions.Item>
+            <Descriptions.Item label="Short Description">
+              {event.short_desc}
+            </Descriptions.Item>
+            <Descriptions.Item label="Long Description">
+              {event.long_desc}
+            </Descriptions.Item>
           </Descriptions>
         </TabPane>
         <TabPane tab="Location" key="3">
-          <Descriptions
-            bordered
-            column={1}
-            layout="vertical"
-          >
+          <Descriptions bordered column={1} layout="vertical">
             <Descriptions.Item label="Country">
               {event.country}
             </Descriptions.Item>
-            <Descriptions.Item label="Region">
-              {event.region}
-            </Descriptions.Item>
+            <Descriptions.Item label="Region">{event.region}</Descriptions.Item>
             <Descriptions.Item label="District">
               {event.district}
             </Descriptions.Item>
-            <Descriptions.Item label="Venue">
-              {event.venue}
-            </Descriptions.Item>
+            <Descriptions.Item label="Venue">{event.venue}</Descriptions.Item>
             <Descriptions.Item label="Address">
               {event.address}
             </Descriptions.Item>
             <Descriptions.Item label="Location">
-              <iframe src={`https://maps.google.com/maps?q=${event.latitude}, ${event.longitude}&z=19&output=embed&language=zh-HK`} width="100%" height="400" frameborder="0" ></iframe>
+              <iframe
+                src={`https://maps.google.com/maps?q=${event.latitude}, ${event.longitude}&z=19&output=embed&language=zh-HK`}
+                width="100%"
+                height="400"
+                frameborder="0"
+              ></iframe>
             </Descriptions.Item>
           </Descriptions>
         </TabPane>
         <TabPane tab="Contact Method" key="4">
-          <Descriptions
-            bordered
-            column={1}
-            layout="vertical"
-          >
-            <Descriptions.Item label="Email">
-              {event.email}
-            </Descriptions.Item>
+          <Descriptions bordered column={1} layout="vertical">
+            <Descriptions.Item label="Email">{event.email}</Descriptions.Item>
             <Descriptions.Item label="Contact Number">
               {event.contact_no}
             </Descriptions.Item>
           </Descriptions>
         </TabPane>
         <TabPane tab="Date" key="5">
-          <Descriptions
-            bordered
-            column={1}
-            layout="vertical"
-          >
+          <Descriptions bordered column={1} layout="vertical">
             <Descriptions.Item label="Start Time">
               {moment.unix(event.start_time).format("YYYY-MM-DD HH:mm")}
             </Descriptions.Item>
@@ -213,11 +222,7 @@ const EventInfo = () => {
           </Descriptions>
         </TabPane>
         <TabPane tab="Documents" key="6">
-          <Descriptions
-            bordered
-            column={1}
-            layout="vertical"
-          >
+          <Descriptions bordered column={1} layout="vertical">
             <Descriptions.Item
               label="Event Document"
               contentStyle={{ padding: 20 }}
@@ -226,7 +231,7 @@ const EventInfo = () => {
                 <Image
                   id="event_doc"
                   // width={300}
-                  style={{ width: '100%', maxWidth: 300 }}
+                  style={{ width: "100%", maxWidth: 300 }}
                   src={event.approval_doc}
                 />
               </Image.PreviewGroup>
@@ -239,46 +244,37 @@ const EventInfo = () => {
                 <Image
                   id="seat_doc"
                   // width={300}
-                  style={{ width: '100%', maxWidth: 300 }}
+                  style={{ width: "100%", maxWidth: 300 }}
                   src={event.seat_doc}
                 />
               </Image.PreviewGroup>
-              </Descriptions.Item>
-            <Descriptions.Item
-              label="Thumbnail"
-              contentStyle={{ padding: 20 }}
-            >
+            </Descriptions.Item>
+            <Descriptions.Item label="Thumbnail" contentStyle={{ padding: 20 }}>
               <Image.PreviewGroup>
                 <Image
                   id="thumbnail"
                   // width={300}
-                  style={{ width: '100%', maxWidth: 300 }}
+                  style={{ width: "100%", maxWidth: 300 }}
                   src={event.thumbnail}
                 />
               </Image.PreviewGroup>
             </Descriptions.Item>
-            <Descriptions.Item
-              label="Banner 1"
-              contentStyle={{ padding: 20 }}
-            >
+            <Descriptions.Item label="Banner 1" contentStyle={{ padding: 20 }}>
               <Image.PreviewGroup>
                 <Image
                   id="banner_1"
                   // width={300}
-                  style={{ width: '100%', maxWidth: 300 }}
+                  style={{ width: "100%", maxWidth: 300 }}
                   src={event.banner_1}
                 />
               </Image.PreviewGroup>
             </Descriptions.Item>
-            <Descriptions.Item
-              label="Banner 2"
-              contentStyle={{ padding: 20 }}
-            >
+            <Descriptions.Item label="Banner 2" contentStyle={{ padding: 20 }}>
               <Image.PreviewGroup>
                 <Image
                   id="banner_2"
                   // width={300}
-                  style={{ width: '100%', maxWidth: 300 }}
+                  style={{ width: "100%", maxWidth: 300 }}
                   src={event.banner_2}
                 />
               </Image.PreviewGroup>
@@ -286,27 +282,31 @@ const EventInfo = () => {
           </Descriptions>
         </TabPane>
       </Tabs>
-      {
-        sc_events[event.event_id] && (
-          <Link
-            to={{
-              pathname: "/company/event/ticket",
-              state: { dataSource: event, eventId: sc_events[event.event_id].eventId },
-            }}
-          >
-            <Button
-              style={{ margin: 20 }}
-              type="primary"
+      {sc_events[event.event_id] && (
+        <Link
+          to={{
+            pathname: "/company/event/ticket",
+            state: {
+              dataSource: event,
+              eventId: sc_events[event.event_id].eventId,
+            },
+          }}
+        >
+          <Button
+            style={{ margin: 20 }}
+            type="primary"
             // onClick={onChainProcess}
-            >
-              Create Tickets
+          >
+            Create Tickets
           </Button>
-          </Link>
+        </Link>
+      )}
 
-        )
-      }
-
-      {event.status === -1 && (<Button onClick={applyKycAgain} style={{ margin: 20 }} type="primary">Apply again</Button>)}
+      {event.status === -1 && (
+        <Button onClick={applyKycAgain} style={{ margin: 20 }} type="primary">
+          Apply again
+        </Button>
+      )}
     </AppLayout>
   );
 };

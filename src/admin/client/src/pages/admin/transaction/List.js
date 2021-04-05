@@ -15,9 +15,9 @@ import {
   Row,
   Typography,
   Col,
-  Popover
+  Popover,
 } from "antd";
-import QrReader from 'react-qr-reader'
+import QrReader from "react-qr-reader";
 import { GlobalOutlined, QrcodeOutlined, EyeOutlined } from "@ant-design/icons";
 import moment from "moment";
 import _ from "lodash";
@@ -74,11 +74,13 @@ const TransactionHistoryList = (props) => {
   };
 
   const getCurrentEth = async () => {
-    const response = await fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=HKD');
-    let result = await response.text()
+    const response = await fetch(
+      "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=HKD"
+    );
+    let result = await response.text();
     let current_eth_hkd = JSON.parse(result);
     setCurrentEth(current_eth_hkd.HKD);
-  }
+  };
 
   const setTableHeader = () => {
     const columns = [
@@ -158,58 +160,80 @@ const TransactionHistoryList = (props) => {
             <>
               <Popover
                 placement="right"
-                content={(<Row gutter={[0, 12]} style={{ width: 300 }}>
-                  <Col span={24}>Status</Col>
-                  <Col span={24}>{UI.displayStatus(record.status, { "1": 'Confirm', "0": 'Fail', "-1": 'Fail', default: 'Fail' })}</Col>
-                  {record.admin_id > 0 && <>
+                content={
+                  <Row gutter={[0, 12]} style={{ width: 300 }}>
+                    <Col span={24}>Status</Col>
                     <Col span={24}>
-                    Admin ID
-                  </Col>
-                  <Col span={24}>
-                    {record.admin_id}
-                  </Col>
-                  </>}
-                  {record.user_id > 0 && 
-                  <>
-                  <Col span={24}>
-                    User ID
-                  </Col>
-                  <Col span={24}>
-                    {record.user_id} <br />
-                    <Tooltip title={record.user_address}><span style={{ color: '#3498db' }}>{record.user_address.substring(0, 32)}...</span></Tooltip>
-
-                  </Col>
-                  </>
+                      {UI.displayStatus(record.status, {
+                        1: "Confirm",
+                        0: "Fail",
+                        "-1": "Fail",
+                        default: "Fail",
+                      })}
+                    </Col>
+                    {record.admin_id > 0 && (
+                      <>
+                        <Col span={24}>Admin ID</Col>
+                        <Col span={24}>{record.admin_id}</Col>
+                      </>
+                    )}
+                    {record.user_id > 0 && (
+                      <>
+                        <Col span={24}>User ID</Col>
+                        <Col span={24}>
+                          {record.user_id} <br />
+                          <Tooltip title={record.user_address}>
+                            <span style={{ color: "#3498db" }}>
+                              {record.user_address.substring(0, 32)}...
+                            </span>
+                          </Tooltip>
+                        </Col>
+                      </>
+                    )}
+                    <Col span={24}>Block Hash</Col>
+                    <Col span={24}>
+                      <Tooltip title={record.block_hash}>
+                        <span style={{ color: "#3498db" }}>
+                          {record.block_hash.substring(0, 32)}...
+                        </span>
+                      </Tooltip>
+                    </Col>
+                    <Col span={24}>Contract Address</Col>
+                    <Col span={24}>
+                      <Tooltip title={record.contract_address}>
+                        <span style={{ color: "#3498db" }}>
+                          {record.contract_address.substring(0, 32)}...
+                        </span>
+                      </Tooltip>
+                    </Col>
+                    <Col span={24}>Logs</Col>
+                    <Col
+                      span={24}
+                      style={{ width: 280, wordWrap: "break-word" }}
+                    >
+                      <Paragraph
+                        ellipsis={{
+                          rows: 2,
+                          expandable: true,
+                          symbol: "more",
+                        }}
+                      >
+                        {record.logs}
+                      </Paragraph>
+                    </Col>
+                  </Row>
                 }
-                  <Col span={24}>Block Hash</Col>
-                  <Col span={24}>
-                    <Tooltip title={record.block_hash}><span style={{ color: '#3498db' }}>{record.block_hash.substring(0, 32)}...</span></Tooltip>
-
-                  </Col>
-                  <Col span={24}>Contract Address</Col>
-                  <Col span={24}>
-                    <Tooltip title={record.contract_address}><span style={{ color: '#3498db' }}>{record.contract_address.substring(0, 32)}...</span></Tooltip>
-                  </Col>
-                  <Col span={24}>Logs</Col>
-                  <Col span={24} style={{ width: 280, wordWrap: 'break-word'}}>
-                  <Paragraph ellipsis={{
-  rows: 2,
-  expandable: true,
-  symbol: 'more',
-}}>
-       {record.logs}
-      </Paragraph>
-                  </Col>
-
-                </Row>)}
               >
                 <EyeOutlined style={{ marginRight: 12 }} />
               </Popover>
-              <Tooltip title={value}><span style={{ color: '#3498db' }}>{value.substring(0, 17)}...</span></Tooltip>
+              <Tooltip title={value}>
+                <span style={{ color: "#3498db" }}>
+                  {value.substring(0, 17)}...
+                </span>
+              </Tooltip>
             </>
-
-          )
-        }
+          );
+        },
       },
       {
         title: "Block",
@@ -225,35 +249,43 @@ const TransactionHistoryList = (props) => {
         title: "Age",
         dataIndex: "ctime",
         render: (value) => {
-          return moment(moment.unix(value)).fromNow()
-        }
+          return moment(moment.unix(value)).fromNow();
+        },
       },
       {
         title: "Sender",
         dataIndex: "sender",
         render: (value) => {
           return (
-            <Tooltip title={value}><span style={{ color: '#3498db' }}>{value.substring(0, 17)}...</span></Tooltip>
-          )
-        }
+            <Tooltip title={value}>
+              <span style={{ color: "#3498db" }}>
+                {value.substring(0, 17)}...
+              </span>
+            </Tooltip>
+          );
+        },
       },
       {
         title: "Receiver",
         dataIndex: "receiver",
         render: (value) => {
           return (
-            <Tooltip title={value}><span style={{ color: '#3498db' }}>{value.substring(0, 17)}...</span></Tooltip>
-          )
-        }
+            <Tooltip title={value}>
+              <span style={{ color: "#3498db" }}>
+                {value.substring(0, 17)}...
+              </span>
+            </Tooltip>
+          );
+        },
       },
       {
         title: "Gas Used",
         dataIndex: "gas_used",
         render: (value) => {
-          console.log('current_eth', current_eth);
+          console.log("current_eth", current_eth);
           let price = Main.gasFeeToHKD(current_eth, value);
-          return `${value} gwei ≈ ${price} hkd`
-        }
+          return `${value} gwei ≈ ${price} hkd`;
+        },
       },
       // {
       //   title: "User ID",
@@ -293,15 +325,14 @@ const TransactionHistoryList = (props) => {
     return columns;
   };
 
-  const handleScan = data => {
+  const handleScan = (data) => {
     if (data) {
       setQrCodeResult(data);
-
     }
-  }
-  const handleError = err => {
-    console.error(err)
-  }
+  };
+  const handleError = (err) => {
+    console.error(err);
+  };
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>

@@ -1,7 +1,7 @@
-import _ from 'lodash';
-import axios from 'axios';
-import { ActionCreators } from '../redux/actions';
-import { getStore } from '../redux/store/configureStore';
+import _ from "lodash";
+import axios from "axios";
+import { ActionCreators } from "../redux/actions";
+import { getStore } from "../redux/store/configureStore";
 
 export async function call(_method, _endpoint, _data) {
   try {
@@ -11,25 +11,28 @@ export async function call(_method, _endpoint, _data) {
 
     let resp = await axios[method](endpoint, data);
     let respData = resp.data;
-    let {
-      status, errorCode, errorMessage, result
-    } = respData;
-    
-    console.log(`%c${_method.toUpperCase()} ${_endpoint} >>> `, 'background: #222; color: #bada55; font-size: 13px; font-weight: normall',
-    respData);
+    let { status, errorCode, errorMessage, result } = respData;
+
+    console.log(
+      `%c${_method.toUpperCase()} ${_endpoint} >>> `,
+      "background: #222; color: #bada55; font-size: 13px; font-weight: normall",
+      respData
+    );
 
     // console.log(`respData >> `, respData);
 
     if (status <= 0) {
-      console.error(`Service.call() Error :: ${errorCode} :: ${errorMessage} :: end point ${_endpoint}`);
+      console.error(
+        `Service.call() Error :: ${errorCode} :: ${errorMessage} :: end point ${_endpoint}`
+      );
       // if (errorCode === -101) {
       // TODO :: Redirect ???
       // }
       let errorObj = {
         status,
         errorCode,
-        errorMessage
-      }
+        errorMessage,
+      };
       return errorObj;
     }
     // TODO :: resmove result in response
@@ -44,12 +47,12 @@ export async function call(_method, _endpoint, _data) {
   return null;
 }
 
-export function createURL (action, endpoint, content) {
+export function createURL(action, endpoint, content) {
   content = content || {};
-  let url = '';
+  let url = "";
   url += endpoint;
-  if (action.toLowerCase() === 'get') {
-    let queryStr = '';
+  if (action.toLowerCase() === "get") {
+    let queryStr = "";
     _.each(content, (val, key) => {
       queryStr += `${key}=${val}&`;
     });
@@ -76,11 +79,10 @@ export function createURL (action, endpoint, content) {
 // }
 
 export async function logout() {
-  let result = await call('post', '/api/login/admin/logout');
+  let result = await call("post", "/api/login/admin/logout");
   getStore().dispatch(ActionCreators.setAuth(false));
   getStore().dispatch(ActionCreators.setAdmin({}));
   return result;
 }
-
 
 export default call;

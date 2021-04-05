@@ -1,5 +1,5 @@
-import * as types from '../actions/types';
-import Immutable from 'seamless-immutable';
+import * as types from "../actions/types";
+import Immutable from "seamless-immutable";
 
 const initialState = Immutable({
   auth: null,
@@ -9,7 +9,7 @@ const initialState = Immutable({
   is_admin: {
     admin: false,
     company_admin: false,
-    admin_id: 0
+    admin_id: 0,
   },
   loading: true,
   // admin: {
@@ -24,17 +24,17 @@ const initialState = Immutable({
   // },
   admin: {},
   company_admin: {},
-  origin: '',
-  logoutWay: '',
+  origin: "",
+  logoutWay: "",
   totalSeats: {},
-  events: false
+  events: false,
 });
 
 const smartContractInitalState = Immutable({
   sc_event: {},
   events: {},
   sc_kyc_users: {},
-  sc_kyc_companies: {} 
+  sc_kyc_companies: {},
 });
 
 const formInitialState = Immutable({
@@ -46,16 +46,16 @@ const appReducer = {
     switch (action.type) {
       case types.SET_CONFIG: {
         console.log(`config >> `, action.data);
-        return {...state, config: action.data};
+        return { ...state, config: action.data };
       }
       case types.SET_AUTH:
-        state = {...state, auth: action.data}
+        state = { ...state, auth: action.data };
         return state;
       case types.SET_IS_ADMIN:
-        state = {...state, is_admin: action.data}
+        state = { ...state, is_admin: action.data };
         return state;
       case types.SET_LOADING:
-        state = {...state, loading: action.data}
+        state = { ...state, loading: action.data };
         return state;
       case types.SET_ADMIN:
         if (!action.data || Object.keys(action.data).length === 0) {
@@ -64,56 +64,56 @@ const appReducer = {
             admin: initialState.admin,
           };
         } else {
-          state = {...state, admin: action.data};
+          state = { ...state, admin: action.data };
         }
         return state;
-        case types.SET_COMPANY_ADMIN:
-          if (!action.data || Object.keys(action.data).length === 0) {
-            state = {
-              ...state,
-              company_admin: initialState.company_admin,
-            };
-          } else {
-            state = {...state, company_admin: action.data};
-          }
-          return state;
+      case types.SET_COMPANY_ADMIN:
+        if (!action.data || Object.keys(action.data).length === 0) {
+          state = {
+            ...state,
+            company_admin: initialState.company_admin,
+          };
+        } else {
+          state = { ...state, company_admin: action.data };
+        }
+        return state;
       case types.SET_ORIGIN:
-        state = {...state, origin: action.data}
+        state = { ...state, origin: action.data };
         return state;
       case types.SET_TOTAL_SEATS: {
         state = {
           ...state,
-          totalSeats: {...state.totalSeats, ...action.data}
+          totalSeats: { ...state.totalSeats, ...action.data },
         };
         return state;
       }
       case types.SET_EVENTS: {
         state = {
           ...state,
-          events: action.data
+          events: action.data,
         };
         return state;
       }
       default:
         return state;
       case types.SET_LOGOUTWAY:
-        state = {...state, logoutWay: action.data}
+        state = { ...state, logoutWay: action.data };
         return state;
     }
   },
   smartContract: (state = smartContractInitalState, action) => {
     switch (action.type) {
       case types.SET_SC_EVENT_API: {
-        return {...state, sc_event_api: action.data};
+        return { ...state, sc_event_api: action.data };
       }
       case types.SET_SC_EVENTS: {
-        return {...state, sc_events: action.data};
+        return { ...state, sc_events: action.data };
       }
       case types.SET_SC_KYC_USER: {
-        return {...state, sc_kyc_users: action.data};
+        return { ...state, sc_kyc_users: action.data };
       }
       case types.SET_SC_KYC_COMPANY: {
-        return {...state, sc_kyc_companies: action.data};
+        return { ...state, sc_kyc_companies: action.data };
       }
       default:
         return state;
@@ -122,7 +122,7 @@ const appReducer = {
   form: (state = formInitialState, action) => {
     switch (action.type) {
       case types.SET_FORM_DATA: {
-        return {...state, form_data: action.data};
+        return { ...state, form_data: action.data };
       }
       default:
         return state;

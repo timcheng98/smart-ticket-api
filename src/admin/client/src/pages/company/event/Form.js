@@ -21,20 +21,27 @@ import {
   Progress,
 } from "antd";
 import { CheckCircleFilled, RightOutlined } from "@ant-design/icons";
-import GooglePlacesAutocomplete, { geocodeByPlaceId, getLatLng } from 'react-google-places-autocomplete';
+import GooglePlacesAutocomplete, {
+  geocodeByPlaceId,
+  getLatLng,
+} from "react-google-places-autocomplete";
 import { useHistory, Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
 import * as Service from "../../../core/Service";
 import AppLayout from "../../../components/AppLayout";
-import * as CommonActions from '../../../redux/actions/common';
+import * as CommonActions from "../../../redux/actions/common";
 import FormUploadFile from "../../../components/FormUploadFile";
 import { formItemLayout, tailLayout } from "../../../components/ModalLayout";
 
 const { Option } = Select;
 
-const ipfsClient = require('ipfs-http-client')
-const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
+const ipfsClient = require("ipfs-http-client");
+const ipfs = ipfsClient({
+  host: "ipfs.infura.io",
+  port: "5001",
+  protocol: "https",
+});
 
 const involvedModelName = "company";
 const title = "Event Application Form";
@@ -43,11 +50,11 @@ const selectedKey = "company_event";
 
 const openNotification = () => {
   notification.open({
-    message: 'Notification Title',
+    message: "Notification Title",
     description:
-      'This is the content of the notification. This is the content of the notification. This is the content of the notification.',
+      "This is the content of the notification. This is the content of the notification. This is the content of the notification.",
     onClick: () => {
-      console.log('Notification Clicked!');
+      console.log("Notification Clicked!");
     },
   });
 };
@@ -56,9 +63,9 @@ const EventForm = (props) => {
   const [step, setStep] = useState(1);
   const history = useHistory();
   const location = useLocation();
-  const form_data = useSelector(state => state.form.form_data)
-  const [eventId, setEventId] = useState(0)
-  const [eventCode, setEventCode] = useState('');
+  const form_data = useSelector((state) => state.form.form_data);
+  const [eventId, setEventId] = useState(0);
+  const [eventCode, setEventCode] = useState("");
   const dispatch = useDispatch();
   const [mapValue, setMapValue] = useState(null);
 
@@ -70,12 +77,12 @@ const EventForm = (props) => {
     if (!location.state) {
       return setEventId(0);
     }
-    setEventId(location.state.event_id)
-  }
+    setEventId(location.state.event_id);
+  };
 
   useEffect(() => {
-    setEventCode(form_data.event_code)
-  }, [form_data])
+    setEventCode(form_data.event_code);
+  }, [form_data]);
 
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
@@ -88,18 +95,12 @@ const EventForm = (props) => {
         <Divider />
         {step === 1 && (
           <Col span={24}>
-            <BasicInformation
-              setStep={setStep}
-              eventId={eventId}
-            />
+            <BasicInformation setStep={setStep} eventId={eventId} />
           </Col>
         )}
         {step === 2 && (
           <Col span={24}>
-            <SupportDocument
-              setStep={setStep}
-              eventId={eventId}
-            />
+            <SupportDocument setStep={setStep} eventId={eventId} />
           </Col>
         )}
         {step === 3 && (
@@ -110,16 +111,20 @@ const EventForm = (props) => {
               gutter={[0, 20]}
             >
               <Col span={24}>
-                <CheckCircleFilled style={{ fontSize: 68, color: '#52c41a' }} />
+                <CheckCircleFilled style={{ fontSize: 68, color: "#52c41a" }} />
               </Col>
-              <Col span={24} style={{ fontSize: 20, fontWeight: 'bold' }}>Application Submitted Successfully.</Col>
-              <Col span={24} style={{ fontSize: 18, fontWeight: 'bold' }}>Reference No. {eventCode}</Col>
+              <Col span={24} style={{ fontSize: 20, fontWeight: "bold" }}>
+                Application Submitted Successfully.
+              </Col>
+              <Col span={24} style={{ fontSize: 18, fontWeight: "bold" }}>
+                Reference No. {eventCode}
+              </Col>
               <Col span={24}>
                 <Button
                   className="custom-btn"
                   onClick={() => {
-                    dispatch(CommonActions.setFormData({}))
-                    history.push("/company/event/list")
+                    dispatch(CommonActions.setFormData({}));
+                    history.push("/company/event/list");
                   }}
                 >
                   Go Back Home
@@ -179,15 +184,15 @@ const ProgressBar = ({ step }) => {
 };
 
 const BasicInformation = (props) => {
-  const form_data = useSelector(state => state.form.form_data);
+  const form_data = useSelector((state) => state.form.form_data);
   const location = useLocation();
   const [infoForm] = Form.useForm();
   const dispatch = useDispatch();
-  const [mapValue, setMapValue] = useState(null)
+  const [mapValue, setMapValue] = useState(null);
   const [mapLocation, setMapLocation] = useState({
-    lng: '',
-    lat: ''
-  })
+    lng: "",
+    lat: "",
+  });
 
   useEffect(() => {
     dispatch(CommonActions.setFormData({}));
@@ -196,13 +201,15 @@ const BasicInformation = (props) => {
 
   useEffect(() => {
     infoForm.setFieldsValue({
-      ...form_data
-    })
-  }, [form_data])
+      ...form_data,
+    });
+  }, [form_data]);
 
   const getInitialValue = async () => {
-
-    let resp = await Service.call("get", `/api/event?event_id=${props.eventId}`);
+    let resp = await Service.call(
+      "get",
+      `/api/event?event_id=${props.eventId}`
+    );
     if (_.isEmpty(resp.eventRc)) {
       return dispatch(CommonActions.setFormData({}));
     }
@@ -212,11 +219,17 @@ const BasicInformation = (props) => {
       ...eventRc,
       tags: JSON.parse(eventRc.tags),
       categories: JSON.parse(eventRc.categories),
-      start_end_time: [moment.unix(eventRc.start_time), moment.unix(eventRc.end_time)],
-      released_close_date: [moment.unix(eventRc.released_date), moment.unix(eventRc.close_date)]
-    }
+      start_end_time: [
+        moment.unix(eventRc.start_time),
+        moment.unix(eventRc.end_time),
+      ],
+      released_close_date: [
+        moment.unix(eventRc.released_date),
+        moment.unix(eventRc.close_date),
+      ],
+    };
     infoForm.setFieldsValue(formData);
-    setMapLocation({ lng: formData.longitude, lat: formData.latitude })
+    setMapLocation({ lng: formData.longitude, lat: formData.latitude });
     return dispatch(CommonActions.setFormData(formData));
   };
 
@@ -224,7 +237,9 @@ const BasicInformation = (props) => {
     <Form
       form={infoForm}
       {...formItemLayout}
-      onFinishFailed={({ values, errorFields, outOfDate }) => notification.warning(errorFields)}
+      onFinishFailed={({ values, errorFields, outOfDate }) =>
+        notification.warning(errorFields)
+      }
     >
       <Form.Item
         label="Event Name"
@@ -266,7 +281,11 @@ const BasicInformation = (props) => {
         name="categories"
         rules={[{ required: true, message: "Please input Company Code." }]}
       >
-        <Select mode="tags" style={{ width: '100%' }} placeholder="Multiple Select/Add by yourself">
+        <Select
+          mode="tags"
+          style={{ width: "100%" }}
+          placeholder="Multiple Select/Add by yourself"
+        >
           <Option value="sing">Sing</Option>
           <Option value="dance">Dance</Option>
           <Option value="music">Music</Option>
@@ -297,7 +316,9 @@ const BasicInformation = (props) => {
         rules={[{ required: true, message: "Please input Found Date." }]}
       >
         <DatePicker.RangePicker
-          disabledDate={(current) => current && current < moment().subtract(1, 'day')}
+          disabledDate={(current) =>
+            current && current < moment().subtract(1, "day")
+          }
           showTime={{
             hideDisabledOptions: true,
             defaultValue: [
@@ -314,7 +335,9 @@ const BasicInformation = (props) => {
         rules={[{ required: true, message: "Please input Found Date." }]}
       >
         <DatePicker.RangePicker
-          disabledDate={(current) => current && current < moment().subtract(1, 'day')}
+          disabledDate={(current) =>
+            current && current < moment().subtract(1, "day")
+          }
           showTime={{
             hideDisabledOptions: true,
             defaultValue: [
@@ -360,23 +383,8 @@ const BasicInformation = (props) => {
       >
         <Input />
       </Form.Item>
-      <Form.Item
-        label="Geolocation: Latitude"
-        name="latitude"
-        hidden
-      // rules={[{ required: true, message: "Please input Company Name." }]}
-      >
-        {/* <InputNumber onChange={(value) => setMapLocation({ ...mapLocation, lat: value })} style={{ width: '100%' }} /> */}
-      </Form.Item>
-      <Form.Item
-        label="Geolocation: Longitude"
-        name="longitude"
-        hidden
-      // rules={[{ required: true, message: "Please input Company Name." }]}
-      >
-        {/* <InputNumber onChange={(value) => setMapLocation({ ...mapLocation, lng: value })} style={{ width: '100%' }} /> */}
-      </Form.Item>
-
+      <Form.Item label="Geolocation: Latitude" name="latitude" hidden />
+      <Form.Item label="Geolocation: Longitude" name="longitude" hidden />
       <Form.Item label="Location">
         <GooglePlacesAutocomplete
           apiKey="AIzaSyC43U2-wqXxYEk1RBrTLdkYt3aDoOxO4Fw"
@@ -384,20 +392,24 @@ const BasicInformation = (props) => {
             mapValue,
             onChange: (map) => {
               geocodeByPlaceId(map.value.place_id)
-                .then(results => getLatLng(results[0]))
+                .then((results) => getLatLng(results[0]))
                 .then(({ lat, lng }) => {
                   infoForm.setFieldsValue({ latitude: lat, longitude: lng });
                   setMapLocation({
                     lat,
-                    lng
-                  })
-                }
-                )
-                .catch(error => console.error(error));
+                    lng,
+                  });
+                })
+                .catch((error) => console.error(error));
             },
           }}
         />
-        <iframe src={`https://maps.google.com/maps?q=${mapLocation.lat}, ${mapLocation.lng}&z=19&output=embed&language=zh-HK`} width="100%" height="400" frameborder="0" ></iframe>
+        <iframe
+          src={`https://maps.google.com/maps?q=${mapLocation.lat}, ${mapLocation.lng}&z=19&output=embed&language=zh-HK`}
+          width="100%"
+          height="400"
+          frameborder="0"
+        ></iframe>
       </Form.Item>
 
       <Form.Item
@@ -405,7 +417,11 @@ const BasicInformation = (props) => {
         name="tags"
         rules={[{ required: true, message: "Please input Company Name." }]}
       >
-        <Select mode="tags" style={{ width: '100%' }} placeholder="Multiple Select/Add by yourself">
+        <Select
+          mode="tags"
+          style={{ width: "100%" }}
+          placeholder="Multiple Select/Add by yourself"
+        >
           <Option value="famous">Famous</Option>
           <Option value="hot">Hot</Option>
           <Option value="dance">Dance</Option>
@@ -426,7 +442,7 @@ const BasicInformation = (props) => {
         name="target"
         rules={[{ required: true, message: "Please input Company Code." }]}
       >
-        <Select style={{ width: '100%' }} placeholder="Please Select">
+        <Select style={{ width: "100%" }} placeholder="Please Select">
           <Option value="adult or above">Adult or above</Option>
           <Option value="teenage or above">Teengages or above</Option>
           <Option value="children or above">Children or above</Option>
@@ -437,7 +453,7 @@ const BasicInformation = (props) => {
         name="need_kyc"
         rules={[{ required: false, message: "Please input Company Code." }]}
       >
-        <Select style={{ width: '100%' }} placeholder="Please Select">
+        <Select style={{ width: "100%" }} placeholder="Please Select">
           <Option value={0}>No</Option>
           <Option value={1}>Yes</Option>
         </Select>
@@ -447,25 +463,35 @@ const BasicInformation = (props) => {
         <Col></Col>
         <Col>
           <Form.Item>
-            <Button className="custom-btn" onClick={() => {
-              let errors = []
-              _.each(infoForm.getFieldsValue(), (value, key) => {
-                console.log(value)
-                if (_.isUndefined(value)) {
-                  errors.push(key)
-                }
-              })
-
-              console.log(errors)
-              if (!_.isEmpty(errors)) {
-                _.map(errors, (value) => {
-                  return notification.warning({ message: `${value} is required` })
+            <Button
+              className="custom-btn"
+              onClick={() => {
+                let errors = [];
+                _.each(infoForm.getFieldsValue(), (value, key) => {
+                  console.log(value);
+                  if (_.isUndefined(value)) {
+                    errors.push(key);
+                  }
                 });
-                return;
-              }
-              dispatch(CommonActions.setFormData({ ...form_data, ...infoForm.getFieldsValue() }))
-              props.setStep(2);
-            }}>
+
+                console.log(errors);
+                if (!_.isEmpty(errors)) {
+                  _.map(errors, (value) => {
+                    return notification.warning({
+                      message: `${value} is required`,
+                    });
+                  });
+                  return;
+                }
+                dispatch(
+                  CommonActions.setFormData({
+                    ...form_data,
+                    ...infoForm.getFieldsValue(),
+                  })
+                );
+                props.setStep(2);
+              }}
+            >
               Next
             </Button>
           </Form.Item>
@@ -477,11 +503,11 @@ const BasicInformation = (props) => {
 
 const SupportDocument = (props) => {
   const [imageURL, setImageURL] = useState({
-    approval_doc: '',
-    banner_1: '',
-    banner_2: '',
-    thumbnail: '',
-    seat_doc: ''
+    approval_doc: "",
+    banner_1: "",
+    banner_2: "",
+    thumbnail: "",
+    seat_doc: "",
   });
   const form_data = useSelector((state) => state.form.form_data);
   const dispatch = useDispatch();
@@ -497,9 +523,9 @@ const SupportDocument = (props) => {
       approval_doc: form_data.approval_doc,
       banner_1: form_data.banner_1,
       banner_2: form_data.banner_2,
-      thumbnail: form_data.thumbnail
+      thumbnail: form_data.thumbnail,
     });
-  }
+  };
 
   const uploadOnChange = async (info, key_field) => {
     const { status, response } = info.file;
@@ -508,19 +534,19 @@ const SupportDocument = (props) => {
         let reader = new FileReader();
         reader.readAsArrayBuffer(info.file.originFileObj);
         reader.onload = async (e) => {
-          let result = await ipfs.add(Buffer(e.target.result))
+          let result = await ipfs.add(Buffer(e.target.result));
           let patchObj = {
             [key_field]: `https://ipfs.io/ipfs/${result.path}`,
           };
 
-          dispatch(CommonActions.setFormData({ ...form_data, ...patchObj }))
-        }
+          dispatch(CommonActions.setFormData({ ...form_data, ...patchObj }));
+        };
 
         message.success("Upload Success");
         let path = info.file.response.url;
         setImageURL({
           ...imageURL,
-          [key_field]: path
+          [key_field]: path,
         });
       } else {
         message.error("Upload Failed");
@@ -532,7 +558,6 @@ const SupportDocument = (props) => {
     setImageURL({});
   };
 
-
   return (
     <>
       <Row justify="center">
@@ -542,13 +567,11 @@ const SupportDocument = (props) => {
       </Row>
       <Row justify="center" style={{ padding: 50 }}>
         <Col span={24}>
-          <Form.Item
-            label="Approval Document"
-          >
+          <Form.Item label="Approval Document">
             <FormUploadFile
               type="one"
               data={{ scope: "private" }}
-              onChange={(file) => uploadOnChange(file, 'approval_doc')}
+              onChange={(file) => uploadOnChange(file, "approval_doc")}
               onRemove={onRemove}
               imageURL={imageURL.approval_doc}
             />
@@ -557,13 +580,11 @@ const SupportDocument = (props) => {
       </Row>
       <Row justify="center" style={{ padding: 50 }}>
         <Col span={24}>
-          <Form.Item
-            label="Banner 1"
-          >
+          <Form.Item label="Banner 1">
             <FormUploadFile
               type="one"
               data={{ scope: "private" }}
-              onChange={(file) => uploadOnChange(file, 'banner_1')}
+              onChange={(file) => uploadOnChange(file, "banner_1")}
               onRemove={onRemove}
               imageURL={imageURL.banner_1}
             />
@@ -572,13 +593,11 @@ const SupportDocument = (props) => {
       </Row>
       <Row justify="center" style={{ padding: 50 }}>
         <Col span={24}>
-          <Form.Item
-            label="Seat Document "
-          >
+          <Form.Item label="Seat Document ">
             <FormUploadFile
               type="one"
               data={{ scope: "private" }}
-              onChange={(file) => uploadOnChange(file, 'seat_doc')}
+              onChange={(file) => uploadOnChange(file, "seat_doc")}
               onRemove={onRemove}
               imageURL={imageURL.seat_doc}
             />
@@ -587,13 +606,11 @@ const SupportDocument = (props) => {
       </Row>
       <Row justify="center" style={{ padding: 50 }}>
         <Col span={24}>
-          <Form.Item
-            label="Banner 2"
-          >
+          <Form.Item label="Banner 2">
             <FormUploadFile
               type="one"
               data={{ scope: "private" }}
-              onChange={(file) => uploadOnChange(file, 'banner_2')}
+              onChange={(file) => uploadOnChange(file, "banner_2")}
               onRemove={onRemove}
               imageURL={imageURL.banner_2}
             />
@@ -602,13 +619,11 @@ const SupportDocument = (props) => {
       </Row>
       <Row justify="center" style={{ padding: 50 }}>
         <Col span={24}>
-          <Form.Item
-            label="Thumbnail"
-          >
+          <Form.Item label="Thumbnail">
             <FormUploadFile
               type="one"
               data={{ scope: "private" }}
-              onChange={(file) => uploadOnChange(file, 'thumbnail')}
+              onChange={(file) => uploadOnChange(file, "thumbnail")}
               onRemove={onRemove}
               imageURL={imageURL.thumbnail}
             />
@@ -641,23 +656,44 @@ const SupportDocument = (props) => {
                   end_time: start_end_time[1],
                   released_date: released_close_date[0],
                   close_date: released_close_date[1],
-                  status: 1
-                }
-                if (!dataObj.approval_doc || !dataObj.banner_1 || !dataObj.banner_2 || !dataObj.thumbnail || !dataObj.seat_doc) {
+                  status: 1,
+                };
+                if (
+                  !dataObj.approval_doc ||
+                  !dataObj.banner_1 ||
+                  !dataObj.banner_2 ||
+                  !dataObj.thumbnail ||
+                  !dataObj.seat_doc
+                ) {
                   dataObj = {
                     ...dataObj,
-                    status: 0
-                  }
+                    status: 0,
+                  };
                 }
                 if (props.eventId === 0) {
-                  const result = await Service.call('post', '/api/event', dataObj);
+                  const result = await Service.call(
+                    "post",
+                    "/api/event",
+                    dataObj
+                  );
                   props.setStep(3);
-                  return dispatch(CommonActions.setFormData({ ...form_data, ...result.eventRc }));
+                  return dispatch(
+                    CommonActions.setFormData({
+                      ...form_data,
+                      ...result.eventRc,
+                    })
+                  );
                 }
 
-                const result = await Service.call('patch', '/api/event', dataObj);
+                const result = await Service.call(
+                  "patch",
+                  "/api/event",
+                  dataObj
+                );
                 props.setStep(3);
-                return dispatch(CommonActions.setFormData({ ...form_data, ...result.eventRc }));
+                return dispatch(
+                  CommonActions.setFormData({ ...form_data, ...result.eventRc })
+                );
               }}
             >
               Next

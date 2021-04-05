@@ -15,8 +15,7 @@ import {
 import * as Service from "../core/Service";
 import _ from "lodash";
 import Path from "../routes/Path";
-import LoadingScreen from '../components/LoadingScreen'
-
+import LoadingScreen from "../components/LoadingScreen";
 
 const RootProvider = () => {
   const loading = useSelector((state) => state.app.loading);
@@ -28,9 +27,9 @@ const RootProvider = () => {
   }, []);
 
   const loadEventBlockchain = async () => {
-    setLoadingSc(true)
+    setLoadingSc(true);
     let events = await Service.call("get", `/api/sc/event`);
-    dispatch(setSCEvents(_.keyBy(events, 'event_id')));
+    dispatch(setSCEvents(_.keyBy(events, "event_id")));
     setLoadingSc(false);
   };
 
@@ -53,8 +52,7 @@ const RootProvider = () => {
       return;
     }
 
-
-    if (resp.userData[0].role === 'admin') {
+    if (resp.userData[0].role === "admin") {
       dispatch(setAdmin(resp.userData[0]));
       dispatch(setIsAdmin(resp.userData[0]));
       dispatch(setLoading(false));
@@ -62,7 +60,7 @@ const RootProvider = () => {
       return;
     }
 
-    if (resp.userData[0].role === 'company') {
+    if (resp.userData[0].role === "company") {
       dispatch(setCompanyAdmin(resp.userData[0]));
       dispatch(setIsAdmin(resp.userData[0]));
       dispatch(setLoading(false));
@@ -71,10 +69,10 @@ const RootProvider = () => {
     }
   };
 
-  console.log('loading', loading);
-  console.log('loadingSc', loadingSc);
+  console.log("loading", loading);
+  console.log("loadingSc", loadingSc);
 
-  if (loading || loadingSc) return <LoadingScreen></LoadingScreen>
+  if (loading || loadingSc) return <LoadingScreen></LoadingScreen>;
 
   return (
     <>

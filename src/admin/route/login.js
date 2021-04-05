@@ -1,93 +1,65 @@
-const path = require('path');
-const util = require('util');
-const moment = require('moment');
-const QRCode = require('qrcode');
-const config = require('config');
-const passport = require('passport');
-const model = require('../../model');
-const AppError = require('../../lib/app-error');
-const userModel = require('../../model/user');
-const kycModel = require('../../model/user/kyc');
-const eventModel = require('../../model/smart-contract/event');
-const middleware = require('./middleware');
-const helper = require('../../lib/helper');
-const _ = require('lodash');
+const path = require("path");
+const util = require("util");
+const moment = require("moment");
+const QRCode = require("qrcode");
+const config = require("config");
+const passport = require("passport");
+const model = require("../../model");
+const AppError = require("../../lib/app-error");
+const userModel = require("../../model/user");
+const kycModel = require("../../model/user/kyc");
+const eventModel = require("../../model/smart-contract/event");
+const middleware = require("./middleware");
+const helper = require("../../lib/helper");
+const _ = require("lodash");
 
 // TODO:: errorCode
 const ERROR_CODE = {
-  [-71001]: 'Invalid technine admin information',
-  [-71002]: 'Invalid company admin information',
+  [-71001]: "Invalid technine admin information",
+  [-71002]: "Invalid company admin information",
 };
 
 AppError.setErrorCode(ERROR_CODE);
 
 exports.initRouter = (router) => {
   router.post(
-    '/api/user/register',
+    "/api/user/register",
     // passport.authenticate('UserAuth'),
-    createUser,
+    createUser
   );
+
+  router.post("/api/login/user", passport.authenticate("UserAuth"), getUser);
+
+  router.use("/api/user", middleware.session.authorizeUser());
+
+  router.get("/api/user", getUser);
+
+  router.post("/api/user/logout", postUserLogout);
 
   router.post(
-    '/api/login/user',
-    passport.authenticate('UserAuth'),
-    getUser
-  );
-
-
-
-  router.use('/api/user', middleware.session.authorizeUser());
-
-  router.get(
-    '/api/user',
-    getUser
-  );
-
-  router.post(
-    '/api/user/logout',
-    postUserLogout,
-  );
-  
-
-  router.post(
-    '/api/admin/register',
+    "/api/admin/register",
     // passport.authenticate('UserAuth'),
-    createAdminUser,
+    createAdminUser
   );
+
+  router.post("/api/login/admin", passport.authenticate("AdminAuth"), getAdmin);
+  router.post("/api/login/admin/logout", postLogout);
+
+  router.use("/api/admin", middleware.session.authorize());
+  router.get("/api/admin", getAdmin);
 
   router.post(
-    '/api/login/admin',
-    passport.authenticate('AdminAuth'),
-    getAdmin,
-  );
-  router.post(
-    '/api/login/admin/logout',
-    postLogout,
-  );
-
-
-
-  router.use('/api/admin', middleware.session.authorize());
-  router.get(
-    '/api/admin',
-    getAdmin
-  );
-
-  router.post(
-    '/api/login/company_admin',
-    passport.authenticate('CompanyAdminAuth'),
-    getCompanyAdmin,
+    "/api/login/company_admin",
+    passport.authenticate("CompanyAdminAuth"),
+    getCompanyAdmin
   );
   // router.post(
   //   '/api/login/company_admin/logout',
   //   postCompanyAdminLogout,
   // )
 
-  router.use('/api/login/get_company_admin', middleware.session.authorize());
-  router.get(
-    '/api/login/get_company_admin',
-    getCompanyAdmin,
-  )
+  router.use("/api/login/get_company_admin", middleware.session.authorize());
+  router.get("/api/login/get_company_admin", getCompanyAdmin);
   // router.patch('/api/admin', patchUser);
 };
 
@@ -95,63 +67,69 @@ const createUser = async (req, res) => {
   try {
     let dataObj = {};
 
-    _.each(_.pick(req.body, [
-      'email', 'password'
-    ]), (val, key) => {
+    _.each(_.pick(req.body, ["email", "password"]), (val, key) => {
       dataObj[key] = _.toString(val);
     });
 
-    let account = await eventModel.createAccount()
+    let account = await eventModel.createAccount();
     const { address, encrypt } = account;
     const keystore = encrypt(req.body.password);
     dataObj = {
       ...dataObj,
-      wallet_address: address
-    }
+      wallet_address: address,
+    };
 
-    let [userRc] = await userModel.selectUser({ where: { email: dataObj.email } });
+    let [userRc] = await userModel.selectUser({
+      where: { email: dataObj.email },
+    });
     if (userRc) {
-      return res.apiResponse({ status: -1, errorMessage: 'Email has been registered' })
+      return res.apiResponse({
+        status: -1,
+        errorMessage: "Email has been registered",
+      });
     }
 
     await userModel.insertUser(dataObj);
-    res.apiResponse({ status: 1, result: keystore })
+    res.apiResponse({ status: 1, result: keystore });
   } catch (error) {
-    res.apiError(error)
+    res.apiError(error);
   }
-}
+};
 
 const createAdminUser = async (req, res) => {
   try {
     let dataObj = {};
 
-    _.each(_.pick(req.body, [
-      'email', 'password'
-    ]), (val, key) => {
+    _.each(_.pick(req.body, ["email", "password"]), (val, key) => {
       dataObj[key] = _.toString(val);
     });
 
-    let account = await eventModel.createAccount()
+    let account = await eventModel.createAccount();
     const { address, encrypt } = account;
     // const keystore = encrypt(req.body.password);
     dataObj = {
       ...dataObj,
-      role: 'company',
+      role: "company",
       need_kyc: 1,
-      wallet_address: address
-    }
+      wallet_address: address,
+    };
 
-    let [adminRc] = await model.admin.selectAccount({ where: { email: dataObj.email } });
+    let [adminRc] = await model.admin.selectAccount({
+      where: { email: dataObj.email },
+    });
     if (adminRc) {
-      return res.apiResponse({ status: -1, errorMessage: 'Email has been registered' })
+      return res.apiResponse({
+        status: -1,
+        errorMessage: "Email has been registered",
+      });
     }
 
     await model.admin.insertAccount(dataObj);
-    res.apiResponse({ status: 1 })
+    res.apiResponse({ status: 1 });
   } catch (error) {
-    res.apiError(error)
+    res.apiError(error);
   }
-}
+};
 
 const getAdmin = async (req, res) => {
   try {
@@ -167,46 +145,55 @@ const getAdmin = async (req, res) => {
 
     res.apiResponse({
       status: 1,
-      userData
+      userData,
     });
   } catch (error) {
     console.error(error);
     res.apiError(error);
   }
-}
+};
 
 const getUser = async (req, res) => {
   try {
     let { user_id } = req.user;
-    if (req.user.user_id === 0 ) throw new AppError(req.user.errorCode)
-    console.log('req.user', req.user);
+    if (req.user.user_id === 0) throw new AppError(req.user.errorCode);
+    console.log("req.user", req.user);
     // if (user_id == null) {
     //   throw new AppError(-71001);
     // }
 
     let result = await userModel.selectUser(user_id, {
-      fields: ['user_id', 'is_active', 'email', 'mobile', 'wallet_address', 'need_kyc', 'credit_card_number', 'credit_card_name', 'credit_card_expiry_date']
+      fields: [
+        "user_id",
+        "is_active",
+        "email",
+        "mobile",
+        "wallet_address",
+        "need_kyc",
+        "credit_card_number",
+        "credit_card_name",
+        "credit_card_expiry_date",
+      ],
     });
 
-
     let kyc = await kycModel.selectKyc(user_id, {
-      fields: ['user_kyc_id']
+      fields: ["user_kyc_id"],
     });
 
     result.user_kyc_id = 0;
     if (!_.isEmpty(kyc)) {
-      result.user_kyc_id = kyc.user_kyc_id
+      result.user_kyc_id = kyc.user_kyc_id;
     }
 
     res.apiResponse({
       status: 1,
-      result
+      result,
     });
   } catch (error) {
     console.error(error);
     res.apiError(error);
   }
-}
+};
 
 const getCompanyAdmin = async (req, res) => {
   try {
@@ -222,13 +209,12 @@ const getCompanyAdmin = async (req, res) => {
       userData,
       company_key,
       company_id,
-    })
-
+    });
   } catch (error) {
     console.error(error);
     res.apiError(error);
   }
-}
+};
 // const postUser = async (req, res) => {
 //   try {
 //     let postData = {
@@ -297,21 +283,20 @@ const postUserLogout = async (req, res) => {
   try {
     req.logout();
     res.apiResponse({
-      message: 'ok',
+      message: "ok",
     });
   } catch (err) {
     res.apiError(err);
   }
-}
-
+};
 
 const postLogout = async (req, res) => {
   try {
     req.logout();
     res.apiResponse({
-      message: 'ok',
+      message: "ok",
     });
   } catch (err) {
     res.apiError(err);
   }
-}
+};
