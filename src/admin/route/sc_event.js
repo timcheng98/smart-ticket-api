@@ -15,12 +15,18 @@ const ERROR_CODE = {};
 AppError.setErrorCode(ERROR_CODE);
 
 function gasFeeToHKD(current_eth, gasUsed) {
-  let normal_gas_price_per_gwei = 10;
-  let total_cost = gasUsed * normal_gas_price_per_gwei;
-  let GWEI_PER_ETH = 1000000000;
-  let gas_fee_per_hkd = (current_eth * total_cost) / GWEI_PER_ETH;
+  let gas_limit = 21000;
+  let gas = gasUsed;
+  if (gas_limit < gasUsed) {
+    gas = gas_limit
+  }
+  let GWEI_PER_ETH = 0.000000001;
+
+  let tx_fee = (gasUsed * 150 ) * GWEI_PER_ETH;
+  let gas_fee_per_hkd = (current_eth * tx_fee);
   return _.round(gas_fee_per_hkd, 2);
 }
+
 
 module.exports = exports = {
   initRouter: (router) => {
@@ -193,14 +199,14 @@ const getBuyTicketCommission = async (req, res) => {
 
 const createTicket = async (req, res) => {
   try {
-    let { tickets } = req.body;
+    let { tickets, eventId } = req.body;
     if (!_.isArray(tickets)) {
       return res.apiResponse({
         status: -1,
       });
     }
 
-    await eventModel.createTicket(req.user, tickets);
+    await eventModel.createTicketByEvent(req.user, tickets, eventId);
     res.apiResponse({
       status: 1,
     });

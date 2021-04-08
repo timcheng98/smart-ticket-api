@@ -53,7 +53,7 @@ const UserList = (props) => {
     try {
       let url = `/api/admin/user/list`;
       let data = await Service.call("get", url);
-      dataList = _.orderBy(data, ["ctime"], ["desc"]);
+      dataList = _.orderBy(data, ["is_active", 'ctime'], ["desc", 'desc']);
       console.log("datalist", dataList);
     } catch (error) {
       console.error("error >>> ", error);

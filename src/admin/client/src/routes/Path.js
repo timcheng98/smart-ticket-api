@@ -20,6 +20,7 @@ import EventInfo from '../pages/admin/event/Info';
 import UserKyc from '../pages/admin/user/kyc/List';
 import UserKycInfo from '../pages/admin/user/kyc/Info';
 import TransactionHistoryList from '../pages/admin/transaction/List';
+import TransactionHistory from '../pages/Transaction';
 
 //Company
 import CompanyKycList from '../pages/company/kyc/List';
@@ -40,6 +41,7 @@ const Path = (props) => {
   return (
     <BrowserRouter>
       <Switch>
+        <Public path="/transaction/history" component={TransactionHistory} exact level={Main.LEVEL.ALL} />
         <Public path="/admin/login" component={Login} exact />
         <Public path="/" component={Login} exact />
         <Private path="/home" component={Home} exact level={Main.LEVEL.ALL} />

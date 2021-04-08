@@ -8,4 +8,5 @@ const TABLE = {
 
 exports.selectTransaction = models.createSelect('transaction', 'transaction_id');
 exports.updateTransaction = models.createUpdate('transaction', 'transaction_id');
+exports.updateTransactionByTxnHash = models.createUpdate('transaction', 'transaction_hash');
 exports.insertTransaction = models.createInsert('transaction', 'transaction_id');

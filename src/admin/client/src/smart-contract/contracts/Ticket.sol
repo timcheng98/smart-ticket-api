@@ -19,6 +19,12 @@ contract Ticket is ERC721Full, Event {
         ticketContractOwner = msg.sender;
     }
 
+    event CreateTicketsByEvent(string[] _tickets, uint256 _eventId);
+    event CreateTickets(string[] _tickets);
+    event Transfer(address from, address to, uint256 tokenId);
+    event TransferMulti(address from, address to, uint256[] tokenId);
+    event Trade(address target, uint256 tokenId);
+
     struct Ticket {
         uint256 eventId;
         string ticketDetail;
@@ -48,7 +54,7 @@ contract Ticket is ERC721Full, Event {
             incrementCount();
         }
         // require(!_ticketExists[_ticket]);
-
+        emit CreateTickets(_tickets);
         // _ticketExists[_ticket] = true;
     }
 
@@ -62,6 +68,8 @@ contract Ticket is ERC721Full, Event {
             );
             incrementCount();
         }
+
+        emit CreateTicketsByEvent(_tickets, _eventId);
     }
 
     function multiTransferFrom(
@@ -70,10 +78,21 @@ contract Ticket is ERC721Full, Event {
         uint256[] memory _tokenIds
     ) public {
         for (uint256 index = 0; index < _tokenIds.length; index++) {
-            safeTransferFrom(_from, _to, _tokenIds[index]);
+            super.safeTransferFrom(_from, _to, _tokenIds[index]);
         }
+
+        emit TransferMulti(_from, _to, _tokenIds);
     }
 
+    function safeTransferFrom(
+        address _from,
+        address _to,
+        uint256 _tokenId
+    ) public {
+        super.safeTransferFrom(_from, _to, _tokenId);
+
+        emit Transfer(_from, _to, _tokenId);
+    }
     function sellTicketsOnMarketplace(address seller, uint256 ticketId) public {
         address owner = super.ownerOf(ticketId);
         require(marketplaceTickets[ticketId] != seller, "Ticket already on the marketplace");
@@ -81,6 +100,7 @@ contract Ticket is ERC721Full, Event {
         marketplaceTickets[ticketId] = seller;
         marketplaceTicketList.push(ticketId);
         marketplaceTicketId += 1;
+        emit Trade(seller, ticketId);
     }
 
     function buyTicketOnMarketplace(address buyer, uint256 ticketId) public {
@@ -89,6 +109,7 @@ contract Ticket is ERC721Full, Event {
         require(_existMarketplaceTicket(ticketId), "Ticket is not sell on the mareketplace");
         transferFromByContractOwner(owner, buyer, ticketId);
         marketplaceTickets[ticketId] = address(0);
+        emit Trade(buyer, ticketId);
     }
 
     function _existMarketplaceTicket(uint256 ticketId) internal view returns (bool) {
@@ -100,6 +121,7 @@ contract Ticket is ERC721Full, Event {
         require(msg.sender == from || msg.sender == ticketContractOwner, "ERC721: transfer caller is not owner nor approved");
 
         super._transferFrom(from, to, tokenId);
+        emit Transfer(from, to, tokenId);
     }
 
     

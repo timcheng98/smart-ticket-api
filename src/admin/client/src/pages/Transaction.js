@@ -5,7 +5,6 @@ import {
   Divider,
   Form,
   Icon,
-  Layout,
   Menu,
   Modal,
   Popconfirm,
@@ -16,16 +15,17 @@ import {
   Typography,
   Col,
   Popover,
+  Layout
 } from "antd";
 import QrReader from "react-qr-reader";
 import { GlobalOutlined, QrcodeOutlined, EyeOutlined } from "@ant-design/icons";
 import moment from "moment";
 import _ from "lodash";
-import * as UI from "../../../core/UI";
-import * as Main from "../../../core/Main";
+import * as UI from "../core/UI";
+import * as Main from "../core/Main";
 import { useSelector } from "react-redux";
-import * as Service from "../../../core/Service";
-import AppLayout from "../../../components/AppLayout";
+import * as Service from "../core/Service";
+import AppLayout from "../components/AppLayout";
 // import CompanyForm from './Form';
 import { Link } from "react-router-dom";
 import {
@@ -171,7 +171,7 @@ const TransactionHistoryList = (props) => {
                         default: "Fail",
                       })}
                     </Col>
-                    {record.admin_id > 0 && (
+                    {/* {record.admin_id > 0 && (
                       <>
                         <Col span={24}>Admin ID</Col>
                         <Col span={24}>{record.admin_id}</Col>
@@ -189,7 +189,7 @@ const TransactionHistoryList = (props) => {
                           </Tooltip>
                         </Col>
                       </>
-                    )}
+                    )} */}
                     <Col span={24}>Block Hash</Col>
                     <Col span={24}>
                       <Tooltip title={record.block_hash}>
@@ -353,15 +353,28 @@ const TransactionHistoryList = (props) => {
   };
 
   return (
-    <AppLayout title={title} selectedKey={selectedKey}>
-      <Table
-        className="custom-table"
-        loading={loading}
-        rowKey={tableIDName}
-        scroll={{ x: "max-content" }}
-        dataSource={dataList}
-        columns={setTableHeader()}
-      />
+    <div className="transaction" style={{ padding: '40px 0px'}}>
+    <Layout.Header style={{ height: 120, background: 'white'}}>
+         <Row align="center" justify="center" >
+           <Col><img src="/etherscan.png" style={{ objectFit: 'cover', width: 80}} />
+          <span style={{ fontSize: 24, fontWeight: 'bold' }}>Smart Ticket Scan</span></Col>
+           </Row>
+        </Layout.Header>
+    <Row justify="center" align="center">
+      <Col span={24}>
+        
+      </Col>
+      <Col span={22}>
+        <Table
+          className="custom-table"
+          loading={loading}
+          rowKey={tableIDName}
+          scroll={{ x: "max-content" }}
+          dataSource={dataList}
+          columns={setTableHeader()}
+        />
+      </Col>
+
       {/* <Modal
         visible={modalVisible}
         closable
@@ -382,7 +395,8 @@ const TransactionHistoryList = (props) => {
         </div>
 
       </Modal> */}
-    </AppLayout>
+    </Row>
+    </div>
   );
 };
 

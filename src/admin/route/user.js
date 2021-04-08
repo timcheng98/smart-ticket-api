@@ -202,11 +202,12 @@ const getUserList = async (req, res) => {
   try {
     let result = await model.user.selectUser({
       all: true,
+      // order: ['is_active']
       //   fields: [
       //     'user_id', 'is_active', 'mobile', 'ctime', 'utime', 'first_name', 'last_name', 'nickname', 'email'
       //   ]
     });
-    res.apiResponse({ status: 1, result });
+    res.apiResponse({ status: 1, result: _.orderBy(result, ['is_active', 'desc']) });
   } catch (error) {
     res.apiError(error);
   }

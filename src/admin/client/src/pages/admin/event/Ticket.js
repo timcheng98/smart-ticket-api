@@ -450,6 +450,7 @@ const CreateEventForm = () => {
     if (_.isEmpty(ticketList)) return message.warning("please create seats");
     await Service.call("post", "/api/sc/event/ticket", {
       tickets: _ticketList,
+      eventId: location.state.eventId
     });
   };
 

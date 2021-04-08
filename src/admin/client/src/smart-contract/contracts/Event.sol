@@ -24,6 +24,8 @@ contract Event {
     string detail;
   }
 
+  event Create(address _owner, string _detail);
+
   modifier onlyOwner() {
     require(eventContractOwner == msg.sender, 'sender is not a owner');
     _;
@@ -80,6 +82,7 @@ contract Event {
     eventOwner[eventId] = _owner;
     _ownedEventsCount[_owner].increment();
     _incrementEvent();
+    emit Create(_owner, _detail);
   }
 
   function eventOwnerBalanceOf(address _owner) public view returns (uint256) {

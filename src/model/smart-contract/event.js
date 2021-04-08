@@ -37,9 +37,9 @@ exports.createEvent = async (user, event) => {
   return eventAPI.autoSignEventTransaction(user, event);
 }
 
-exports.createTicket = async (user, tickets) => {
+exports.createTicketByEvent = async (user, tickets, eventId) => {
   await eventAPI.init();
-  let created_tickets = await eventAPI.autoCreateTickets(user, tickets);
+  let created_tickets = await eventAPI.autoCreateTicketsByEvent(user, tickets, eventId);
   return created_tickets;
 }
 

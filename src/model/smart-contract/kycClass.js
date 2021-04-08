@@ -2,11 +2,11 @@ const Web3 = require("web3");
 const Kyc = require("../../admin/client/src/smart-contract/abis/Kyc.json");
 const _ = require("lodash");
 const config = require("config");
-const transactionModel = require('./transaction');
+const transactionModel = require("./transaction");
 
 const createTransaction = async (obj) => {
-  return transactionModel.insertTransaction(obj)
-}
+  return transactionModel.insertTransaction(obj);
+};
 
 export class KycAPI {
   constructor() {
@@ -45,7 +45,6 @@ export class KycAPI {
       const abi = Kyc.abi;
       const address = networkData.address;
       this.address = address;
-
       this.contract = new this.web3.eth.Contract(abi, address);
     } else {
       console.error("Smart contract not deployed to detected network");
@@ -55,80 +54,143 @@ export class KycAPI {
 
   async createUserCredential(user, id, hashHex) {
     const transaction = this.contract.methods.validateUser(id, hashHex);
-    return this.signTransaction(user, transaction, function (confirmedMessage) {
-      console.log(" user credential confirmedMessage", confirmedMessage);
-    });
+    const typesArray = [
+      { type: "uint256", name: "_id" },
+      { type: "string", name: "_hashValue" },
+    ];
+    return this.signTransaction(
+      user,
+      transaction,
+      function (confirmedMessage) {
+        console.log(" user credential confirmedMessage", confirmedMessage);
+      },
+      typesArray
+    );
   }
 
   async verifyUserCredential(id, hashHex) {
-    return this.contract.methods.verifyUser(id, hashHex).call({ from: this.accounts[0] });
+    return this.contract.methods
+      .verifyUser(id, hashHex)
+      .call({ from: this.accounts[0] });
   }
 
   async getTotalUserCount() {
-    return this.contract.methods.getTotalUserCount().call({ from: this.accounts[0] });
+    return this.contract.methods
+      .getTotalUserCount()
+      .call({ from: this.accounts[0] });
   }
 
   async getTotalUser(ids) {
-    return this.contract.methods.getTotalUser(ids).call({ from: this.accounts[0] });
+    return this.contract.methods
+      .getTotalUser(ids)
+      .call({ from: this.accounts[0] });
   }
 
   async getUser(id) {
-    return this.contract.methods.getUser(_.toInteger(id)).call({ from: this.accounts[0] });
+    return this.contract.methods
+      .getUser(_.toInteger(id))
+      .call({ from: this.accounts[0] });
   }
 
   async renewUserCredential(user, id, hashHex) {
+    const typesArray = [
+      { type: "uint256", name: "_id" },
+      { type: "string", name: "_hashValue" },
+    ];
     const transaction = this.contract.methods.renewUser(id, hashHex);
-    return this.signTransaction(user, transaction, function (confirmedMessage) {
-      console.log(" Company credential confirmedMessage", confirmedMessage);
-    });
+    return this.signTransaction(
+      user,
+      transaction,
+      function (confirmedMessage) {
+        console.log(" Company credential confirmedMessage", confirmedMessage);
+      },
+      typesArray
+    );
   }
 
   async burnUserCredential(user, id) {
+    const typesArray = [{ type: "uint256", name: "_id" }];
     const transaction = this.contract.methods.burnUser(id, hashHex);
-    return this.signTransaction(user, transaction, function (confirmedMessage) {
-      console.log(" Company credential confirmedMessage", confirmedMessage);
-    });
+    return this.signTransaction(
+      user,
+      transaction,
+      function (confirmedMessage) {
+        console.log(" Company credential confirmedMessage", confirmedMessage);
+      },
+      typesArray
+    );
   }
 
   async createCompanyCredential(user, id, hashHex) {
+    const typesArray = [
+      { type: "uint256", name: "_id" },
+      { type: "string", name: "_hashValue" },
+    ];
     const transaction = this.contract.methods.validateCompany(id, hashHex);
-    return this.signTransaction(user, transaction, function (confirmedMessage) {
-      console.log(" Company credential confirmedMessage", confirmedMessage);
-    });
+    return this.signTransaction(
+      user,
+      transaction,
+      function (confirmedMessage) {
+        console.log(" Company credential confirmedMessage", confirmedMessage);
+      },
+      typesArray
+    );
   }
 
   async verifyCompanyCredential(id, hashHex) {
-    return this.contract.methods.verifyCompany(id, hashHex).call({ from: this.accounts[0] });
+    return this.contract.methods
+      .verifyCompany(id, hashHex)
+      .call({ from: this.accounts[0] });
   }
 
   async getTotalCompanyCount() {
-    return this.contract.methods.getTotalCompanyCount().call({ from: this.accounts[0] });
+    return this.contract.methods
+      .getTotalCompanyCount()
+      .call({ from: this.accounts[0] });
   }
 
   async getTotalCompany(ids) {
-    return this.contract.methods.getTotalCompany(ids).call({ from: this.accounts[0] });
+    return this.contract.methods
+      .getTotalCompany(ids)
+      .call({ from: this.accounts[0] });
   }
 
   async getCompany(id) {
-    return this.contract.methods.getCompany(id).call({ from: this.accounts[0] });
+    return this.contract.methods
+      .getCompany(id)
+      .call({ from: this.accounts[0] });
   }
 
   async renewCompanyCredential(user, id, hashHex) {
+    const typesArray = [
+      { type: "uint256", name: "_id" },
+      { type: "string", name: "_hashValue" },
+    ];
     const transaction = this.contract.methods.renewCompany(id, hashHex);
-    return this.signTransaction(user, transaction, function (confirmedMessage) {
-      console.log(" Company credential confirmedMessage", confirmedMessage);
-    });
+    return this.signTransaction(
+      user,
+      transaction,
+      function (confirmedMessage) {
+        console.log(" Company credential confirmedMessage", confirmedMessage);
+      },
+      typesArray
+    );
   }
 
   async burnCompanyCredential(user, id) {
+    const typesArray = [{ type: "uint256", name: "_id" }];
     const transaction = this.contract.methods.burnCompany(id, hashHex);
-    return this.signTransaction(user, transaction, function (confirmedMessage) {
-      console.log(" Company credential confirmedMessage", confirmedMessage);
-    });
+    return this.signTransaction(
+      user,
+      transaction,
+      function (confirmedMessage) {
+        console.log(" Company credential confirmedMessage", confirmedMessage);
+      },
+      typesArray
+    );
   }
 
-  async signTransaction(user, transaction, cb) {
-
+  async signTransaction(user, transaction, cb, typesArray) {
     let gas = await transaction.estimateGas({ from: this.default_account });
 
     let nonce = await this.web3.eth.getTransactionCount(this.default_account);
@@ -139,7 +201,6 @@ export class KycAPI {
       gas,
       nonce,
     };
-
 
     let signedTransaction = await this.web3.eth.accounts.signTransaction(
       options,
@@ -153,13 +214,27 @@ export class KycAPI {
       .on("transactionHash", (transactionHash) => {
         console.log("step 2 -- TX Hash: " + transactionHash);
       })
-      .on("confirmation", (confirmationNumber) => {
-        console.log("step 3 -- confirmation: " + confirmationNumber);
-        if (confirmationNumber >= 24) {
+      .on("confirmation", async (confirmationNumber, data) => {
+        if (confirmationNumber <= 2) {
+          await transactionModel.updateTransactionByTxnHash(
+            data.transactionHash,
+            {
+              confirm_block: confirmationNumber,
+            }
+          );
+        }
+        if (confirmationNumber === 2) {
+          // await createTransaction(obj);
           cb("Transaction Confirmed");
         }
       })
-      .on('receipt', async (receipt) => {
+      .on("receipt", async (receipt) => {
+        console.log("receipt", receipt);
+        const decodedParameters = await this.web3.eth.abi.decodeParameters(
+          typesArray,
+          receipt.logs[0].data
+        );
+
         const obj = {
           block_hash: receipt.blockHash,
           block_number: receipt.blockNumber,
@@ -172,11 +247,13 @@ export class KycAPI {
           cumulative_gas_used: receipt.cumulativeGasUsed,
           gas_used: receipt.gasUsed,
           logs: JSON.stringify(receipt.logs),
-          user_address: '',
-          ...user
-        }
+          user_address: "",
+          event: JSON.stringify(decodedParameters),
+          confirm_block: 0,
+          ...user,
+        };
 
-        await createTransaction(obj)
+        await createTransaction(obj);
       })
       .on("error", console.error);
   }

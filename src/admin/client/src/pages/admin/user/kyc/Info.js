@@ -160,6 +160,7 @@ const KYCInformation = () => {
       return message.warning("national document is not verified.");
     if (status <= 0) return message.warning("kyc is not activate.");
 
+    dispatch(CommonActions.setLoading(true))    
     let encryptString = `${national_id}${first_name}${last_name}${birthday}${national_doc}${face_doc}`;
 
     const digestHex = await Main.sha256(JSON.stringify(encryptString));
@@ -173,9 +174,10 @@ const KYCInformation = () => {
         hashHex: digestHex,
       }
     );
-
+    
     getUserCredential();
     verifyUserCredential();
+    dispatch(CommonActions.setLoading(false))    
   };
 
   return (
