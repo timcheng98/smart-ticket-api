@@ -360,6 +360,7 @@ const SupportDocument = (props) => {
                 }
                 await Service.call("patch", "/api/company/admin/kyc", {
                   status,
+                  reject_reason: '',
                   company_doc: fileInfo,
                 });
                 props.setStep(3);

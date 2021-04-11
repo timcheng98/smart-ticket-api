@@ -152,7 +152,7 @@
   display: none;
 }
 
-.disabled-false {
+.disabled-false, .disabled-0 {
   background-color: #f5f0f0;
   border-color: #f5f0f0;
   color: #fff

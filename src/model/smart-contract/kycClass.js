@@ -54,17 +54,17 @@ export class KycAPI {
 
   async createUserCredential(user, id, hashHex) {
     const transaction = this.contract.methods.validateUser(id, hashHex);
-    const typesArray = [
-      { type: "uint256", name: "_id" },
-      { type: "string", name: "_hashValue" },
-    ];
+    const dataObj = {
+      id,
+      hashHex
+    }
     return this.signTransaction(
       user,
       transaction,
       function (confirmedMessage) {
         console.log(" user credential confirmedMessage", confirmedMessage);
       },
-      typesArray
+      dataObj
     );
   }
 
@@ -93,10 +93,10 @@ export class KycAPI {
   }
 
   async renewUserCredential(user, id, hashHex) {
-    const typesArray = [
-      { type: "uint256", name: "_id" },
-      { type: "string", name: "_hashValue" },
-    ];
+    const dataObj = {
+      id,
+      hashHex
+    }
     const transaction = this.contract.methods.renewUser(id, hashHex);
     return this.signTransaction(
       user,
@@ -104,12 +104,14 @@ export class KycAPI {
       function (confirmedMessage) {
         console.log(" Company credential confirmedMessage", confirmedMessage);
       },
-      typesArray
+      dataObj
     );
   }
 
   async burnUserCredential(user, id) {
-    const typesArray = [{ type: "uint256", name: "_id" }];
+    const dataObj = {
+      id
+    }
     const transaction = this.contract.methods.burnUser(id, hashHex);
     return this.signTransaction(
       user,
@@ -117,15 +119,15 @@ export class KycAPI {
       function (confirmedMessage) {
         console.log(" Company credential confirmedMessage", confirmedMessage);
       },
-      typesArray
+      dataObj
     );
   }
 
   async createCompanyCredential(user, id, hashHex) {
-    const typesArray = [
-      { type: "uint256", name: "_id" },
-      { type: "string", name: "_hashValue" },
-    ];
+    const dataObj = {
+      id,
+      hashHex
+    }
     const transaction = this.contract.methods.validateCompany(id, hashHex);
     return this.signTransaction(
       user,
@@ -133,7 +135,7 @@ export class KycAPI {
       function (confirmedMessage) {
         console.log(" Company credential confirmedMessage", confirmedMessage);
       },
-      typesArray
+      dataObj
     );
   }
 
@@ -162,10 +164,10 @@ export class KycAPI {
   }
 
   async renewCompanyCredential(user, id, hashHex) {
-    const typesArray = [
-      { type: "uint256", name: "_id" },
-      { type: "string", name: "_hashValue" },
-    ];
+    const dataObj = {
+      id,
+      hashHex
+    }
     const transaction = this.contract.methods.renewCompany(id, hashHex);
     return this.signTransaction(
       user,
@@ -173,12 +175,14 @@ export class KycAPI {
       function (confirmedMessage) {
         console.log(" Company credential confirmedMessage", confirmedMessage);
       },
-      typesArray
+      dataObj
     );
   }
 
   async burnCompanyCredential(user, id) {
-    const typesArray = [{ type: "uint256", name: "_id" }];
+    const dataObj = {
+      id
+    }
     const transaction = this.contract.methods.burnCompany(id, hashHex);
     return this.signTransaction(
       user,
@@ -186,11 +190,11 @@ export class KycAPI {
       function (confirmedMessage) {
         console.log(" Company credential confirmedMessage", confirmedMessage);
       },
-      typesArray
+      dataObj
     );
   }
 
-  async signTransaction(user, transaction, cb, typesArray) {
+  async signTransaction(user, transaction, cb, dataObj) {
     let gas = await transaction.estimateGas({ from: this.default_account });
 
     let nonce = await this.web3.eth.getTransactionCount(this.default_account);
@@ -230,10 +234,10 @@ export class KycAPI {
       })
       .on("receipt", async (receipt) => {
         console.log("receipt", receipt);
-        const decodedParameters = await this.web3.eth.abi.decodeParameters(
-          typesArray,
-          receipt.logs[0].data
-        );
+        // const decodedParameters = await this.web3.eth.abi.decodeParameters(
+        //   typesArray,
+        //   receipt.logs[0].data
+        // );
 
         const obj = {
           block_hash: receipt.blockHash,
@@ -248,7 +252,7 @@ export class KycAPI {
           gas_used: receipt.gasUsed,
           logs: JSON.stringify(receipt.logs),
           user_address: "",
-          event: JSON.stringify(decodedParameters),
+          event: JSON.stringify(dataObj),
           confirm_block: 0,
           ...user,
         };

@@ -1,38 +1,26 @@
 import React, { useState, useEffect } from "react";
 import {
-  Input,
   Button,
   Row,
   Col,
   Tooltip,
-  InputNumber,
   Select,
   Menu,
-  Popconfirm,
-  message,
   Tag,
+  Spin,
 } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-import { useHistory, Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { setTotalSeats, setLoading } from "../../../redux/actions/common";
 import _ from "lodash";
-import moment from "moment";
 import AppLayout from "../../../components/AppLayout";
-import { DownCircleOutlined } from "@ant-design/icons";
 import * as Service from "../../../core/Service";
-import LoadingScreen from "../../../components/LoadingScreen";
 
 const title = "Event Ticket";
 const selectedKey = "event_ticket";
-const { Option } = Select;
 
 const CreateEventForm = () => {
-  const [area, setArea] = useState("");
-  const [ticketType, setTicketType] = useState(null);
   const [selectedMenuKey, setSelectedMenuKey] = useState(["vip"]);
-  const [rows, setRows] = useState(null);
-  const [columns, setColumns] = useState(null);
-  const [price, setPrice] = useState(null);
   const [seatElements, setSeatElements] = useState([]);
   const [buttonElements, setButtonElements] = useState({
     vip: [],
@@ -41,9 +29,7 @@ const CreateEventForm = () => {
     free: [],
     locked: [],
   });
-  const [ticketList, setTicketList] = useState([]);
 
-  const app = useSelector((state) => state.app);
   const totalSeats = useSelector((state) => state.app.totalSeats);
   const dispatch = useDispatch();
 
@@ -51,18 +37,18 @@ const CreateEventForm = () => {
   const location = useLocation();
 
   useEffect(() => {
-    dispatch(setLoading(true));
     getSeatsFromChain();
-    dispatch(setLoading(false));
   }, [location]);
 
   const getSeatsFromChain = async () => {
+    dispatch(setLoading(true));
+
     let tickets = await Service.call("get", `/api/sc/event/ticket`);
     tickets = tickets[location.state.eventId];
     let areaTickets = _.groupBy(tickets, "area");
     let seats = {};
     _.each(areaTickets, (item, key) => {
-      let rows = _.groupBy(item, "row");
+      let rows = _.groupBy(item, "ticket_row");
       let body = {};
       _.each(rows, (columns, rowKey) => {
         let columnsObj = {};
@@ -75,8 +61,8 @@ const CreateEventForm = () => {
       seats[key] = {
         body,
         meta: {
-          totalRows: item[item.length - 1].row,
-          totalColumns: item[item.length - 1].column,
+          totalRows: item[item.length - 1].ticket_row,
+          totalColumns: item[item.length - 1].ticket_col,
           type: item[item.length - 1].type,
           status: "",
         },
@@ -84,6 +70,7 @@ const CreateEventForm = () => {
     });
 
     dispatch(setTotalSeats({ ...totalSeats, ...seats }));
+    dispatch(setLoading(false));
   };
 
   useEffect(() => {
@@ -97,108 +84,16 @@ const CreateEventForm = () => {
   }, [location]);
 
   useEffect(() => {
-    dispatch(setLoading(true));
     renderSeats();
-    dispatch(setLoading(false));
   }, [totalSeats]);
 
-  // const init = async () => {
-  //   let eventAPI = new EventAPI();
-  //   setEventAPI(eventAPI);
-  //   await eventAPI.init();
-  //   console.log("hi");
-
-  //   let detailObj = {
-  //     name: "張敬軒盛樂演唱會",
-  //     venu: "紅磡體育館",
-  //     contact: "+852-56281088",
-  //     email: "timchengy@gmail.com",
-  //     startDate: 1607701444,
-  //     endDate: 1607701444,
-  //     need_kyc: true,
-  //     country: "HK",
-  //     district: "Hung Hom",
-  //     fullAddress: "Hong Kong Coliseum",
-  //     company: "XXX Company",
-  //     description: "XXXX Description",
-  //     totalSupply: 5000,
-  //     performer: "張敬軒",
-  //     category: "sing",
-  //     startDateSell: 1607701444,
-  //     endDateSell: 1607701444,
-  //   };
-
-  //   // await eventAPI.createEvent(detailObj);
-  //   let ticket = await eventAPI.getTicketAll();
-  //   let result = await eventAPI.getEvent(0);
-  //   console.log(ticket);
-  //   console.log(result);
-  //   // let test =  await eventAPI.testMint();
-  //   // console.log(id)
-  // };
-
-  const onChangeSeat = ({ area, row, column }) => {
-    let target = totalSeats[area]["body"][row][column];
-    totalSeats[area]["body"][row][column].available = !target.available;
-    dispatch(setTotalSeats(totalSeats));
-    renderSeats();
-  };
-
-  const onFinish = async () => {
-    let seats = {
-      [area]: {
-        body: {},
-        meta: {
-          totalRows: 0,
-          totalColumns: 0,
-          type: ticketType,
-        },
-      },
-    };
-    let rowObj = {};
-    let _ticketList = [];
-    for (let row = 1; row <= rows; row++) {
-      rowObj[row] = {};
-      let columnsObj = {};
-      for (let column = 1; column <= columns; column++) {
-        let obj = {
-          area,
-          row,
-          column,
-          seat: `ROW ${row} - COL ${column}`,
-          available: true,
-          type: ticketType,
-          price: price === null ? 0 : price,
-        };
-        columnsObj[column] = obj;
-
-        _ticketList.push(JSON.stringify(obj));
-      }
-      rowObj[row] = columnsObj;
-    }
-
-    seats[area].body = rowObj;
-    seats[area].meta.totalRows = rows;
-    seats[area].meta.totalColumns = columns;
-    seats[area].meta.status = "new";
-    setSelectedMenuKey([ticketType]);
-    resetFormState();
-    dispatch(setTotalSeats({ ...totalSeats, ...seats }));
-    setTicketList([...ticketList, ..._ticketList]);
-  };
-
-  const resetFormState = () => {
-    setArea("");
-    setPrice(null);
-    setRows(null);
-    setColumns(null);
-    setTicketType(null);
-  };
-
   const renderSeats = () => {
+    dispatch(setLoading(true));
+
     setSeatElements([]);
     setButtonElements([]);
     if (_.isEmpty(totalSeats)) {
+      dispatch(setLoading(false));
       return;
     }
 
@@ -270,7 +165,7 @@ const CreateEventForm = () => {
                   <span
                     key={`${area}-${row}-${column}`}
                     className={`ticket-col ${type} disabled-${body[row][column].available}`}
-                    onClick={() => onChangeSeat({ area, row, column })}
+                    // onClick={() => onChangeSeat({ area, row, column })}
                   >
                     {column}
                   </span>
@@ -374,6 +269,7 @@ const CreateEventForm = () => {
 
     setButtonElements(_seatObj);
     setSeatElements(_seatTables);
+    dispatch(setLoading(false));
   };
 
   const renderButtons = () => {
@@ -430,117 +326,11 @@ const CreateEventForm = () => {
     setEvents(element);
   };
 
-  const onChainProcess = async () => {
-    let seats = {};
-    _.each(totalSeats, (item, key) => {
-      if (item.meta.status === "new") {
-        return (seats[key] = item);
-      }
-    });
-
-    let _ticketList = [];
-    _.each(seats, (item) => {
-      _.each(item.body, (rows) => {
-        _.each(rows, (col) => {
-          _ticketList.push(JSON.stringify(col));
-        });
-      });
-    });
-
-    if (_.isEmpty(ticketList)) return message.warning("please create seats");
-    await Service.call("post", "/api/sc/event/ticket", {
-      tickets: _ticketList,
-    });
-  };
-
-  // if (_.isEmpty(seatElements)) return <LoadingScreen></LoadingScreen>;
-
-  // console.log('seatElements.length', seatElements.length);
-
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
       <Row gutter={[16, 16]}>
         <Col span={8}>Event: {events}</Col>
       </Row>
-      <Row gutter={[16, 16]}>
-        <Col span={6}>
-          AREA:
-          <Input
-            placeholder="Area"
-            value={area}
-            onChange={(e) => {
-              setArea(_.toString(e.target.value));
-            }}
-          />
-        </Col>
-        <Col span={6}>
-          Type:
-          <Select
-            placeholder="Type"
-            value={ticketType}
-            onChange={(value) => {
-              setTicketType(_.toString(value));
-            }}
-            style={{ width: "100%" }}
-          >
-            <Option value="vip">VIP</Option>
-            <Option value="reserved">Reserved</Option>
-            <Option value="normal">Normal</Option>
-            <Option value="free">Free</Option>
-            <Option value="locked">Locked</Option>
-          </Select>
-        </Col>
-      </Row>
-      <Row gutter={[16, 16]}>
-        <Col span={6}>
-          Row:
-          <InputNumber
-            placeholder="Row"
-            min={1}
-            style={{ width: "100%" }}
-            value={rows}
-            onChange={(value) => {
-              setRows(_.toInteger(value));
-            }}
-          />
-        </Col>
-        <Col span={6}>
-          Column:
-          <InputNumber
-            placeholder="Column"
-            min={1}
-            style={{ width: "100%" }}
-            value={columns}
-            onChange={(value) => {
-              setColumns(_.toInteger(value));
-            }}
-          />
-        </Col>
-      </Row>
-      <Row gutter={[16, 16]}>
-        {ticketType !== "free" && (
-          <Col span={6}>
-            Price:
-            <InputNumber
-              placeholder="Price"
-              value={price}
-              min={0}
-              style={{ width: "100%" }}
-              onChange={(value) => {
-                setPrice(_.toInteger(value));
-              }}
-            />
-          </Col>
-        )}
-      </Row>
-      <Row gutter={[16, 48]}>
-        <Col span={8}>
-          <Button type="primary" onClick={() => onFinish()}>
-            Add to Preview
-          </Button>
-        </Col>
-      </Row>
-
       <Row gutter={[16, 48]}>
         <Col span={6}>
           <Menu
@@ -558,30 +348,6 @@ const CreateEventForm = () => {
             <Col>{seatElements}</Col>
           </Row>
         </Col>
-      </Row>
-      <Row>
-        <Popconfirm
-          title="Are you sure to submit?"
-          onConfirm={async () => {
-            dispatch(setLoading(true));
-            await onChainProcess();
-            await getSeatsFromChain();
-            dispatch(setLoading(false));
-          }}
-        >
-          <Button
-            type="primary"
-            style={{
-              backgroundColor: "#fff",
-              color: "#000",
-              borderColor: "#000",
-              fontSize: 16,
-              height: 50,
-            }}
-          >
-            Submit on the BlockChain
-          </Button>
-        </Popconfirm>
       </Row>
     </AppLayout>
   );

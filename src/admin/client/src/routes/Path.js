@@ -9,6 +9,7 @@ import Private from './Private';
 //All
 import Login from '../pages/admin/Login';
 import Home from '../pages/admin/Home';
+import CompanyHome from '../pages/company/Home';
 
 //Admin
 import CompanyKycInfoAll from '../pages/admin/company/kyc/Info';
@@ -20,6 +21,8 @@ import EventInfo from '../pages/admin/event/Info';
 import UserKyc from '../pages/admin/user/kyc/List';
 import UserKycInfo from '../pages/admin/user/kyc/Info';
 import TransactionHistoryList from '../pages/admin/transaction/List';
+import PaymentHistoryList from '../pages/admin/payment/List';
+import EntryHistoryList from '../pages/admin/entry/List';
 import TransactionHistory from '../pages/Transaction';
 
 //Company
@@ -44,7 +47,8 @@ const Path = (props) => {
         <Public path="/transaction/history" component={TransactionHistory} exact level={Main.LEVEL.ALL} />
         <Public path="/admin/login" component={Login} exact />
         <Public path="/" component={Login} exact />
-        <Private path="/home" component={Home} exact level={Main.LEVEL.ALL} />
+        <Private path="/home" component={Home} exact level={Main.LEVEL.ADMIN} />
+        <Private path="/company/home" component={CompanyHome} exact level={Main.LEVEL.COMPANY} />
 
         <Private path="/admin/company/kyc" component={CompanyKycListAll} exact />
         <Private path="/admin/company/kyc/info" component={CompanyKycInfoAll} exact level={Main.LEVEL.ADMIN} />
@@ -56,6 +60,8 @@ const Path = (props) => {
         <Private path="/admin/user/kyc" component={UserKyc} exact level={Main.LEVEL.ADMIN} />
         <Private path="/admin/user/kyc/info" component={UserKycInfo} exact level={Main.LEVEL.ADMIN} />
         <Private path="/admin/transaction/history" component={TransactionHistoryList} exact level={Main.LEVEL.ADMIN} />
+        <Private path="/admin/payment/history" component={PaymentHistoryList} exact level={Main.LEVEL.ADMIN} />
+        <Private path="/admin/entry/history" component={EntryHistoryList} exact level={Main.LEVEL.ADMIN} />
 
         <Private path="/company/kyc/list" component={CompanyKycList} exact level={Main.LEVEL.COMPANY} />
         <Private path="/company/kyc/form" component={CompanyKycForm} exact level={Main.LEVEL.COMPANY} />

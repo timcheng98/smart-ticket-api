@@ -224,8 +224,8 @@ const patchEventByAdmin = async (req, res) => {
     );
 
     console.log("postData", postData);
-    let [eventRC] = await eventModel.updateEvent(req.body.event_id, postData);
-
+    let eventRC = await eventModel.updateEvent(req.body.event_id, postData);
+    // console.log('eventRC', eventRC)
     res.apiResponse({
       status: 1,
       eventRC,

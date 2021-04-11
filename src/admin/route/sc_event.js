@@ -22,7 +22,7 @@ function gasFeeToHKD(current_eth, gasUsed) {
   }
   let GWEI_PER_ETH = 0.000000001;
 
-  let tx_fee = (gasUsed * 150 ) * GWEI_PER_ETH;
+  let tx_fee = (gasUsed) * GWEI_PER_ETH;
   let gas_fee_per_hkd = (current_eth * tx_fee);
   return _.round(gas_fee_per_hkd, 2);
 }
@@ -143,7 +143,7 @@ const getOwnerTickets = async (req, res) => {
 
 const getOnSellTicketsByArea = async (req, res) => {
   try {
-    let result = await eventModel.getOnSellTicketsByArea(req.body.selectedArea);
+    let result = await eventModel.getOnSellTicketsByArea(req.body.selectedArea, req.body.totalSelectedTicket, req.body.eventId);
     res.apiResponse({
       status: 1,
       result,
@@ -160,7 +160,9 @@ const buyTicket = async (req, res) => {
       req.user,
       req.body.address,
       req.body.tickets,
-      req.body.total
+      req.body.total,
+      req.body.commission,
+      req.body.card
     );
     res.apiResponse({
       status: 1,

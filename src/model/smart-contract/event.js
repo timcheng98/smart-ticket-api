@@ -62,15 +62,15 @@ exports.getOwnerTicket = async (address) => {
   return tickets;
 }
 
-exports.getOnSellTicketsByArea = async (selectedArea) => {
+exports.getOnSellTicketsByArea = async (selectedArea, totalSelectedTicket, eventId) => {
   await eventAPI.init();
-  let tickets = await eventAPI.getOnSellTicketsByArea(selectedArea)
+  let tickets = await eventAPI.getOnSellTicketsByArea(selectedArea, totalSelectedTicket, eventId)
   return tickets;
 }
 
-exports.buyTicket = async (user, address, tickets, total) => {
+exports.buyTicket = async (user, address, tickets, total, commission, card) => {
   await eventAPI.init();
-  let result = await eventAPI.buyTicket(user, address, tickets, total)
+  let result = await eventAPI.buyTicket(user, address, tickets, total, commission, card)
   return result;
 }
 

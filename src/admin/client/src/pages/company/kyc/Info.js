@@ -59,13 +59,13 @@ const KycInformation = () => {
     }
   };
 
-  console.log("company.company_doc", company.company_doc);
+  // console.log("company.company_doc", company.company_doc);
   const applyKycAgain = async (e) => {
-    await Service.call("patch", "/api/company/admin/kyc/single", {
-      admin_id: company.admin_id,
-      is_company_doc_verified: 0,
-      company_doc: "",
-    });
+    // await Service.call("patch", "/api/company/admin/kyc/single", {
+    //   admin_id: company.admin_id,
+    //   is_company_doc_verified: 0,
+    //   // company_doc: "",
+    // });
     history.push("/company/kyc/form");
   };
 

@@ -69,7 +69,6 @@ const EventInfo = () => {
     history.push("/company/event/form", { event_id: event.event_id });
   };
 
-  console.log(event);
   return (
     <AppLayout
       title={`Referecne code -- ${event.event_code}`}
@@ -297,7 +296,7 @@ const EventInfo = () => {
             type="primary"
             // onClick={onChainProcess}
           >
-            Create Tickets
+            View Tickets
           </Button>
         </Link>
       )}

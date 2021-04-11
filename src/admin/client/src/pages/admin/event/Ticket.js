@@ -62,7 +62,7 @@ const CreateEventForm = () => {
     let areaTickets = _.groupBy(tickets, "area");
     let seats = {};
     _.each(areaTickets, (item, key) => {
-      let rows = _.groupBy(item, "row");
+      let rows = _.groupBy(item, "ticket_row");
       let body = {};
       _.each(rows, (columns, rowKey) => {
         let columnsObj = {};
@@ -75,8 +75,8 @@ const CreateEventForm = () => {
       seats[key] = {
         body,
         meta: {
-          totalRows: item[item.length - 1].row,
-          totalColumns: item[item.length - 1].column,
+          totalRows: item[item.length - 1].ticket_row,
+          totalColumns: item[item.length - 1].ticket_col,
           type: item[item.length - 1].type,
           status: "",
         },
@@ -101,41 +101,6 @@ const CreateEventForm = () => {
     renderSeats();
     dispatch(setLoading(false));
   }, [totalSeats]);
-
-  // const init = async () => {
-  //   let eventAPI = new EventAPI();
-  //   setEventAPI(eventAPI);
-  //   await eventAPI.init();
-  //   console.log("hi");
-
-  //   let detailObj = {
-  //     name: "張敬軒盛樂演唱會",
-  //     venu: "紅磡體育館",
-  //     contact: "+852-56281088",
-  //     email: "timchengy@gmail.com",
-  //     startDate: 1607701444,
-  //     endDate: 1607701444,
-  //     need_kyc: true,
-  //     country: "HK",
-  //     district: "Hung Hom",
-  //     fullAddress: "Hong Kong Coliseum",
-  //     company: "XXX Company",
-  //     description: "XXXX Description",
-  //     totalSupply: 5000,
-  //     performer: "張敬軒",
-  //     category: "sing",
-  //     startDateSell: 1607701444,
-  //     endDateSell: 1607701444,
-  //   };
-
-  //   // await eventAPI.createEvent(detailObj);
-  //   let ticket = await eventAPI.getTicketAll();
-  //   let result = await eventAPI.getEvent(0);
-  //   console.log(ticket);
-  //   console.log(result);
-  //   // let test =  await eventAPI.testMint();
-  //   // console.log(id)
-  // };
 
   const onChangeSeat = ({ area, row, column }) => {
     let target = totalSeats[area]["body"][row][column];
@@ -243,10 +208,10 @@ const CreateEventForm = () => {
                   key={`${area}-${row}-${column}`}
                   className="ticket-col"
                   style={{
-                    backgroundColor: body[row][column].available
+                    backgroundColor: Boolean(body[row][column].available)
                       ? "#24a0ed"
                       : "#d3d3d3",
-                    borderColor: body[row][column].available
+                    borderColor: Boolean(body[row][column].available)
                       ? "#24a0ed"
                       : "#d3d3d3",
                   }}
@@ -269,7 +234,7 @@ const CreateEventForm = () => {
                 >
                   <span
                     key={`${area}-${row}-${column}`}
-                    className={`ticket-col ${type} disabled-${body[row][column].available}`}
+                    className={`ticket-col ${type} disabled-${Boolean(body[row][column].available)}`}
                     onClick={() => onChangeSeat({ area, row, column })}
                   >
                     {column}
@@ -442,7 +407,7 @@ const CreateEventForm = () => {
     _.each(seats, (item) => {
       _.each(item.body, (rows) => {
         _.each(rows, (col) => {
-          _ticketList.push(JSON.stringify(col));
+          _ticketList.push(col);
         });
       });
     });

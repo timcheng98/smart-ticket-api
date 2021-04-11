@@ -18,9 +18,19 @@ const LoginRegister = () => {
   const history = useHistory();
   const config = useSelector((state) => state.app.config);
   const auth = useSelector((state) => state.app.auth);
+  const app = useSelector((state) => state.app);
 
   useEffect(() => {
-    if (auth) history.push("/home");
+    console.log('object', app);
+    if (auth) {
+      if (app.is_admin.admin) {
+        history.push("/home");
+      }
+
+      if (app.is_admin.company_admin) {
+        history.push("/company/home");
+      }
+    }
   }, [auth]);
 
   return (
@@ -107,14 +117,17 @@ const Login = () => {
       dispatch(setAdmin(adminData.userData[0]));
       dispatch(setIsAdmin(adminData.userData[0]));
       dispatch(setAuth(true));
+      history.push("/home");
+
     }
 
     if (adminData.userData[0].role === "company") {
       dispatch(setCompanyAdmin(adminData.userData[0]));
       dispatch(setIsAdmin(adminData.userData[0]));
       dispatch(setAuth(true));
+      history.push("/company/home");
+
     }
-    history.push("/home");
   };
 
   return (

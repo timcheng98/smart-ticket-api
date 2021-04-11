@@ -113,11 +113,11 @@ const KYCInformation = () => {
   };
 
   const confirmReject = async (e) => {
-    await Service.call("patch", "/api/company/admin/kyc", {
+    await Service.call("patch", "/api/company/admin/kyc/single", {
       admin_id: dataSource.admin_id,
       reject_reason: text,
       is_company_doc_verified: 0,
-      company_doc: "",
+      // company_doc: "",
       status: -1,
       check_by: app.admin.admin_id,
     });
@@ -125,7 +125,7 @@ const KYCInformation = () => {
   };
 
   const confirmApprove = async (e) => {
-    await Service.call("patch", "/api/company/admin/kyc", {
+    await Service.call("patch", "/api/company/admin/kyc/single", {
       admin_id: dataSource.admin_id,
       reject_reason: "",
       is_company_doc_verified: 1,
@@ -178,6 +178,7 @@ const KYCInformation = () => {
     getCompanyCredential();
     verifyCompanyCredential();
   };
+  console.log('dataSource', dataSource);
 
   return (
     <AppLayout title={`${title}`} selectedKey={selectedKey}>

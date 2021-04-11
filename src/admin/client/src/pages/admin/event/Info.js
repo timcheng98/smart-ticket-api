@@ -77,7 +77,7 @@ const EventInfo = () => {
       reject_reason: text,
       is_approval_doc_verified: 0,
       is_seat_doc_verified: 0,
-      approval_doc: "",
+      // approval_doc: "",
       status: -1,
       event_id: dataSource.event_id,
     });

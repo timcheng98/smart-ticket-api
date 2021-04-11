@@ -65,16 +65,15 @@ const SidebarMenu = ({ selectedKey }) => {
   );
 };
 
-const AllLevelItems = [
+const AllLevelItems = [];
+
+const AdminLevelItems = [
   {
     key: "dashboard",
     title: "Dashboard",
     path: "/home",
     icon: <DashboardOutlined />,
   },
-];
-
-const AdminLevelItems = [
   {
     key: "company_kyc",
     title: "Company Kyc",
@@ -101,8 +100,20 @@ const AdminLevelItems = [
   },
   {
     key: "transaction_history",
-    title: "Transaction",
+    title: "Blockchain Tx",
     path: "/admin/transaction/history",
+    icon: <HistoryOutlined />,
+  },
+  {
+    key: "payment_history",
+    title: "Payment Tx",
+    path: "/admin/payment/history",
+    icon: <HistoryOutlined />,
+  },
+  {
+    key: "entry_audit_trail",
+    title: "Entry Logs",
+    path: "/admin/entry/history",
     icon: <HistoryOutlined />,
   },
   // {
@@ -114,6 +125,12 @@ const AdminLevelItems = [
 ];
 
 const CompanyLevelItems = [
+  {
+    key: "dashboard",
+    title: "Dashboard",
+    path: "/company/home",
+    icon: <DashboardOutlined />,
+  },
   {
     key: "company_kyc",
     title: "Company Kyc",

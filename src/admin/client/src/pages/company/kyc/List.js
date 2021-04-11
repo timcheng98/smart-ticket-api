@@ -154,7 +154,7 @@ const CompanyKyc = (props) => {
   };
 
   return (
-    <AppLayout>
+    <AppLayout selectedKey={selectedKey} title="Company KYC">
       {_.isEmpty(dataSource) && (
         <Row gutter={[0, 20]}>
           <Col>

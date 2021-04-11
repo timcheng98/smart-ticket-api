@@ -63,22 +63,36 @@ const TicketVerification = (props) => {
   }, []);
 
   const verifyTicket = async () => {
+
     if (!app.is_admin)
       return message.warning("Invalid Session. Please Login Again");
     const { user_id, eventId, ticketId, ts } = queryString.parse(
       location.search
     );
-    let user = await Service.call("get", `/api/admin/user/${user_id}`);
+
+    let obj = {
+      user_id: user_id || -1,
+      event_id: eventId || -1,
+      ticket_id: ticketId || -1,
+      status: 0,
+      message: ''
+    }
+    let user = await Service.call("get", `/api/admin/user/single/${user_id}`);
     if (
       _.isEmpty(user_id) ||
       _.isEmpty(eventId) ||
       _.isEmpty(ticketId) ||
       _.isEmpty(ts)
     ) {
+      obj.message = 'Invalid URL';
+      await Service.call("post", `/api/entry/audit_trail`, obj);
       setLoading(false);
       return setError("Invalid URL");
     }
     if (!user) {
+      obj.message = 'User do not exist';
+      await Service.call("post", `/api/entry/audit_trail`, obj);
+      setLoading(false);
       return setError("User do not exist");
     }
     let event = await Service.call(
@@ -86,6 +100,8 @@ const TicketVerification = (props) => {
       `/api/sc/event/single?eventId=${eventId}`
     );
     if (!event) {
+      obj.message = 'Event NOT Found';
+      await Service.call("post", `/api/entry/audit_trail`, obj);
       setLoading(false);
       return setError("Event NOT Found");
     }
@@ -95,11 +111,16 @@ const TicketVerification = (props) => {
       `/api/sc/event/ticket/owner/single?ticketId=${ticketId}`
     );
     if (ticket !== user.wallet_address) {
+      obj.message = 'Ticket Owner NOT match';
+      await Service.call("post", `/api/entry/audit_trail`, obj);
       setLoading(false);
       return setError("Ticket Owner NOT match");
     }
 
     setEvent(event);
+    obj.message = 'Success';
+    obj.status = 1;
+    await Service.call("post", `/api/entry/audit_trail`, obj);
     setLoading(false);
     console.log("ticket", ticket);
     console.log("event", event);
@@ -135,7 +156,7 @@ const TicketVerification = (props) => {
         padding: "40px 0px",
         height: "100vh",
         backgroundColor: "rgb(14, 19, 29)",
-        color: "#fff",
+        color: "#87d068",
       }}
     >
       <Col>
@@ -148,7 +169,7 @@ const TicketVerification = (props) => {
       </Col>
       {!_.isEmpty(event) && (
         <Col span={22} style={{ textAlign: "center" }}>
-          <h1 className="company-logo" style={{ color: "#fff", fontSize: 32 }}>
+          <h1 className="company-logo" style={{ color: "#87d068", fontSize: 32 }}>
             {event.name}
           </h1>
         </Col>
@@ -157,9 +178,9 @@ const TicketVerification = (props) => {
         {error === "" ? (
           <>
             <CheckCircleOutlined
-              style={{ color: "#fff", fontSize: 120, marginBottom: 30 }}
+              style={{ color: "#87d068", fontSize: 120, marginBottom: 30 }}
             />
-            <h1 style={{ color: "#fff", fontSize: 64, wordSpacing: 2 }}>
+            <h1 style={{ color: "#87d068", fontSize: 64, wordSpacing: 2 }}>
               PASS
             </h1>
           </>

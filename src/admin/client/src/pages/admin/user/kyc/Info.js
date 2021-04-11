@@ -107,6 +107,7 @@ const KYCInformation = () => {
       hashHex: digestHex,
     });
 
+    console.log('setMatch', result);
     setMatch(result);
   };
 
@@ -151,6 +152,8 @@ const KYCInformation = () => {
       first_name,
       last_name,
       national_id,
+      user_id,
+      user_kyc_id
     } = dataSource;
     if (_.isEmpty(dataSource))
       return message.warning("cannot found kyc instance.");
@@ -161,7 +164,7 @@ const KYCInformation = () => {
     if (status <= 0) return message.warning("kyc is not activate.");
 
     dispatch(CommonActions.setLoading(true))    
-    let encryptString = `${national_id}${first_name}${last_name}${birthday}${national_doc}${face_doc}`;
+    let encryptString = `${user_id}${user_kyc_id}${national_id}${first_name}${last_name}${birthday}${national_doc}${face_doc}`;
 
     const digestHex = await Main.sha256(JSON.stringify(encryptString));
 

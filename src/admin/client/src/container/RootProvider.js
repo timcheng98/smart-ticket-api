@@ -26,6 +26,10 @@ const RootProvider = () => {
     init();
   }, []);
 
+  const init = async () => {
+    await getInitialData();
+  }
+
   const loadEventBlockchain = async () => {
     setLoadingSc(true);
     let events = await Service.call("get", `/api/sc/event`);
@@ -33,7 +37,7 @@ const RootProvider = () => {
     setLoadingSc(false);
   };
 
-  const init = async () => {
+  const getInitialData = async () => {
     dispatch(setLoading(true));
     await loadEventBlockchain();
     let resp = await Service.call("get", "/api/config");

@@ -33,6 +33,8 @@ import AppLayout from "../../../components/AppLayout";
 import * as CommonActions from "../../../redux/actions/common";
 import FormUploadFile from "../../../components/FormUploadFile";
 import { formItemLayout, tailLayout } from "../../../components/ModalLayout";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const { Option } = Select;
 
@@ -42,6 +44,22 @@ const ipfs = ipfsClient({
   port: "5001",
   protocol: "https",
 });
+
+const toolbarOptions = [
+  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+  [{ 'font': [] }],
+  ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+  ['blockquote'],
+  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+  [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+  [{ 'direction': 'rtl' }],                // text direction
+  [{ 'color': [] }, { 'background': [] }], // dropdown with defaults from theme
+  [{ 'align': [] }],
+  ['link', 'image', 'video'],
+
+  ['clean']  // remove formatting button
+];
+
 
 const involvedModelName = "company";
 const title = "Event Application Form";
@@ -189,6 +207,8 @@ const BasicInformation = (props) => {
   const [infoForm] = Form.useForm();
   const dispatch = useDispatch();
   const [mapValue, setMapValue] = useState(null);
+  const [value, setValue] = useState("");
+
   const [mapLocation, setMapLocation] = useState({
     lng: "",
     lat: "",
@@ -203,6 +223,11 @@ const BasicInformation = (props) => {
     infoForm.setFieldsValue({
       ...form_data,
     });
+    setMapLocation({
+      lng: form_data.longitude,
+      lat: form_data.latitude,
+    });
+    setValue(_.isEmpty(form_data.long_desc) ? '' : form_data.long_desc)
   }, [form_data]);
 
   const getInitialValue = async () => {
@@ -305,10 +330,30 @@ const BasicInformation = (props) => {
       </Form.Item>
       <Form.Item
         label="Long Description"
-        name="long_desc"
-        rules={[{ required: true, message: "Please input Company Owner." }]}
+        style={{height: 300}}
+
+        // name="long_desc"
+        // rules={[{ required: true, message: "Please input Company Owner." }]}
       >
-        <Input.TextArea autoSize={{ minRows: 5 }} />
+        <ReactQuill
+          style={{ height: 220}}
+          modules={{
+            toolbar: toolbarOptions,
+          }}
+          theme={"snow"}
+          value={value}
+          // getContents={(value) => {
+          //   console.log(value)
+          // }}
+          onChange={(value) => {
+            setValue(value);
+            console.log('value', value)
+            infoForm.setFieldsValue({
+              long_desc: value
+            })
+          }}
+        />
+        {/* <Input.TextArea autoSize={{ minRows: 5 }} /> */}
       </Form.Item>
       <Form.Item
         label="Event Period"
@@ -559,7 +604,7 @@ const SupportDocument = (props) => {
   };
 
   return (
-    <>
+    <Form layout="vertical">
       <Row justify="center">
         <Col>
           <h2>Related Documents</h2>
@@ -580,19 +625,6 @@ const SupportDocument = (props) => {
       </Row>
       <Row justify="center" style={{ padding: 50 }}>
         <Col span={24}>
-          <Form.Item label="Banner 1">
-            <FormUploadFile
-              type="one"
-              data={{ scope: "private" }}
-              onChange={(file) => uploadOnChange(file, "banner_1")}
-              onRemove={onRemove}
-              imageURL={imageURL.banner_1}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-      <Row justify="center" style={{ padding: 50 }}>
-        <Col span={24}>
           <Form.Item label="Seat Document ">
             <FormUploadFile
               type="one"
@@ -606,19 +638,6 @@ const SupportDocument = (props) => {
       </Row>
       <Row justify="center" style={{ padding: 50 }}>
         <Col span={24}>
-          <Form.Item label="Banner 2">
-            <FormUploadFile
-              type="one"
-              data={{ scope: "private" }}
-              onChange={(file) => uploadOnChange(file, "banner_2")}
-              onRemove={onRemove}
-              imageURL={imageURL.banner_2}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-      <Row justify="center" style={{ padding: 50 }}>
-        <Col span={24}>
           <Form.Item label="Thumbnail">
             <FormUploadFile
               type="one"
@@ -626,6 +645,32 @@ const SupportDocument = (props) => {
               onChange={(file) => uploadOnChange(file, "thumbnail")}
               onRemove={onRemove}
               imageURL={imageURL.thumbnail}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row justify="center" style={{ padding: 50 }}>
+        <Col span={24}>
+          <Form.Item label="Banner 1">
+            <FormUploadFile
+              type="one"
+              data={{ scope: "private" }}
+              onChange={(file) => uploadOnChange(file, "banner_1")}
+              onRemove={onRemove}
+              imageURL={imageURL.banner_1}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row justify="center" style={{ padding: 50 }}>
+        <Col span={24}>
+          <Form.Item label="Banner 2">
+            <FormUploadFile
+              type="one"
+              data={{ scope: "private" }}
+              onChange={(file) => uploadOnChange(file, "banner_2")}
+              onRemove={onRemove}
+              imageURL={imageURL.banner_2}
             />
           </Form.Item>
         </Col>
@@ -701,7 +746,7 @@ const SupportDocument = (props) => {
           </Form.Item>
         </Col>
       </Row>
-    </>
+    </Form>
   );
 };
 

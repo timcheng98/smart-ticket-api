@@ -28,7 +28,7 @@ const CompanyEvent = (props) => {
   const [again, setAgain] = useState(false);
   const [isDraft, setDraft] = useState(false);
   const sc_events = useSelector((state) => state.smartContract.sc_events);
-
+  const [isCompany, setCompany] = useState(false);
   useEffect(() => {
     getInitalState();
 
@@ -39,6 +39,12 @@ const CompanyEvent = (props) => {
 
   const getInitalState = async () => {
     let resp = await Service.call("get", "/api/company/event");
+    let company = await Service.call("get", "/api/company/admin/kyc/single");
+    if (!_.isEmpty(company) && company.is_company_doc_verified === 1) {
+      setCompany(true)
+    }
+
+    console.log(company)
     setDataSource(resp.eventRc);
   };
 
@@ -190,18 +196,26 @@ const CompanyEvent = (props) => {
   return (
     <AppLayout title={title} selectedKey={selectedKey}>
       <Row gutter={[0, 20]}>
-        <Col>
-          <Link
-            to={{
-              pathname: "/company/event/form",
-              state: { event_id: 0 },
-            }}
-          >
-            <Button className="custom-btn" htmlType="submit">
+        {!isCompany ? (
+          <Col>
+            <Button disabled className="custom-btn">
               Create Event
             </Button>
-          </Link>
-        </Col>
+          </Col>
+        ) : (
+          <Col>
+            <Link
+              to={{
+                pathname: "/company/event/form",
+                state: { event_id: 0 },
+              }}
+            >
+              <Button className="custom-btn" htmlType="submit">
+                Create Event
+              </Button>
+            </Link>
+          </Col>
+        )}
       </Row>
       <Table
         className="custom-table"

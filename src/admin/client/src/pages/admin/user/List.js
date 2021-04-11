@@ -96,7 +96,7 @@ const UserList = (props) => {
           }
           return (
             <span>
-              <Button
+              {/* <Button
                 shape="circle"
                 style={{ color: "#000000" }}
                 icon={<EditOutlined />}
@@ -104,7 +104,7 @@ const UserList = (props) => {
                   setModalVisible(true);
                   setSelectedRecord(record);
                 }}
-              />
+              /> */}
               <Tooltip
                 title={record.is_active ? "Disable User" : "Enable user"}
               >

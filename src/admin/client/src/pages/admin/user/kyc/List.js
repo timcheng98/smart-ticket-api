@@ -234,7 +234,7 @@ const UserKycList = (props) => {
   if (loading) {
     return (
       <>
-        <LoadingScreen />
+        <Spin />
       </>
     );
   }

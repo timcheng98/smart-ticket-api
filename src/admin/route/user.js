@@ -21,7 +21,7 @@ module.exports = exports = {
     // router.get('/api/user/kyc/:id', getUserKyc);
     router.get("/api/admin/user", getUser);
 
-    // router.get('/api/admin/user/:id', getSingleUser);
+    router.get('/api/admin/user/single/:id', getSingleUser);
     // router.post('/api/user', createUser);
     router.post("/api/user/decrypt", decryptAccountWallet);
     router.patch("/api/admin/user", patchUserByAdmin);
@@ -267,7 +267,14 @@ const postUserKyc = async (req, res) => {
       }
     );
 
-    let result = await userKycModel.insertKyc(dataObj);
+    let result;
+    let userRc = await userKycModel.selectKyc(req.user.user_id);
+    if (!_.isEmpty(userRc)) {
+      result = await userKycModel.updateKyc(req.user.user_id, dataObj);
+    } else {
+      result = await userKycModel.insertKyc(dataObj);
+    }
+
     res.apiResponse({ status: 1, result });
   } catch (error) {
     res.apiError(error);

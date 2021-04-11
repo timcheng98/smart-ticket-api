@@ -22,7 +22,7 @@ const Private = ({ component: AppComponent, level }) => {
             return <Redirect to="/home" />;
           }
           if (level === 2 && !app.company_admin.admin_id) {
-            return <Redirect to="/home" />;
+            return <Redirect to="/company/home" />;
           }
         }
         // if(logoutWay == 'admin'){

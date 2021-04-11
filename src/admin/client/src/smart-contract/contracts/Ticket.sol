@@ -19,15 +19,15 @@ contract Ticket is ERC721Full, Event {
         ticketContractOwner = msg.sender;
     }
 
-    event CreateTicketsByEvent(string[] _tickets, uint256 _eventId);
-    event CreateTickets(string[] _tickets);
+    event CreateTicketsByEvent(uint256[] _tickets, uint256 _eventId);
+    event CreateTickets(uint256[] _tickets);
     event Transfer(address from, address to, uint256 tokenId);
     event TransferMulti(address from, address to, uint256[] tokenId);
     event Trade(address target, uint256 tokenId);
 
     struct Ticket {
         uint256 eventId;
-        string ticketDetail;
+        uint256 ticket_id;
         uint256 ticketId;
     }
 
@@ -43,7 +43,7 @@ contract Ticket is ERC721Full, Event {
         return marketplaceTicketId;
     }
 
-    function mint(string[] memory _tickets) public {
+    function mint(uint256[] memory _tickets) public {
         for (uint256 index = 0; index < _tickets.length; index++) {
             _mint(msg.sender, ticketCount);
             tickets[ticketCount] = Ticket(
@@ -58,7 +58,7 @@ contract Ticket is ERC721Full, Event {
         // _ticketExists[_ticket] = true;
     }
 
-    function mintByEvent(string[] memory _tickets, uint256 _eventId) public {
+    function mintByEvent(uint256[] memory _tickets, uint256 _eventId) public {
         for (uint256 index = 0; index < _tickets.length; index++) {
             _mint(msg.sender, ticketCount);
             tickets[ticketCount] = Ticket(

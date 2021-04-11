@@ -15,7 +15,7 @@ const _ = require("lodash");
 
 // TODO:: errorCode
 const ERROR_CODE = {
-  [-71001]: "Invalid technine admin information",
+  [-71001]: "Invalid admin information",
   [-71002]: "Invalid company admin information",
 };
 

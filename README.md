@@ -1,4 +1,4 @@
-### technine Smart Access API Server
+### Smart Ticket API Server
 
 #### Initialization
 

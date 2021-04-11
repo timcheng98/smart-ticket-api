@@ -68,6 +68,7 @@ const CompanyList = (props) => {
       let url = `/api/${involvedModelName}/admin/kyc`;
       let data = await Service.call("get", url);
       dataList = _.orderBy(data, ["ctime"], ["desc"]);
+      console.log('url', dataList);
       toggleLoading(false);
     } catch (error) {
       console.error("error >>> ", error);
