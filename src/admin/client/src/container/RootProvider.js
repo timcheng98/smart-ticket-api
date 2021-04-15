@@ -32,7 +32,7 @@ const RootProvider = () => {
 
   const loadEventBlockchain = async () => {
     setLoadingSc(true);
-    let events = await Service.call("get", `/api/sc/event`);
+    let events = await Service.callBlockchain("get", `/api/sc/event`);
     dispatch(setSCEvents(_.keyBy(events, "event_id")));
     setLoadingSc(false);
   };

@@ -3,6 +3,7 @@ import axios from "axios";
 import { ActionCreators } from "../redux/actions";
 import { getStore } from "../redux/store/configureStore";
 
+
 export async function call(_method, _endpoint, _data) {
   try {
     let method = _.toString(_method).toLowerCase();
@@ -15,6 +16,56 @@ export async function call(_method, _endpoint, _data) {
 
     console.log(
       `%c${_method.toUpperCase()} ${_endpoint} >>> `,
+      "background: #222; color: #bada55; font-size: 13px; font-weight: normall",
+      respData
+    );
+
+    // console.log(`respData >> `, respData);
+
+    if (status <= 0) {
+      console.error(
+        `Service.call() Error :: ${errorCode} :: ${errorMessage} :: end point ${_endpoint}`
+      );
+      // if (errorCode === -101) {
+      // TODO :: Redirect ???
+      // }
+      let errorObj = {
+        status,
+        errorCode,
+        errorMessage,
+      };
+      return errorObj;
+    }
+    // TODO :: resmove result in response
+    if (!_.isUndefined(result)) {
+      return result;
+    } else {
+      return respData;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+  return null;
+}
+
+export async function callBlockchain(_method, _endpoint, _data) {
+  try {
+    let config = await call('get', '/api/config');
+    let method = _.toString(_method).toLowerCase();
+    let endpoint = _.toString(_endpoint);
+    let data = _.clone(_data) || {};
+    let resp = await axios({
+      url: endpoint,
+      data,
+      method,
+      baseURL: config.BLOCKCHAIN_BASE_URL
+    });
+    
+    let respData = resp.data;
+    let { status, errorCode, errorMessage, result } = respData;
+
+    console.log(
+      `%cBlockchain -- ${_method.toUpperCase()} ${_endpoint} >>> `,
       "background: #222; color: #bada55; font-size: 13px; font-weight: normall",
       respData
     );

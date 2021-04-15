@@ -171,6 +171,14 @@ const TransactionHistoryList = (props) => {
                         default: "Fail",
                       })}
                     </Col>
+                    <Col span={24}>Service Provider</Col>
+                    <Col span={24}>
+                    <Tooltip title={record.sender}>
+												<span style={{ color: '#3498db' }}>
+													{record.sender.substring(0, 32)}...
+												</span>
+											</Tooltip>
+                    </Col>
                     {record.admin_id > 0 && (
                       <>
                         <Col span={24}>Admin ID</Col>
@@ -272,18 +280,22 @@ const TransactionHistoryList = (props) => {
         },
       },
       {
-        title: "Sender",
-        dataIndex: "sender",
-        render: (value) => {
-          return (
-            <Tooltip title={value}>
-              <span style={{ color: "#3498db" }}>
-                {value.substring(0, 17)}...
-              </span>
-            </Tooltip>
-          );
-        },
-      },
+				title: 'Sender',
+				dataIndex: 'sender',
+				render: (value, record) => {
+          let sender = value;
+          if (record.user_address !== '') {
+            sender = record.user_address;
+          }
+					return (
+						<Tooltip title={sender}>
+							<span style={{ color: '#3498db' }}>
+								{sender.substring(0, 17)}...
+							</span>
+						</Tooltip>
+					);
+				},
+			},
       {
         title: "Receiver",
         dataIndex: "receiver",

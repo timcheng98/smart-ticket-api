@@ -78,7 +78,7 @@ const CompanyList = (props) => {
   };
 
   const getKycData = async () => {
-    let data = await Service.call("post", "/api/sc/kyc/company/target", {
+    let data = await Service.callBlockchain("post", "/api/sc/kyc/company/target", {
       ids: _.map(dataList, "admin_id"),
     });
     console.log(_.keyBy(data, "admin_id"));

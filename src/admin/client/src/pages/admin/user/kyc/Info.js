@@ -80,7 +80,7 @@ const KYCInformation = () => {
   };
 
   const getUserCredential = async () => {
-    let result = await Service.call(
+    let result = await Service.callBlockchain(
       "get",
       `/api/sc/kyc/user?user_id=${dataSource.user_id}`
     );
@@ -102,7 +102,7 @@ const KYCInformation = () => {
     let encryptString = `${user_id}${user_kyc_id}${national_id}${first_name}${last_name}${birthday}${national_doc}${face_doc}`;
 
     const digestHex = await Main.sha256(JSON.stringify(encryptString));
-    let result = await Service.call("post", `/api/sc/kyc/user/verify`, {
+    let result = await Service.callBlockchain("post", `/api/sc/kyc/user/verify`, {
       id: dataSource.user_id,
       hashHex: digestHex,
     });
@@ -145,15 +145,7 @@ const KYCInformation = () => {
     const {
       face_doc_verified,
       national_doc_verified,
-      status,
-      national_doc,
-      face_doc,
-      birthday,
-      first_name,
-      last_name,
-      national_id,
-      user_id,
-      user_kyc_id
+      status
     } = dataSource;
     if (_.isEmpty(dataSource))
       return message.warning("cannot found kyc instance.");
@@ -164,17 +156,14 @@ const KYCInformation = () => {
     if (status <= 0) return message.warning("kyc is not activate.");
 
     dispatch(CommonActions.setLoading(true))    
-    let encryptString = `${user_id}${user_kyc_id}${national_id}${first_name}${last_name}${birthday}${national_doc}${face_doc}`;
 
-    const digestHex = await Main.sha256(JSON.stringify(encryptString));
-
-    let resp = await Service.call(
+    let resp = await Service.callBlockchain(
       "post",
       "/api/sc/kyc/user/credential/create",
       {
         admin_id: app.admin.admin_id,
         id: dataSource.user_id,
-        hashHex: digestHex,
+        user: dataSource,
       }
     );
     

@@ -29,6 +29,7 @@ import * as Service from "../../../core/Service";
 import * as UI from "../../../core/UI";
 import AppLayout from "../../../components/AppLayout";
 import ImageModal from "../../../components/ImageModal";
+import ReactQuill from 'react-quill';
 import {
   FileProtectOutlined,
   FileSearchOutlined,
@@ -169,7 +170,12 @@ const EventInfo = () => {
               {event.short_desc}
             </Descriptions.Item>
             <Descriptions.Item label="Long Description">
-              {event.long_desc}
+              <ReactQuill
+                className="read-only"
+                readOnly
+                theme={["bubble"]}
+                value={event.long_desc}
+              />
             </Descriptions.Item>
           </Descriptions>
         </TabPane>

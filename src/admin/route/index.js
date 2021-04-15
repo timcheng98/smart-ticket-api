@@ -19,6 +19,7 @@ exports.getRouter = function (ns) {
       status: 1,
       STATIC_SERVER_URL: config.get("STATIC_SERVER_URL"),
       TICKET_VERIFY_URL: config.get("TICKET_VERIFY_URL"),
+      BLOCKCHAIN_BASE_URL: config.get("BLOCKCHAIN_BASE_URL"),
       TURRFLE_URL: config.get("TRUFFLE.ORIGIN"),
     });
   });

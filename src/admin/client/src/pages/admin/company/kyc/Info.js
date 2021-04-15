@@ -79,7 +79,7 @@ const KYCInformation = () => {
   };
 
   const getCompanyCredential = async () => {
-    let result = await Service.call(
+    let result = await Service.callBlockchain(
       "get",
       `/api/sc/kyc/company?admin_id=${dataSource.admin_id}`
     );
@@ -104,7 +104,8 @@ const KYCInformation = () => {
     let encryptString = `${admin_id}${company_kyc_id}${company_code}${name}${owner}${description}${industry}${company_doc}${company_size}${address}${found_date}`;
 
     const digestHex = await Main.sha256(JSON.stringify(encryptString));
-    let result = await Service.call("post", `/api/sc/kyc/company/verify`, {
+    let result = await Service.callBlockchain("post", `/api/sc/kyc/company/verify`, {
+      admin_id: app.is_admin.admin_id,
       id: dataSource.admin_id,
       hashHex: digestHex,
     });
@@ -141,17 +142,6 @@ const KYCInformation = () => {
 
   const onChainProcess = async () => {
     const {
-      company_kyc_id,
-      admin_id,
-      company_code,
-      name,
-      owner,
-      description,
-      industry,
-      company_doc,
-      company_size,
-      address,
-      found_date,
       is_company_doc_verified,
       status,
     } = dataSource;
@@ -161,24 +151,19 @@ const KYCInformation = () => {
       return message.warning("company document is not verified.");
     if (status <= 0) return message.warning("kyc is not activate.");
 
-    let encryptString = `${admin_id}${company_kyc_id}${company_code}${name}${owner}${description}${industry}${company_doc}${company_size}${address}${found_date}`;
-
-    const digestHex = await Main.sha256(JSON.stringify(encryptString));
-
-    let resp = await Service.call(
+    let resp = await Service.callBlockchain(
       "post",
       "/api/sc/kyc/company/credential/create",
       {
         admin_id: app.admin.admin_id,
         id: dataSource.admin_id,
-        hashHex: digestHex,
+        company: dataSource,
       }
     );
 
-    getCompanyCredential();
-    verifyCompanyCredential();
+    await getCompanyCredential();
+    await verifyCompanyCredential();
   };
-  console.log('dataSource', dataSource);
 
   return (
     <AppLayout title={`${title}`} selectedKey={selectedKey}>

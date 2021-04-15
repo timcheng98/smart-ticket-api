@@ -93,7 +93,7 @@ const UploadOne = ({
         <div style={{ width: "100%", margin: "auto" }}>
           <img
             src={imageURL}
-            style={{ width: "100%", objectFit: "contain" }}
+            style={{ width: "100%", height: 400, objectFit: "contain" }}
             alt=""
           />
         </div>

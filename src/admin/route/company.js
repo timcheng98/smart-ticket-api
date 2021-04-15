@@ -16,15 +16,33 @@ AppError.setErrorCode(ERROR_CODE);
 module.exports = exports = {
   initRouter: (router) => {
     /* Authorize */
-    router.use("/api/company", middleware.session.authorize());
-
+    
     /* Company Admin KYC */
+    router.get("/api/company/kyc", getKycListPublic);
+    
+    router.use("/api/company", middleware.session.authorize());
     router.get("/api/company/admin/kyc", getKycList);
     router.get("/api/company/admin/kyc/single", getKycById);
     router.post("/api/company/admin/kyc", postKyc);
     router.patch("/api/company/admin/kyc", patchKyc);
     router.patch("/api/company/admin/kyc/single", patchKycById);
   },
+};
+
+const getKycListPublic = async (req, res) => {
+  try {
+    let result = await kycModel.selectKyc({
+      where: {
+        status: 2
+      },
+    });
+    res.apiResponse({
+      status: 1,
+      result,
+    });
+  } catch (error) {
+    res.apiError(error);
+  }
 };
 
 const getKycList = async (req, res) => {

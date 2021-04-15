@@ -28,6 +28,7 @@ import _ from "lodash";
 import { useSelector, useDispatch } from "react-redux";
 import * as Service from "../../../core/Service";
 import * as UI from "../../../core/UI";
+import * as Main from "../../../core/Main";
 import * as CommonActions from "../../../redux/actions/common";
 import AppLayout from "../../../components/AppLayout";
 // import { eventAPI } from '../../../smart-contract/api/Event';
@@ -40,6 +41,7 @@ import {
   FileSearchOutlined,
   ZoomInOutlined,
 } from "@ant-design/icons";
+import ReactQuill from "react-quill";
 
 const { TabPane } = Tabs;
 const involvedModelName = "event";
@@ -106,8 +108,11 @@ const EventInfo = () => {
     delete postObj.reject_reason;
 
     dispatch(CommonActions.setLoading(true));
-    await Service.call("post", "/api/sc/event", { event: postObj });
-    let events = await Service.call("get", `/api/sc/event`);
+    await Service.callBlockchain("post", "/api/sc/event", {
+      event: postObj,
+      admin_id: app.is_admin.admin_id,
+    });
+    let events = await Service.callBlockchain("get", `/api/sc/event`);
     dispatch(CommonActions.setSCEvents(_.keyBy(events, "event_id")));
     dispatch(CommonActions.setLoading(false));
     history.push("/admin/event/info");
@@ -131,7 +136,7 @@ const EventInfo = () => {
           </Row>
           {!_.isEmpty(sc_events[dataSource.event_id]) && (
             <Row gutter={[0, 20]}>
-              <Col>
+              <Col span={24}>
                 <Badge
                   status="processing"
                   text={
@@ -150,6 +155,9 @@ const EventInfo = () => {
                     </Tag>
                   }
                 />
+              </Col>
+              <Col span={24}>
+                <p>Hash Key: {sc_events[dataSource.event_id].hash_key}</p>
               </Col>
             </Row>
           )}
@@ -197,7 +205,12 @@ const EventInfo = () => {
               {dataSource.short_desc}
             </Descriptions.Item>
             <Descriptions.Item label="Long Description">
-              {dataSource.long_desc}
+              <ReactQuill
+                className="read-only"
+                readOnly
+                theme={["bubble"]}
+                value={dataSource.long_desc}
+              />
             </Descriptions.Item>
           </Descriptions>
         </TabPane>

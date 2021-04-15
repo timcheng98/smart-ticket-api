@@ -35,6 +35,11 @@ const CreateEventForm = () => {
 
   const [events, setEvents] = useState(null);
   const location = useLocation();
+  
+  useEffect(() => {
+    setSeatElements([]);
+    setButtonElements([]);
+  }, []);
 
   useEffect(() => {
     getSeatsFromChain();
@@ -43,12 +48,12 @@ const CreateEventForm = () => {
   const getSeatsFromChain = async () => {
     dispatch(setLoading(true));
 
-    let tickets = await Service.call("get", `/api/sc/event/ticket`);
+    let tickets = await Service.callBlockchain("get", `/api/sc/event/ticket`);
     tickets = tickets[location.state.eventId];
     let areaTickets = _.groupBy(tickets, "area");
     let seats = {};
     _.each(areaTickets, (item, key) => {
-      let rows = _.groupBy(item, "ticket_row");
+      let rows = _.groupBy(item, "row");
       let body = {};
       _.each(rows, (columns, rowKey) => {
         let columnsObj = {};
@@ -61,8 +66,8 @@ const CreateEventForm = () => {
       seats[key] = {
         body,
         meta: {
-          totalRows: item[item.length - 1].ticket_row,
-          totalColumns: item[item.length - 1].ticket_col,
+          totalRows: item[item.length - 1].row,
+          totalColumns: item[item.length - 1].column,
           type: item[item.length - 1].type,
           status: "",
         },
@@ -307,7 +312,7 @@ const CreateEventForm = () => {
   const getEvent = async () => {
     let eventId = location.state.eventId;
     let element = [];
-    let sc_events = await Service.call("get", "/api/sc/event");
+    let sc_events = await Service.callBlockchain("get", "/api/sc/event");
     {
       _.map(sc_events, (item, key) => {
         return element.push(

@@ -279,7 +279,7 @@ const SupportDocument = (props) => {
     let data = await Service.call("get", `/api/company/admin/kyc/single`);
     console.log("data");
     if (!_.isEmpty(data.company_doc)) {
-      console.log("test");
+      setFileInfo(data.company_doc)
       setImageURL(`${app.config.STATIC_SERVER_URL}/media/${data.company_doc}`);
     }
   };
@@ -330,13 +330,6 @@ const SupportDocument = (props) => {
         </Col>
       </Row>
       <Divider style={{ border: "none" }} />
-      {/* <Row>
-        <Col>
-          {fileInfo.name}
-          {(((fileInfo.size) / 1024 )/ 1024).toFixed(2)} MB
-          <Progress percent={proress} />
-        </Col>
-      </Row> */}
       <Row justify="space-between" style={{ padding: "0 5%" }}>
         <Col>
           <Form.Item>

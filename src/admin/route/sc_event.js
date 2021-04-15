@@ -62,7 +62,7 @@ const getEventAll = async (req, res) => {
     // result = _.keyBy(result, 'event_id')
     res.apiResponse({
       status: 1,
-      result,
+      result: 'test',
     });
   } catch (error) {
     console.error(error);

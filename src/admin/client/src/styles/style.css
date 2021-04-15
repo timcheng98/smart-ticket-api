@@ -29,6 +29,27 @@
   display: none;
 }
 
+.read-only .ql-editor {
+  resize: none;
+}
+
+.read-only span, .read-only p, .read-only h1 {
+  /* color: #fff !important; */
+  font-family: Roboto, Microsoft JhengHei, serif;
+  font-size: 16px;
+}
+
+.read-only img {
+  object-fit: contain;
+  width: 80%;
+  padding: 20px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
 .nav-logo {
   height: 40px !important;
   transition: height 0.2s;

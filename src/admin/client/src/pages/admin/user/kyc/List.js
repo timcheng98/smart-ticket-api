@@ -72,7 +72,7 @@ const UserKycList = (props) => {
   };
 
   const getKycData = async () => {
-    let data = await Service.call("post", "/api/sc/kyc/user/target", {
+    let data = await Service.callBlockchain("post", "/api/sc/kyc/user/target", {
       ids: _.map(dataList, "user_id"),
     });
     console.log(data);

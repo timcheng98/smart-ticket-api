@@ -8,6 +8,7 @@ module.exports = {
   // "STATIC_SERVER_URL": "http://localhost:3000",
   "STATIC_SERVER_URL": "http://172.16.210.165:3000",
   "TICKET_VERIFY_URL": "http://192.168.2.155:3002",
+  "BLOCKCHAIN_BASE_URL": "http://localhost:4001/",
   "API": {
     "PORT": 3000,
     "ORIGIN": "http://localhost:3000",
@@ -47,25 +48,9 @@ module.exports = {
     "USERNAME": "",
     "PASSWORD": null
   },
-  "EMAIL": {
-    "TO": "",
-    "FROM": ""
-  },
-  "SENDGRID_API_KEY": null,
-  "TWILIO": {
-    "accountSid": "",
-    "authToken": "",
-    "from": ""
-  },
-  "FIREBASE": {
-    "DATABASE_URL": "",
-    "SERVICE_ACCOUNT_FILE": __dirname + ""
-  },
   "MEDIA": {
     "PUBLIC": path.join(__dirname, "..", "data/public"),
     "PRIVATE": path.join(__dirname, "..", "data/private"),
-    "QRCODE": path.join(__dirname, "..", "data/private", "qrcode"), // store controller passcode QR Code
+    "QRCODE": path.join(__dirname, "..", "data/private", "qrcode"), 
   },
-  "PASSCODE_ENCRYPTION_KEY": "",
-  "API_PASSCODE_EXPIRY_TIME": 15 * 60, // seconds
 };

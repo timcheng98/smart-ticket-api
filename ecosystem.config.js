@@ -1,6 +1,6 @@
 module.exports = {
   apps : [{
-    name: 'io.smartticketdev',
+    name: 'smartticketapi',
     script: 'build/main.js',
 
     // Options reference: https://pm2.keymetrics.io/docs/usage/application-declaration/
@@ -14,7 +14,7 @@ module.exports = {
       NODE_ENV: 'production'
     }
   }, {
-    name: 'io.t9sa-api',
+    name: 'smartticketapi',
     script: 'build/main.js',
 
     // Options reference: https://pm2.keymetrics.io/docs/usage/application-declaration/
@@ -28,7 +28,7 @@ module.exports = {
       NODE_ENV: 'production'
     }
   }, {
-    name: 'io.restore-smartticket',
+    name: 'smartticketapi',
     script: 'build/main.js',
 
     // Options reference: https://pm2.keymetrics.io/docs/usage/application-declaration/

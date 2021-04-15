@@ -207,7 +207,7 @@ const BasicInformation = (props) => {
   const [infoForm] = Form.useForm();
   const dispatch = useDispatch();
   const [mapValue, setMapValue] = useState(null);
-  const [value, setValue] = useState("");
+  const [longDesc, setLongDesc] = useState("");
 
   const [mapLocation, setMapLocation] = useState({
     lng: "",
@@ -227,7 +227,7 @@ const BasicInformation = (props) => {
       lng: form_data.longitude,
       lat: form_data.latitude,
     });
-    setValue(_.isEmpty(form_data.long_desc) ? '' : form_data.long_desc)
+    setLongDesc(_.isEmpty(form_data.long_desc) ? '' : form_data.long_desc)
   }, [form_data]);
 
   const getInitialValue = async () => {
@@ -238,8 +238,9 @@ const BasicInformation = (props) => {
     if (_.isEmpty(resp.eventRc)) {
       return dispatch(CommonActions.setFormData({}));
     }
-
+    
     let eventRc = resp.eventRc[0];
+    setLongDesc(_.isEmpty(eventRc.long_desc) ? '' : eventRc.long_desc)
     let formData = {
       ...eventRc,
       tags: JSON.parse(eventRc.tags),
@@ -341,15 +342,14 @@ const BasicInformation = (props) => {
             toolbar: toolbarOptions,
           }}
           theme={"snow"}
-          value={value}
+          value={longDesc}
           // getContents={(value) => {
           //   console.log(value)
           // }}
           onChange={(value) => {
-            setValue(value);
-            console.log('value', value)
+            setLongDesc(value);
             infoForm.setFieldsValue({
-              long_desc: value
+              long_desc: longDesc
             })
           }}
         />
@@ -532,6 +532,7 @@ const BasicInformation = (props) => {
                   CommonActions.setFormData({
                     ...form_data,
                     ...infoForm.getFieldsValue(),
+                    long_desc: longDesc
                   })
                 );
                 props.setStep(2);

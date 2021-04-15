@@ -51,18 +51,23 @@ const CreateEventForm = () => {
   const location = useLocation();
 
   useEffect(() => {
+    setSeatElements([]);
+    setButtonElements([]);
+  }, []);
+
+  useEffect(() => {
     dispatch(setLoading(true));
     getSeatsFromChain();
     dispatch(setLoading(false));
   }, [location]);
 
   const getSeatsFromChain = async () => {
-    let tickets = await Service.call("get", `/api/sc/event/ticket`);
+    let tickets = await Service.callBlockchain("get", `/api/sc/event/ticket`);
     tickets = tickets[location.state.eventId];
     let areaTickets = _.groupBy(tickets, "area");
     let seats = {};
     _.each(areaTickets, (item, key) => {
-      let rows = _.groupBy(item, "ticket_row");
+      let rows = _.groupBy(item, "row");
       let body = {};
       _.each(rows, (columns, rowKey) => {
         let columnsObj = {};
@@ -75,8 +80,8 @@ const CreateEventForm = () => {
       seats[key] = {
         body,
         meta: {
-          totalRows: item[item.length - 1].ticket_row,
-          totalColumns: item[item.length - 1].ticket_col,
+          totalRows: item[item.length - 1].row,
+          totalColumns: item[item.length - 1].column,
           type: item[item.length - 1].type,
           status: "",
         },
@@ -376,7 +381,7 @@ const CreateEventForm = () => {
   const getEvent = async () => {
     let eventId = location.state.eventId;
     let element = [];
-    let sc_events = await Service.call("get", "/api/sc/event");
+    let sc_events = await Service.callBlockchain("get", "/api/sc/event");
     {
       _.map(sc_events, (item, key) => {
         return element.push(
@@ -413,7 +418,8 @@ const CreateEventForm = () => {
     });
 
     if (_.isEmpty(ticketList)) return message.warning("please create seats");
-    await Service.call("post", "/api/sc/event/ticket", {
+    await Service.callBlockchain("post", "/api/sc/event/ticket", {
+      admin_id: app.is_admin.admin_id,
       tickets: _ticketList,
       eventId: location.state.eventId
     });

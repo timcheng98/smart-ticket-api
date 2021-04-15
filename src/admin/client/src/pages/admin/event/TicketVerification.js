@@ -60,10 +60,9 @@ const TicketVerification = (props) => {
 
   useEffect(() => {
     verifyTicket();
-  }, []);
+  }, [location]);
 
   const verifyTicket = async () => {
-
     if (!app.is_admin)
       return message.warning("Invalid Session. Please Login Again");
     const { user_id, eventId, ticketId, ts } = queryString.parse(
@@ -89,24 +88,34 @@ const TicketVerification = (props) => {
       setLoading(false);
       return setError("Invalid URL");
     }
+
+    if (moment().unix() - _.toInteger(ts) > 120) {
+      obj.message = 'QR Code Timeout (over 2 minute)';
+      await Service.call("post", `/api/entry/audit_trail`, obj);
+      setLoading(false);
+      return setError("QR Code Timeout (over 2 minute)");
+    }
     if (!user) {
       obj.message = 'User do not exist';
       await Service.call("post", `/api/entry/audit_trail`, obj);
       setLoading(false);
       return setError("User do not exist");
     }
-    let event = await Service.call(
+    let event = await Service.callBlockchain(
       "get",
       `/api/sc/event/single?eventId=${eventId}`
     );
-    if (!event) {
+
+    // alert(event)
+
+    if (_.isEmpty(event)) {
       obj.message = 'Event NOT Found';
       await Service.call("post", `/api/entry/audit_trail`, obj);
       setLoading(false);
       return setError("Event NOT Found");
     }
 
-    let ticket = await Service.call(
+    let ticket = await Service.callBlockchain(
       "get",
       `/api/sc/event/ticket/owner/single?ticketId=${ticketId}`
     );
