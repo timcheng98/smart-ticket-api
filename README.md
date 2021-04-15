@@ -24,3 +24,6 @@ Start AMS
 #### AMS
 
 > $ npm run dev:client
+
+PORT may not = localhost:3002 , it depends on the AMS port
+you can go to http://localhost:3002/admin/login
